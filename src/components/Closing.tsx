@@ -21,7 +21,8 @@ export const Pricing = () => (
                 <span className="mb-4 inline-flex w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">Популярный</span>
               )}
               <h3 className="font-display text-xl font-extrabold">{p.name}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{p.forWho}</p>
+              <p className="mt-1 text-sm font-semibold text-foreground">{p.tagline}</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">{p.forWho}</p>
 
               <div className="mt-5 border-t border-border pt-5">
                 <div className="font-display text-lg font-bold">{p.priceLabel}</div>
