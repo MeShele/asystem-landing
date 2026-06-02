@@ -24,8 +24,8 @@ export const Pricing = () => (
               <p className="mt-1 text-sm text-muted-foreground">{p.forWho}</p>
 
               <div className="mt-5 border-t border-border pt-5">
-                <div className="font-mono text-2xl font-bold">{p.setup}</div>
-                <div className="text-sm text-muted-foreground">старт · {p.monthly}</div>
+                <div className="font-display text-lg font-bold">{p.priceLabel}</div>
+                <div className="text-sm text-muted-foreground">условия — на демо</div>
               </div>
 
               <ul className="mt-5 flex-1 space-y-2.5">
