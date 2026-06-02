@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -5,17 +6,27 @@ import { HERO } from "@/content";
 
 const checks = ["Лицензия ГСФР", "Деплой в 1 клик", "KYC/AML внутри"];
 
-const BrowserFrame = ({ src, alt }: { src: string; alt: string }) => (
+const BrowserFrame = ({
+  children,
+  url = "admin.your-exchange.kg",
+  src,
+  alt,
+}: {
+  children?: ReactNode;
+  url?: string;
+  src?: string;
+  alt?: string;
+}) => (
   <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[0_30px_80px_-20px_hsl(240_10%_6%/0.25)]">
     <div className="flex items-center gap-1.5 border-b border-border bg-secondary/60 px-4 py-2.5">
       <span className="h-2.5 w-2.5 rounded-full bg-border" />
       <span className="h-2.5 w-2.5 rounded-full bg-border" />
       <span className="h-2.5 w-2.5 rounded-full bg-border" />
       <span className="ml-3 hidden rounded-md bg-background px-3 py-0.5 text-[11px] text-muted-foreground sm:block">
-        admin.your-exchange.kg
+        {url}
       </span>
     </div>
-    <img src={src} alt={alt} className="block w-full" loading="eager" />
+    {children ?? <img src={src} alt={alt} className="block w-full" loading="eager" />}
   </div>
 );
 

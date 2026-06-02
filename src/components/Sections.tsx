@@ -185,18 +185,31 @@ export const Modules = () => {
 };
 
 const SCREENS = [
-  { src: "/shots/exchange.png", alt: "Клиентский обменник", caption: "Клиентский обменник — то, что видит ваш пользователь" },
-  { src: "/shots/orders.png", alt: "Админка оператора", caption: "Админка оператора — заявки, статусы, выплаты" },
-  { src: "/shots/modules.png", alt: "Маркетплейс модулей", caption: "Маркетплейс модулей — KYC, платежи, custody, отчётность" },
+  { demo: "exchange", poster: "/shots/exchange.png", caption: "Клиентский обменник — переключение покупки и продажи" },
+  { demo: "orders", poster: "/shots/orders.png", caption: "Админка оператора — подтверждение выплаты по заявке" },
+  { demo: "modules", poster: "/shots/modules.png", caption: "Маркетплейс модулей — активация модуля в один клик" },
 ];
 
 export const ProductScreens = () => (
   <section className="container py-20">
-    <SectionHead eyebrow="Под капотом" title="Зрелый продукт, а не прототип" lead="Клиентский обменник, админка оператора и маркетплейс модулей — всё уже работает." />
+    <SectionHead eyebrow="Под капотом" title="Зрелый продукт, а не прототип" lead="Не статичные картинки — реальные действия в продукте: клик, и что-то происходит." />
     <div className="mt-12 grid gap-6 lg:grid-cols-3">
       {SCREENS.map((s, i) => (
-        <ScrollReveal key={s.src} delay={i * 100}>
-          <BrowserFrame src={s.src} alt={s.alt} />
+        <ScrollReveal key={s.demo} delay={i * 100}>
+          <BrowserFrame>
+            <video
+              className="block w-full"
+              poster={s.poster}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+            >
+              <source src={`/demos/${s.demo}.webm`} type="video/webm" />
+              <source src={`/demos/${s.demo}.mp4`} type="video/mp4" />
+            </video>
+          </BrowserFrame>
           <p className="mt-3 text-center text-sm text-muted-foreground">{s.caption}</p>
         </ScrollReveal>
       ))}
