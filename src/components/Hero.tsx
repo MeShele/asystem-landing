@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
+import ExchangeWidget from "@/components/ExchangeWidget";
 import { HERO } from "@/content";
 
 const checks = ["Лицензия ГСФР", "Деплой в 1 клик", "KYC/AML внутри"];
@@ -72,7 +73,9 @@ const Hero = () => (
       </ScrollReveal>
 
       <ScrollReveal variant="left" delay={120}>
-        <BrowserFrame src="/shots/dashboard.png" alt="Админ-панель ASystem Core — управление заявками" />
+        <BrowserFrame url="exchange.your-exchange.kg">
+          <ExchangeWidget />
+        </BrowserFrame>
       </ScrollReveal>
     </div>
   </section>
