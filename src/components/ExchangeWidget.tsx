@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, ArrowDownUp, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ExchangeModal from "@/components/ExchangeModal";
 
 type Mode = "buy" | "sell";
 
@@ -23,6 +24,7 @@ const ExchangeWidget = () => {
   const [rate, setRate] = useState(BASE_RATE);
   const [trend, setTrend] = useState<"up" | "down">("up");
   const [flash, setFlash] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -45,6 +47,7 @@ const ExchangeWidget = () => {
   const fmt = (n: number) => n.toLocaleString("ru-RU", { maximumFractionDigits: n < 10 ? 4 : 2 });
 
   return (
+    <>
     <div className="bg-gradient-to-b from-secondary/50 to-background p-5 sm:p-7">
       <div className="mx-auto max-w-sm rounded-2xl border border-border bg-card p-5 shadow-[0_20px_50px_-24px_hsl(240_10%_6%/0.35)]">
         {/* mode toggle */}
@@ -114,12 +117,24 @@ const ExchangeWidget = () => {
           </span>
         </div>
 
-        <Button variant="signal" size="lg" className="mt-4 w-full">
+        <Button type="button" variant="signal" size="lg" className="mt-4 w-full" onClick={() => setModalOpen(true)}>
           {mode === "buy" ? "Купить USDT" : "Продать USDT"}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
+    <ExchangeModal
+      open={modalOpen}
+      onClose={() => setModalOpen(false)}
+      mode={mode}
+      giveAmount={giveNum}
+      giveCur={giveCur}
+      getAmount={get}
+      getCur={getCur}
+      rate={rate}
+      fmt={fmt}
+    />
+    </>
   );
 };
 

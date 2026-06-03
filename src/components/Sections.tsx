@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, ChevronRight } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { BrowserFrame } from "@/components/Hero";
 import ArchitectureGraphic from "@/components/ArchitectureGraphic";
+import InfoModal from "@/components/InfoModal";
 import { ICONS } from "@/lib/icons";
 import {
   STATS, PROBLEM, FEATURES, STEPS, API_CORES, COMPLIANCE,
 } from "@/content";
-import { CATALOG } from "@/modulesCatalog";
+import { CATALOG, type CatalogCategory } from "@/modulesCatalog";
 
 const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string; lead?: string }) => (
   <ScrollReveal className="mx-auto max-w-2xl text-center">
@@ -142,6 +143,7 @@ export const Architecture = () => (
 // Интерактивный каталог: клик по категории → её модули
 export const Modules = () => {
   const [active, setActive] = useState(CATALOG[0].key);
+  const [info, setInfo] = useState<CatalogCategory | null>(null);
   const cat = CATALOG.find((c) => c.key === active) ?? CATALOG[0];
   return (
     <section id="modules" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
@@ -178,20 +180,29 @@ export const Modules = () => {
           <p className="mb-5 text-center text-sm text-muted-foreground">{cat.blurb}</p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {cat.modules.map((m) => (
-              <div key={m.name} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3.5">
+              <button
+                key={m.name}
+                type="button"
+                onClick={() => setInfo(cat)}
+                className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-[0_10px_28px_-14px_hsl(240_10%_6%/0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+              >
                 <span className="font-medium">{m.name}</span>
-                {m.status === "available" ? (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-semibold text-foreground">
-                    <Check className="h-3 w-3" /> Доступно
-                  </span>
-                ) : (
-                  <span className="shrink-0 rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">Скоро</span>
-                )}
-              </div>
+                <span className="flex shrink-0 items-center gap-2">
+                  {m.status === "available" ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-semibold text-foreground">
+                      <Check className="h-3 w-3" /> Доступно
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">Скоро</span>
+                  )}
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </span>
+              </button>
             ))}
           </div>
         </div>
       </div>
+      <InfoModal category={info} onClose={() => setInfo(null)} />
     </section>
   );
 };
