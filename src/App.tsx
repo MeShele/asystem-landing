@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import { Stats, Problem, Features, HowItWorks, Architecture, Modules, ProductScreens, ApiCores, Compliance } from "@/components/Sections";
+import { Stats, Problem, ClientShowcase, Features, HowItWorks, OperatorShowcase, Architecture, Modules, ApiCores, Compliance } from "@/components/Sections";
 import { Pricing, Faq, FinalCta, Footer } from "@/components/Closing";
 
 function App() {
@@ -11,11 +11,12 @@ function App() {
         <Hero />
         <Stats />
         <Problem />
+        <ClientShowcase />
         <Features />
         <HowItWorks />
+        <OperatorShowcase />
         <Architecture />
         <Modules />
-        <ProductScreens />
         <ApiCores />
         <Compliance />
         <Pricing />

@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ArrowRight, Check, Boxes } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { BrowserFrame } from "@/components/Hero";
+import ArchitectureGraphic from "@/components/ArchitectureGraphic";
 import { ICONS } from "@/lib/icons";
 import {
   STATS, PROBLEM, FEATURES, STEPS, API_CORES, COMPLIANCE,
@@ -16,6 +17,39 @@ const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string
     <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
     {lead && <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{lead}</p>}
   </ScrollReveal>
+);
+
+// Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos)
+const VideoDemo = ({ demo, url }: { demo: string; url?: string }) => (
+  <BrowserFrame url={url}>
+    <video className="block w-full" poster={`/shots/${demo}.png`} autoPlay muted loop playsInline preload="metadata">
+      <source src={`/demos/${demo}.webm`} type="video/webm" />
+      <source src={`/demos/${demo}.mp4`} type="video/mp4" />
+    </video>
+  </BrowserFrame>
+);
+
+// Двухколоночный демо-блок «текст + живое видео», размещается у своей темы
+const Showcase = ({ eyebrow, title, points, demo, url, reverse }: {
+  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean;
+}) => (
+  <div className="container grid items-center gap-10 lg:grid-cols-2">
+    <ScrollReveal className={reverse ? "lg:order-2" : ""}>
+      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</span>
+      <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
+      <ul className="mt-6 space-y-3">
+        {points.map((p) => (
+          <li key={p} className="flex items-start gap-2.5 leading-relaxed text-muted-foreground">
+            <Check className="mt-0.5 h-5 w-5 shrink-0 text-foreground" />
+            <span>{p}</span>
+          </li>
+        ))}
+      </ul>
+    </ScrollReveal>
+    <ScrollReveal variant={reverse ? "right" : "left"} delay={120} className={reverse ? "lg:order-1" : ""}>
+      <VideoDemo demo={demo} url={url} />
+    </ScrollReveal>
+  </div>
 );
 
 export const Stats = () => (
@@ -88,47 +122,20 @@ export const HowItWorks = () => (
   </section>
 );
 
-// «Ядро + модули раздельно» — визуальная архитектура
+// Радиальная архитектура: ядро в центре → ядра вокруг → модули по краям
 export const Architecture = () => (
   <section className="container py-20">
     <SectionHead
       eyebrow="Архитектура"
-      title="Ядро — отдельно, модули — отдельно"
-      lead="ASystem Core — это ядро платформы. Возможности подключаются модулями из маркетплейса: берёте только то, что нужно."
+      title="Ядро в центре, ядра вокруг, модули по краям"
+      lead="В центре — ядро платформы. Вокруг — функциональные ядра: KYC, платежи, AML, отчётность, custody, ликвидность. От каждого ядра расходятся конкретные модули и провайдеры. Берёте обменник целиком — или подключаете отдельные ядра по API."
     />
-    <ScrollReveal variant="scale" className="mt-12">
-      <div className="mx-auto max-w-3xl">
-        {/* Ядро */}
-        <div className="mx-auto flex max-w-md items-center gap-4 rounded-2xl border-2 border-accent bg-accent/5 p-6 ring-1 ring-accent/30">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent">
-            <Boxes className="h-6 w-6 text-accent-foreground" />
-          </div>
-          <div>
-            <h3 className="font-display text-lg font-extrabold">ASystem Core</h3>
-            <p className="text-sm text-muted-foreground">Ядро: обменник, биллинг, мульти-тенант, безопасность</p>
-          </div>
-        </div>
-        {/* Коннектор */}
-        <div className="mx-auto my-4 h-8 w-px bg-gradient-to-b from-accent/60 to-border" />
-        {/* Модули — отдельными блоками */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {CATALOG.map((c) => {
-            const Icon = ICONS[c.icon];
-            return (
-              <div key={c.key} className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-border bg-card p-4 text-center">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/15">
-                  {Icon && <Icon className="h-4 w-4 text-foreground" />}
-                </div>
-                <span className="text-xs font-medium leading-tight">{c.label}</span>
-              </div>
-            );
-          })}
-        </div>
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          Каждый модуль — отдельный «кубик»: включается тумблером, не трогая ядро.
-        </p>
-      </div>
+    <ScrollReveal variant="scale" className="mt-14">
+      <ArchitectureGraphic />
     </ScrollReveal>
+    <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
+      Каждый модуль включается тумблером, не трогая ядро. Ядра можно использовать и без обменника — через публичный API.
+    </p>
   </section>
 );
 
@@ -140,6 +147,11 @@ export const Modules = () => {
     <section id="modules" className="border-y border-border bg-secondary/30 py-20">
       <div className="container">
         <SectionHead eyebrow="Маркетплейс модулей" title="27 модулей в 8 категориях" lead="Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке." />
+
+        <ScrollReveal variant="scale" className="mx-auto mt-10 max-w-2xl">
+          <VideoDemo demo="modules" />
+          <p className="mt-3 text-center text-sm text-muted-foreground">Активация модуля — в один клик, прямо из админки.</p>
+        </ScrollReveal>
 
         {/* Табы категорий */}
         <div className="mt-10 flex flex-wrap justify-center gap-2">
@@ -184,36 +196,38 @@ export const Modules = () => {
   );
 };
 
-const SCREENS = [
-  { demo: "exchange", poster: "/shots/exchange.png", caption: "Клиентский обменник — переключение покупки и продажи" },
-  { demo: "orders", poster: "/shots/orders.png", caption: "Админка оператора — подтверждение выплаты по заявке" },
-  { demo: "modules", poster: "/shots/modules.png", caption: "Маркетплейс модулей — активация модуля в один клик" },
-];
+// Демо клиентского обменника — у темы «клиент»
+export const ClientShowcase = () => (
+  <section className="py-20">
+    <Showcase
+      eyebrow="Вашим клиентам"
+      title="Обмен крипты — в пару кликов"
+      url="exchange.your-exchange.kg"
+      demo="exchange"
+      points={[
+        "Покупка и продажа крипты на фиат — без лишних шагов",
+        "Курс в реальном времени и прозрачная комиссия",
+        "Адаптив под мобильные — большинство клиентов с телефона",
+      ]}
+    />
+  </section>
+);
 
-export const ProductScreens = () => (
-  <section className="container py-20">
-    <SectionHead eyebrow="Под капотом" title="Зрелый продукт, а не прототип" lead="Не статичные картинки — реальные действия в продукте: клик, и что-то происходит." />
-    <div className="mt-12 grid gap-6 lg:grid-cols-3">
-      {SCREENS.map((s, i) => (
-        <ScrollReveal key={s.demo} delay={i * 100}>
-          <BrowserFrame>
-            <video
-              className="block w-full"
-              poster={s.poster}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-            >
-              <source src={`/demos/${s.demo}.webm`} type="video/webm" />
-              <source src={`/demos/${s.demo}.mp4`} type="video/mp4" />
-            </video>
-          </BrowserFrame>
-          <p className="mt-3 text-center text-sm text-muted-foreground">{s.caption}</p>
-        </ScrollReveal>
-      ))}
-    </div>
+// Демо админки оператора — у темы «оператор»
+export const OperatorShowcase = () => (
+  <section className="border-y border-border bg-secondary/30 py-20">
+    <Showcase
+      eyebrow="Вам как оператору"
+      title="Заявки, выплаты и аудит — в одной админке"
+      url="admin.your-exchange.kg"
+      demo="orders"
+      reverse
+      points={[
+        "Канбан заявок: статусы, подтверждение выплат, фильтры",
+        "Полный аудит-трейл по каждой транзакции",
+        "Роли и права: администратор, оператор, комплайнс-офицер",
+      ]}
+    />
   </section>
 );
 
