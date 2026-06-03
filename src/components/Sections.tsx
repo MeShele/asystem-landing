@@ -15,7 +15,7 @@ const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string
       <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</span>
     )}
     <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
-    {lead && <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{lead}</p>}
+    {lead && <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">{lead}</p>}
   </ScrollReveal>
 );
 
@@ -66,7 +66,7 @@ export const Stats = () => (
 );
 
 export const Problem = () => (
-  <section className="container py-20">
+  <section className="container py-16 sm:py-20 lg:py-24">
     <SectionHead eyebrow="Проблема" title={PROBLEM.title} lead={PROBLEM.lead} />
     <div className="mt-12 grid gap-5 md:grid-cols-3">
       {PROBLEM.pains.map((p, i) => (
@@ -80,7 +80,7 @@ export const Problem = () => (
 );
 
 export const Features = () => (
-  <section id="features" className="border-y border-border bg-secondary/30 py-20">
+  <section id="features" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
     <div className="container">
       <SectionHead eyebrow="Возможности" title="Всё для запуска — в одной платформе" />
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -104,9 +104,9 @@ export const Features = () => (
 );
 
 export const HowItWorks = () => (
-  <section id="how" className="container py-20">
+  <section id="how" className="container py-16 sm:py-20 lg:py-24">
     <SectionHead eyebrow="Как это работает" title="От лицензии до запуска — четыре шага" />
-    <div className="mt-12 grid gap-5 md:grid-cols-4">
+    <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
       {STEPS.map((s, i) => (
         <ScrollReveal key={s.n} delay={i * 90}>
           <div className="relative h-full rounded-[var(--radius)] border border-border bg-card p-6">
@@ -124,7 +124,7 @@ export const HowItWorks = () => (
 
 // Радиальная архитектура: ядро в центре → ядра вокруг → модули по краям
 export const Architecture = () => (
-  <section className="container py-20">
+  <section className="container py-16 sm:py-20 lg:py-24">
     <SectionHead
       eyebrow="Архитектура"
       title="Ядро в центре, ядра вокруг, модули по краям"
@@ -144,7 +144,7 @@ export const Modules = () => {
   const [active, setActive] = useState(CATALOG[0].key);
   const cat = CATALOG.find((c) => c.key === active) ?? CATALOG[0];
   return (
-    <section id="modules" className="border-y border-border bg-secondary/30 py-20">
+    <section id="modules" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
       <div className="container">
         <SectionHead eyebrow="Маркетплейс модулей" title="27 модулей в 8 категориях" lead="Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке." />
 
@@ -198,7 +198,7 @@ export const Modules = () => {
 
 // Демо клиентского обменника — у темы «клиент»
 export const ClientShowcase = () => (
-  <section className="py-20">
+  <section className="py-16 sm:py-20 lg:py-24">
     <Showcase
       eyebrow="Вашим клиентам"
       title="Обмен крипты — в пару кликов"
@@ -215,7 +215,7 @@ export const ClientShowcase = () => (
 
 // Демо админки оператора — у темы «оператор»
 export const OperatorShowcase = () => (
-  <section className="border-y border-border bg-secondary/30 py-20">
+  <section className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
     <Showcase
       eyebrow="Вам как оператору"
       title="Заявки, выплаты и аудит — в одной админке"
@@ -232,8 +232,8 @@ export const OperatorShowcase = () => (
 );
 
 export const ApiCores = () => (
-  <section className="border-y border-border bg-primary py-20 text-primary-foreground">
-    <div className="container grid items-center gap-12 lg:grid-cols-2">
+  <section className="border-y border-border bg-primary py-16 sm:py-20 lg:py-24 text-primary-foreground">
+    <div className="container grid items-center gap-10 lg:grid-cols-2 lg:gap-12 [&>*]:min-w-0">
       <ScrollReveal>
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">API-ядра</span>
         <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{API_CORES.title}</h2>
@@ -254,7 +254,7 @@ export const ApiCores = () => (
             <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
             <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
           </div>
-          <pre className="overflow-x-auto p-5 font-mono text-xs leading-relaxed text-accent/90">{API_CORES.snippet}</pre>
+          <pre className="overflow-x-auto p-5 font-mono text-[11px] leading-relaxed text-accent/90 sm:text-xs">{API_CORES.snippet}</pre>
         </div>
         <a href="#demo" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
           Запросить API-доступ <ArrowRight className="h-4 w-4" />
@@ -265,7 +265,7 @@ export const ApiCores = () => (
 );
 
 export const Compliance = () => (
-  <section id="compliance" className="container py-20">
+  <section id="compliance" className="container py-16 sm:py-20 lg:py-24">
     <SectionHead eyebrow="Комплайнс и безопасность" title={COMPLIANCE.title} lead={COMPLIANCE.lead} />
     <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {COMPLIANCE.points.map((p, i) => (

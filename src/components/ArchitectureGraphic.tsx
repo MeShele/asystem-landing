@@ -19,12 +19,12 @@ const NODES = CORES.map((_, i) => {
   return { x: 50 + R * Math.cos(a), y: 50 + R * Math.sin(a) };
 });
 
-const CoreCard = ({ core, compact }: { core: Core; compact?: boolean }) => {
+const CoreCard = ({ core, compact, w = "w-full" }: { core: Core; compact?: boolean; w?: string }) => {
   const Icon = ICONS[core.icon];
   const list = compact ? core.modules.slice(0, 3) : core.modules;
   const extra = compact ? core.modules.length - list.length : 0;
   return (
-    <div className={`rounded-xl border border-border bg-card p-3 shadow-[0_8px_24px_-12px_hsl(240_10%_6%/0.18)] ${compact ? "w-40" : "w-full"}`}>
+    <div className={`rounded-xl border border-border bg-card p-3 shadow-[0_8px_24px_-12px_hsl(240_10%_6%/0.18)] ${w}`}>
       <div className="flex items-center gap-2">
         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-accent/15">
           {Icon && <Icon className="h-4 w-4 text-foreground" />}
@@ -72,7 +72,7 @@ const ArchitectureGraphic = () => (
           style={{ left: `${NODES[i].x}%`, top: `${NODES[i].y}%` }}
           className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
         >
-          <CoreCard core={c} compact />
+          <CoreCard core={c} compact w="w-40" />
         </div>
       ))}
     </div>
@@ -83,9 +83,9 @@ const ArchitectureGraphic = () => (
         <CenterNode />
       </div>
       <div className="mx-auto my-4 h-6 w-px bg-gradient-to-b from-accent/60 to-border" />
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-2 gap-3">
         {CORES.map((c) => (
-          <CoreCard key={c.key} core={c} />
+          <CoreCard key={c.key} core={c} compact />
         ))}
       </div>
     </div>

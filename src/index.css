@@ -43,7 +43,7 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-body);
   }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
   html, body { overflow-x: hidden; }
 }
 

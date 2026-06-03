@@ -53,7 +53,7 @@ const ExchangeWidget = () => {
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+              className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
                 mode === m ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -71,7 +71,7 @@ const ExchangeWidget = () => {
               onChange={(e) => setGive(e.target.value)}
               inputMode="decimal"
               aria-label="Сумма к обмену"
-              className="w-full min-w-0 bg-transparent font-mono text-2xl font-semibold text-foreground outline-none"
+              className="w-full min-w-0 bg-transparent font-mono text-2xl font-semibold sm:text-[1.7rem] text-foreground outline-none"
             />
             <CurrencyPill code={giveCur} />
           </div>
@@ -82,7 +82,7 @@ const ExchangeWidget = () => {
           <button
             onClick={() => setMode((m) => (m === "buy" ? "sell" : "buy"))}
             aria-label="Поменять направление"
-            className="-my-3 z-10 grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-foreground shadow-sm transition-transform duration-300 hover:rotate-180 hover:border-accent"
+            className="-my-3 z-10 grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-foreground shadow-sm transition-transform duration-300 hover:rotate-180 hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
           >
             <ArrowDownUp className="h-4 w-4" />
           </button>
@@ -92,7 +92,7 @@ const ExchangeWidget = () => {
         <div className="rounded-xl border border-border bg-secondary/40 px-4 py-3">
           <div className="text-xs font-medium text-muted-foreground">Вы получаете</div>
           <div className="mt-1 flex items-center justify-between gap-3">
-            <span className={`font-mono text-2xl font-semibold tabular-nums transition-colors duration-300 ${flash ? "text-accent" : "text-foreground"}`}>
+            <span className={`font-mono text-2xl font-semibold sm:text-[1.7rem] tabular-nums transition-colors duration-300 ${flash ? "text-accent" : "text-foreground"}`}>
               {fmt(get)}
             </span>
             <CurrencyPill code={getCur} />
@@ -100,7 +100,7 @@ const ExchangeWidget = () => {
         </div>
 
         {/* live rate */}
-        <div className="mt-3 flex items-center justify-between text-xs">
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
           <span className="flex items-center gap-1.5 text-muted-foreground">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />

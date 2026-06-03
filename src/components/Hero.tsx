@@ -36,7 +36,7 @@ const Hero = () => (
     <div className="absolute inset-0 -z-10 bg-grid-pattern bg-[size:48px_48px] opacity-[0.5]" />
     <div className="absolute inset-x-0 top-0 -z-10 h-px hairline" />
 
-    <div className="container grid items-center gap-12 py-16 lg:grid-cols-2 lg:py-24">
+    <div className="container grid items-center gap-10 py-16 sm:py-20 lg:grid-cols-2 lg:gap-12 lg:py-24">
       <ScrollReveal>
         <span className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs font-medium text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
@@ -54,11 +54,11 @@ const Hero = () => (
 
         <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">{HERO.sub}</p>
 
-        <div className="mt-7 flex flex-wrap gap-3">
-          <Button variant="signal" size="lg" asChild>
+        <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <Button variant="signal" size="lg" className="w-full sm:w-auto" asChild>
             <a href="#demo">{HERO.ctaPrimary} <ArrowRight className="h-4 w-4" /></a>
           </Button>
-          <Button variant="outline" size="lg" asChild>
+          <Button variant="outline" size="lg" className="w-full sm:w-auto" asChild>
             <a href="#how">{HERO.ctaSecondary}</a>
           </Button>
         </div>

@@ -5,7 +5,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { PRICING, FAQ, FINAL_CTA, NAV } from "@/content";
 
 export const Pricing = () => (
-  <section id="pricing" className="border-y border-border bg-secondary/30 py-20">
+  <section id="pricing" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
     <div className="container">
       <ScrollReveal className="mx-auto max-w-2xl text-center">
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Тарифы</span>
@@ -13,7 +13,7 @@ export const Pricing = () => (
         <p className="mt-4 text-lg text-muted-foreground">{PRICING.note}</p>
       </ScrollReveal>
 
-      <div className="mx-auto mt-12 grid max-w-5xl items-start gap-6 lg:grid-cols-3">
+      <div className="mx-auto mt-12 grid max-w-md items-start gap-6 lg:max-w-5xl lg:grid-cols-3">
         {PRICING.plans.map((p, i) => (
           <ScrollReveal key={p.name} delay={i * 90}>
             <div className={`flex h-full flex-col rounded-2xl border bg-card p-7 ${p.featured ? "border-accent ring-1 ring-accent/40 shadow-[0_20px_60px_-20px_hsl(240_10%_6%/0.15)]" : "border-border"}`}>
@@ -52,7 +52,7 @@ export const Pricing = () => (
 export const Faq = () => {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section className="container py-20">
+    <section className="container py-16 sm:py-20 lg:py-24">
       <ScrollReveal className="mx-auto max-w-2xl text-center">
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">FAQ</span>
         <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Частые вопросы</h2>
@@ -62,12 +62,12 @@ export const Faq = () => {
           <div key={f.q}>
             <button
               onClick={() => setOpen(open === i ? null : i)}
-              className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+              className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/50 sm:px-6"
             >
               <span className="font-display text-base font-semibold">{f.q}</span>
               {open === i ? <Minus className="h-5 w-5 shrink-0 text-muted-foreground" /> : <Plus className="h-5 w-5 shrink-0 text-muted-foreground" />}
             </button>
-            {open === i && <p className="px-6 pb-5 text-sm leading-relaxed text-muted-foreground">{f.a}</p>}
+            {open === i && <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground sm:px-6">{f.a}</p>}
           </div>
         ))}
       </div>
@@ -78,7 +78,7 @@ export const Faq = () => {
 export const FinalCta = () => {
   const [sent, setSent] = useState(false);
   return (
-    <section id="demo" className="border-t border-border bg-primary py-20 text-primary-foreground">
+    <section id="demo" className="border-t border-border bg-primary py-16 sm:py-20 lg:py-24 text-primary-foreground">
       <div className="container grid items-center gap-12 lg:grid-cols-2">
         <ScrollReveal>
           <h2 className="font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">{FINAL_CTA.title}</h2>
@@ -103,9 +103,9 @@ export const FinalCta = () => {
                 className="space-y-3"
                 onSubmit={(e) => { e.preventDefault(); setSent(true); }}
               >
-                <input required placeholder="Имя" className="h-11 w-full rounded-[var(--radius)] border border-white/10 bg-white/[0.06] px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-accent focus:outline-none" />
-                <input required placeholder="Компания" className="h-11 w-full rounded-[var(--radius)] border border-white/10 bg-white/[0.06] px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-accent focus:outline-none" />
-                <input required type="text" placeholder="Telegram / email / телефон" className="h-11 w-full rounded-[var(--radius)] border border-white/10 bg-white/[0.06] px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-accent focus:outline-none" />
+                <input required placeholder="Имя" className="h-11 w-full rounded-[var(--radius)] border border-white/10 bg-white/[0.06] px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40" />
+                <input required placeholder="Компания" className="h-11 w-full rounded-[var(--radius)] border border-white/10 bg-white/[0.06] px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40" />
+                <input required type="text" placeholder="Telegram / email / телефон" className="h-11 w-full rounded-[var(--radius)] border border-white/10 bg-white/[0.06] px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/40 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40" />
                 <Button type="submit" variant="signal" className="w-full">
                   {FINAL_CTA.cta} <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -126,7 +126,7 @@ export const Footer = () => (
         <img src="/logo-light.svg" alt="ASystem Core" className="h-7 w-auto" />
         <span className="font-display text-sm font-extrabold">ASystem Core</span>
       </div>
-      <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+      <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-x-6">
         {NAV.map((n) => (
           <a key={n.href} href={n.href} className="text-sm text-muted-foreground hover:text-foreground">{n.label}</a>
         ))}
