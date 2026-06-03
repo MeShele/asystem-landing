@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Check, Plus, Minus, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
+import Logo from "@/components/Logo";
 import { PRICING, FAQ, FINAL_CTA, NAV } from "@/content";
 
 export const Pricing = () => (
@@ -122,10 +123,7 @@ export const FinalCta = () => {
 export const Footer = () => (
   <footer className="border-t border-border bg-background">
     <div className="container flex flex-col items-center justify-between gap-6 py-10 sm:flex-row">
-      <div className="flex items-center gap-2.5">
-        <img src="/logo-light.svg" alt="ASystem Core" className="h-7 w-auto" />
-        <span className="font-display text-sm font-extrabold">ASystem Core</span>
-      </div>
+      <Logo mark="h-7 w-7" icon="h-4 w-4" text="text-sm" />
       <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-x-6">
         {NAV.map((n) => (
           <a key={n.href} href={n.href} className="text-sm text-muted-foreground hover:text-foreground">{n.label}</a>

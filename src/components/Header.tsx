@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Logo from "@/components/Logo";
 import { NAV } from "@/content";
 
 const Header = () => {
@@ -29,9 +30,8 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
-        <a href="#top" className={`flex items-center gap-2.5 ${linkBase}`}>
-          <img src="/logo-light.svg" alt="ASystem Core" className="h-8 w-auto" />
-          <span className="font-display text-base font-extrabold tracking-tight">ASystem Core</span>
+        <a href="#top" aria-label="asystem.ai" className={`${linkBase}`}>
+          <Logo />
         </a>
 
         <nav className="hidden items-center gap-7 md:flex">
