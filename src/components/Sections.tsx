@@ -21,7 +21,7 @@ const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string
 );
 
 // Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos)
-const VideoDemo = ({ demo, url, plain }: { demo: string; url?: string; plain?: boolean }) => {
+const VideoDemo = ({ demo, url, plain, dark }: { demo: string; url?: string; plain?: boolean; dark?: boolean }) => {
   const video = (
     <video className="block w-full" poster={`/shots/${demo}.png`} autoPlay muted loop playsInline preload="metadata">
       <source src={`/demos/${demo}.webm`} type="video/webm" />
@@ -31,7 +31,7 @@ const VideoDemo = ({ demo, url, plain }: { demo: string; url?: string; plain?: b
   // plain — клип уже содержит своё обрамление (3D-телефон / браузер), без внешней рамки
   if (plain) {
     return (
-      <div className="overflow-hidden rounded-2xl border border-border shadow-[0_30px_80px_-24px_hsl(240_10%_6%/0.4)]">
+      <div className={`overflow-hidden rounded-2xl ${dark ? "" : "border border-border shadow-[0_30px_80px_-24px_hsl(240_10%_6%/0.4)]"}`}>
         {video}
       </div>
     );
@@ -40,24 +40,24 @@ const VideoDemo = ({ demo, url, plain }: { demo: string; url?: string; plain?: b
 };
 
 // Двухколоночный демо-блок «текст + живое видео», размещается у своей темы
-const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain }: {
-  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; plain?: boolean;
+const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain, dark }: {
+  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; plain?: boolean; dark?: boolean;
 }) => (
   <div className="container grid items-center gap-10 lg:grid-cols-2">
     <ScrollReveal className={reverse ? "lg:order-2" : ""}>
-      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</span>
-      <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
+      <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${dark ? "text-accent" : "text-muted-foreground"}`}>{eyebrow}</span>
+      <h2 className={`mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl ${dark ? "text-white" : ""}`}>{title}</h2>
       <ul className="mt-6 space-y-3">
         {points.map((p) => (
-          <li key={p} className="flex items-start gap-2.5 leading-relaxed text-muted-foreground">
-            <Check className="mt-0.5 h-5 w-5 shrink-0 text-foreground" />
+          <li key={p} className={`flex items-start gap-2.5 leading-relaxed ${dark ? "text-white/65" : "text-muted-foreground"}`}>
+            <Check className={`mt-0.5 h-5 w-5 shrink-0 ${dark ? "text-accent" : "text-foreground"}`} />
             <span>{p}</span>
           </li>
         ))}
       </ul>
     </ScrollReveal>
     <ScrollReveal variant={reverse ? "right" : "left"} delay={120} className={reverse ? "lg:order-1" : ""}>
-      <VideoDemo demo={demo} url={url} plain={plain} />
+      <VideoDemo demo={demo} url={url} plain={plain} dark={dark} />
     </ScrollReveal>
   </div>
 );
@@ -218,12 +218,13 @@ export const Modules = () => {
 
 // Демо клиентского обменника — у темы «клиент»
 export const ClientShowcase = () => (
-  <section className="py-16 sm:py-20 lg:py-24">
+  <section className="border-y border-white/10 bg-[#0B0C0A] py-16 sm:py-20 lg:py-24">
     <Showcase
       eyebrow="Вашим клиентам"
       title="Обмен крипты — в пару кликов"
       url="exchange.your-exchange.kg"
       demo="exchange"
+      dark
       plain
       points={[
         "Покупка и продажа крипты на фиат — без лишних шагов",
