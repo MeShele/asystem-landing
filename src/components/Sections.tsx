@@ -21,18 +21,27 @@ const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string
 );
 
 // Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos)
-const VideoDemo = ({ demo, url }: { demo: string; url?: string }) => (
-  <BrowserFrame url={url}>
+const VideoDemo = ({ demo, url, bare }: { demo: string; url?: string; bare?: boolean }) => {
+  const video = (
     <video className="block w-full" poster={`/shots/${demo}.png`} autoPlay muted loop playsInline preload="metadata">
       <source src={`/demos/${demo}.webm`} type="video/webm" />
       <source src={`/demos/${demo}.mp4`} type="video/mp4" />
     </video>
-  </BrowserFrame>
-);
+  );
+  // bare — клип сам себе сцена (3D-телефон на тёмной карте), без браузер-рамки
+  if (bare) {
+    return (
+      <div className="mx-auto max-w-[440px] overflow-hidden rounded-2xl border border-border shadow-[0_30px_80px_-20px_hsl(240_10%_6%/0.35)]">
+        {video}
+      </div>
+    );
+  }
+  return <BrowserFrame url={url}>{video}</BrowserFrame>;
+};
 
 // Двухколоночный демо-блок «текст + живое видео», размещается у своей темы
-const Showcase = ({ eyebrow, title, points, demo, url, reverse }: {
-  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean;
+const Showcase = ({ eyebrow, title, points, demo, url, reverse, bare }: {
+  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; bare?: boolean;
 }) => (
   <div className="container grid items-center gap-10 lg:grid-cols-2">
     <ScrollReveal className={reverse ? "lg:order-2" : ""}>
@@ -48,7 +57,7 @@ const Showcase = ({ eyebrow, title, points, demo, url, reverse }: {
       </ul>
     </ScrollReveal>
     <ScrollReveal variant={reverse ? "right" : "left"} delay={120} className={reverse ? "lg:order-1" : ""}>
-      <VideoDemo demo={demo} url={url} />
+      <VideoDemo demo={demo} url={url} bare={bare} />
     </ScrollReveal>
   </div>
 );
@@ -215,6 +224,7 @@ export const ClientShowcase = () => (
       title="Обмен крипты — в пару кликов"
       url="exchange.your-exchange.kg"
       demo="exchange"
+      bare
       points={[
         "Покупка и продажа крипты на фиат — без лишних шагов",
         "Курс в реальном времени и прозрачная комиссия",
