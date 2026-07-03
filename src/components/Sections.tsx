@@ -160,7 +160,7 @@ export const Modules = () => {
         <SectionHead eyebrow="Маркетплейс модулей" title="27 модулей в 8 категориях" lead="Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке." />
 
         <ScrollReveal variant="scale" className="mx-auto mt-10 max-w-2xl">
-          <VideoDemo demo="modules" />
+          <VideoDemo demo="modules" plain />
           <p className="mt-3 text-center text-sm text-muted-foreground">Активация модуля — в один клик, прямо из админки.</p>
         </ScrollReveal>
 
@@ -237,12 +237,13 @@ export const ClientShowcase = () => (
 
 // Демо админки оператора — у темы «оператор»
 export const OperatorShowcase = () => (
-  <section className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
+  <section className="border-y border-white/10 bg-[#0B0C0A] py-16 sm:py-20 lg:py-24">
     <Showcase
       eyebrow="Вам как оператору"
       title="Заявки, выплаты и аудит — в одной админке"
       url="admin.your-exchange.kg"
       demo="orders"
+      dark
       plain
       reverse
       points={[
