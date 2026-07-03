@@ -5,7 +5,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import ExchangeWidget from "@/components/ExchangeWidget";
 import { HERO } from "@/content";
 
-const checks = ["Лицензия ГСФР", "Деплой в 1 клик", "KYC/AML внутри"];
+const checks = ["Лицензия оператора обмена ВА", "Деплой в 1 клик", "KYC/AML внутри"];
 
 const BrowserFrame = ({
   children,
