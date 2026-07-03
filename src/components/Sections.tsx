@@ -21,17 +21,17 @@ const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string
 );
 
 // Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos)
-const VideoDemo = ({ demo, url, bare }: { demo: string; url?: string; bare?: boolean }) => {
+const VideoDemo = ({ demo, url, plain }: { demo: string; url?: string; plain?: boolean }) => {
   const video = (
     <video className="block w-full" poster={`/shots/${demo}.png`} autoPlay muted loop playsInline preload="metadata">
       <source src={`/demos/${demo}.webm`} type="video/webm" />
       <source src={`/demos/${demo}.mp4`} type="video/mp4" />
     </video>
   );
-  // bare — клип сам себе сцена (3D-телефон на тёмной карте), без браузер-рамки
-  if (bare) {
+  // plain — клип уже содержит своё обрамление (3D-телефон / браузер), без внешней рамки
+  if (plain) {
     return (
-      <div className="mx-auto max-w-[440px] overflow-hidden rounded-2xl border border-border shadow-[0_30px_80px_-20px_hsl(240_10%_6%/0.35)]">
+      <div className="overflow-hidden rounded-2xl border border-border shadow-[0_30px_80px_-24px_hsl(240_10%_6%/0.4)]">
         {video}
       </div>
     );
@@ -40,8 +40,8 @@ const VideoDemo = ({ demo, url, bare }: { demo: string; url?: string; bare?: boo
 };
 
 // Двухколоночный демо-блок «текст + живое видео», размещается у своей темы
-const Showcase = ({ eyebrow, title, points, demo, url, reverse, bare }: {
-  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; bare?: boolean;
+const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain }: {
+  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; plain?: boolean;
 }) => (
   <div className="container grid items-center gap-10 lg:grid-cols-2">
     <ScrollReveal className={reverse ? "lg:order-2" : ""}>
@@ -57,7 +57,7 @@ const Showcase = ({ eyebrow, title, points, demo, url, reverse, bare }: {
       </ul>
     </ScrollReveal>
     <ScrollReveal variant={reverse ? "right" : "left"} delay={120} className={reverse ? "lg:order-1" : ""}>
-      <VideoDemo demo={demo} url={url} bare={bare} />
+      <VideoDemo demo={demo} url={url} plain={plain} />
     </ScrollReveal>
   </div>
 );
@@ -224,7 +224,7 @@ export const ClientShowcase = () => (
       title="Обмен крипты — в пару кликов"
       url="exchange.your-exchange.kg"
       demo="exchange"
-      bare
+      plain
       points={[
         "Покупка и продажа крипты на фиат — без лишних шагов",
         "Курс в реальном времени и прозрачная комиссия",
@@ -242,6 +242,7 @@ export const OperatorShowcase = () => (
       title="Заявки, выплаты и аудит — в одной админке"
       url="admin.your-exchange.kg"
       demo="orders"
+      plain
       reverse
       points={[
         "Канбан заявок: статусы, подтверждение выплат, фильтры",
