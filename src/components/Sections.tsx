@@ -8,9 +8,10 @@ import InfoModal from "@/components/InfoModal";
 import CountUp from "@/components/CountUp";
 import MarketplaceLive from "@/components/MarketplaceLive";
 import ApiTerminal from "@/components/ApiTerminal";
+import ProviderLogo from "@/components/ProviderLogo";
 import { ICONS } from "@/lib/icons";
 import {
-  STATS, PROBLEM, FEATURES, STEPS, API_CORES, COMPLIANCE,
+  STATS, PROBLEM, FEATURES, STEPS, API_CORES, COMPLIANCE, DEMO_URL, INTEGRATIONS,
 } from "@/content";
 import { CATALOG, type CatalogCategory } from "@/modulesCatalog";
 
@@ -82,8 +83,9 @@ const riseItem = {
 } as const;
 
 // Двухколоночный демо-блок «текст + живое видео», размещается у своей темы
-const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain }: {
+const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain, demoLink }: {
   eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; plain?: boolean;
+  demoLink?: { label: string; href: string };
 }) => (
   <div className="container grid items-center gap-10 lg:grid-cols-2">
     <motion.div
@@ -108,6 +110,18 @@ const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain }: {
           </motion.li>
         ))}
       </ul>
+      {demoLink && (
+        <motion.a
+          variants={riseItem}
+          href={demoLink.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-4 hover:underline dark:text-accent"
+        >
+          {demoLink.label}
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </motion.a>
+      )}
     </motion.div>
     <ScrollReveal variant={reverse ? "right" : "left"} delay={120} className={reverse ? "lg:order-1" : ""}>
       <Parallax>
@@ -115,6 +129,25 @@ const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain }: {
       </Parallax>
     </ScrollReveal>
   </div>
+);
+
+// Логобар доверия: интеграции из коробки (KYC, платежи, custody, комплайнс)
+export const IntegrationsBar = () => (
+  <section className="border-b border-border bg-background">
+    <ScrollReveal className="container flex flex-col items-center gap-4 py-8 lg:flex-row lg:justify-between">
+      <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        Интеграции из коробки
+      </span>
+      <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
+        {INTEGRATIONS.map((p) => (
+          <span key={p.name} className="flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+            <ProviderLogo name={p.name} domain={p.domain} own={p.own} size="h-7 w-7" />
+            {p.name}
+          </span>
+        ))}
+      </div>
+    </ScrollReveal>
+  </section>
 );
 
 export const Stats = () => (
@@ -366,6 +399,7 @@ export const ClientShowcase = () => (
         "Курс в реальном времени и прозрачная комиссия",
         "Адаптив под мобильные — большинство клиентов с телефона",
       ]}
+      demoLink={{ label: "Потрогать вживую на демо-стенде", href: DEMO_URL }}
     />
   </section>
 );
@@ -385,6 +419,7 @@ export const OperatorShowcase = () => (
         "Полный аудит-трейл по каждой транзакции",
         "Роли и права: администратор, оператор, комплайнс-офицер",
       ]}
+      demoLink={{ label: "Открыть демо-админку", href: `${DEMO_URL}/admin/login` }}
     />
   </section>
 );

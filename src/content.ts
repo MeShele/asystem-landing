@@ -18,15 +18,30 @@ export const HERO = {
   h1b: "— за недели, а не месяцы",
   sub: "ASystem Core берёт на себя лицензию оператора обмена ВА, развёртывание, KYC/AML и отчётность. Вы запускаете готовый обменник под своим брендом и подключаете модули по мере роста.",
   ctaPrimary: "Запросить демо",
-  ctaSecondary: "Как это работает",
+  ctaSecondary: "Живое демо",
 };
+
+/** Публичный демо-стенд платформы (полноценный обменник с фикстурами) */
+export const DEMO_URL = "https://demo.asystem.ai";
 
 export const STATS = [
   { value: "27", label: "модулей в маркетплейсе" },
-  { value: "8", label: "категорий интеграций" },
+  { value: "4", label: "живых обменника уже в проде" },
   { value: "1 клик", label: "развёртывание обменника" },
   { value: "ГСФР", label: "встроенный комплайнс КР" },
 ];
+
+/** Интеграции из коробки — для логобара доверия (домены для favicon-логотипов) */
+export const INTEGRATIONS = [
+  { name: "SumSub", domain: "sumsub.com" },
+  { name: "Didit", domain: "didit.me" },
+  { name: "BiometricVision" },
+  { name: "Finik", domain: "finik.kg" },
+  { name: "CoreX" },
+  { name: "DFNS", domain: "dfns.co" },
+  { name: "ORGON" },
+  { name: "Comply Core", own: true },
+] as { name: string; domain?: string; own?: boolean }[];
 
 export const PROBLEM = {
   title: "Запуск с нуля — это год работы и большой риск",

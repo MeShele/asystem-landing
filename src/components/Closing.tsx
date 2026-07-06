@@ -119,8 +119,15 @@ export const Faq = () => {
   );
 };
 
+const CTA_TOPICS = [
+  { key: "turnkey", label: "Обменник под ключ" },
+  { key: "api", label: "Только API-ядра" },
+  { key: "license", label: "Вопрос по лицензии" },
+] as const;
+
 export const FinalCta = () => {
   const [sent, setSent] = useState(false);
+  const [topic, setTopic] = useState<(typeof CTA_TOPICS)[number]["key"]>("turnkey");
   const input =
     "h-11 w-full rounded-[var(--radius)] border border-input bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
   return (
@@ -162,6 +169,31 @@ export const FinalCta = () => {
               </motion.div>
             ) : (
               <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+                {/* чат-гид: сценарий обращения — сегментация до разговора */}
+                <div className="flex flex-wrap gap-1.5 pb-1">
+                  {CTA_TOPICS.map((t) => {
+                    const on = topic === t.key;
+                    return (
+                      <button
+                        key={t.key}
+                        type="button"
+                        onClick={() => setTopic(t.key)}
+                        className={`relative rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                          on ? "border-transparent text-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {on && (
+                          <motion.span
+                            layoutId="cta-topic-pill"
+                            className="absolute inset-0 rounded-full border border-accent bg-accent/15"
+                            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                          />
+                        )}
+                        <span className="relative z-10">{t.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
                 <input required placeholder="Имя" className={input} />
                 <input required placeholder="Компания" className={input} />
                 <input required type="text" placeholder="Telegram / email / телефон" className={input} />

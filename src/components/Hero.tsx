@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import ExchangeWidget from "@/components/ExchangeWidget";
-import { HERO } from "@/content";
+import { DEMO_URL, HERO } from "@/content";
 
 const checks = ["Лицензия оператора обмена ВА", "Деплой в 1 клик", "KYC/AML внутри"];
 
@@ -96,8 +96,11 @@ const Hero = () => (
               {HERO.ctaPrimary} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
           </Button>
-          <Button variant="outline" size="lg" className="w-full sm:w-auto" asChild>
-            <a href="#how">{HERO.ctaSecondary}</a>
+          <Button variant="outline" size="lg" className="group w-full sm:w-auto" asChild>
+            <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">
+              {HERO.ctaSecondary}
+              <ExternalLink className="h-3.5 w-3.5 text-muted-foreground transition-colors group-hover:text-foreground" />
+            </a>
           </Button>
         </motion.div>
 

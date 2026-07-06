@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import SmoothScroll from "@/components/SmoothScroll";
 import Hero from "@/components/Hero";
 import Showreel from "@/components/Showreel";
-import { Stats, Problem, ClientShowcase, Features, HowItWorks, OperatorShowcase, Architecture, Modules, ApiCores, Compliance } from "@/components/Sections";
+import { IntegrationsBar, Stats, Problem, ClientShowcase, Features, HowItWorks, OperatorShowcase, Architecture, Modules, ApiCores, Compliance } from "@/components/Sections";
 import { Pricing, Faq, FinalCta, Footer } from "@/components/Closing";
 
 function App() {
@@ -12,6 +12,7 @@ function App() {
       <Header />
       <main>
         <Hero />
+        <IntegrationsBar />
         <Showreel />
         <Stats />
         <Problem />
