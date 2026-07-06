@@ -43,7 +43,7 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: var(--font-body);
   }
-  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  html { scroll-padding-top: 5rem; } /* smooth-скролл делает Lenis (SmoothScroll.tsx) */
   html, body { overflow-x: hidden; }
 }
 
@@ -90,6 +90,22 @@
     transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .scroll-reveal-scale.revealed { opacity: 1; transform: scale(1); }
+
+  /* Бегущие строки каталога модулей */
+  @keyframes marquee {
+    to { transform: translateX(-50%); }
+  }
+  .animate-marquee { animation: marquee 44s linear infinite; }
+  .animate-marquee-rev { animation: marquee 52s linear infinite reverse; }
+  .marquee-hover:hover .animate-marquee,
+  .marquee-hover:hover .animate-marquee-rev { animation-play-state: paused; }
+  .marquee-mask {
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee, .animate-marquee-rev { animation: none; }
+  }
 
   .card-interactive {
     @apply border rounded-[var(--radius)] transition-all duration-300;

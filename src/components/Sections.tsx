@@ -1,9 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowRight, Check, ChevronRight } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { BrowserFrame } from "@/components/Hero";
 import ArchitectureGraphic from "@/components/ArchitectureGraphic";
 import InfoModal from "@/components/InfoModal";
+import CountUp from "@/components/CountUp";
+import MarketplaceLive from "@/components/MarketplaceLive";
+import ApiTerminal from "@/components/ApiTerminal";
 import { ICONS } from "@/lib/icons";
 import {
   STATS, PROBLEM, FEATURES, STEPS, API_CORES, COMPLIANCE,
@@ -19,6 +23,19 @@ const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string
     {lead && <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">{lead}</p>}
   </ScrollReveal>
 );
+
+// Мягкий скролл-параллакс: блок «плывёт» относительно скорости скролла
+const Parallax = ({ children, className, amount = 26 }: { children: React.ReactNode; className?: string; amount?: number }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useSpring(useTransform(scrollYProgress, [0, 1], [amount, -amount]), { stiffness: 90, damping: 24 });
+  return (
+    <motion.div ref={ref} style={reduced ? undefined : { y }} className={className}>
+      {children}
+    </motion.div>
+  );
+};
 
 // Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos)
 const VideoDemo = ({ demo, url, plain, dark }: { demo: string; url?: string; plain?: boolean; dark?: boolean }) => {
@@ -39,25 +56,48 @@ const VideoDemo = ({ demo, url, plain, dark }: { demo: string; url?: string; pla
   return <BrowserFrame url={url}>{video}</BrowserFrame>;
 };
 
+// Стаггер-варианты текстовой колонки showcase-блоков
+const textStagger = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.09, delayChildren: 0.08 } },
+};
+const riseItem = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 130, damping: 22 } },
+} as const;
+
 // Двухколоночный демо-блок «текст + живое видео», размещается у своей темы
 const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain, dark }: {
   eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; plain?: boolean; dark?: boolean;
 }) => (
   <div className="container grid items-center gap-10 lg:grid-cols-2">
-    <ScrollReveal className={reverse ? "lg:order-2" : ""}>
-      <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${dark ? "text-accent" : "text-muted-foreground"}`}>{eyebrow}</span>
-      <h2 className={`mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl ${dark ? "text-white" : ""}`}>{title}</h2>
+    <motion.div
+      variants={textStagger}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-90px" }}
+      className={reverse ? "lg:order-2" : ""}
+    >
+      <motion.div variants={riseItem} className="flex items-center gap-3">
+        {dark && <span className="h-2 w-10 rounded-sm bg-accent" />}
+        <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${dark ? "font-mono text-white/55" : "text-muted-foreground"}`}>{eyebrow}</span>
+      </motion.div>
+      <motion.h2 variants={riseItem} className={`mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl ${dark ? "text-white" : ""}`}>
+        {title}
+      </motion.h2>
       <ul className="mt-6 space-y-3">
         {points.map((p) => (
-          <li key={p} className={`flex items-start gap-2.5 leading-relaxed ${dark ? "text-white/65" : "text-muted-foreground"}`}>
+          <motion.li key={p} variants={riseItem} className={`flex items-start gap-2.5 leading-relaxed ${dark ? "text-white/65" : "text-muted-foreground"}`}>
             <Check className={`mt-0.5 h-5 w-5 shrink-0 ${dark ? "text-accent" : "text-foreground"}`} />
             <span>{p}</span>
-          </li>
+          </motion.li>
         ))}
       </ul>
-    </ScrollReveal>
+    </motion.div>
     <ScrollReveal variant={reverse ? "right" : "left"} delay={120} className={reverse ? "lg:order-1" : ""}>
-      <VideoDemo demo={demo} url={url} plain={plain} dark={dark} />
+      <Parallax>
+        <VideoDemo demo={demo} url={url} plain={plain} dark={dark} />
+      </Parallax>
     </ScrollReveal>
   </div>
 );
@@ -67,7 +107,9 @@ export const Stats = () => (
     <div className="container grid grid-cols-2 gap-px overflow-hidden md:grid-cols-4">
       {STATS.map((s, i) => (
         <ScrollReveal key={s.label} delay={i * 80} className="px-6 py-8 text-center">
-          <div className="font-mono text-3xl font-bold sm:text-4xl">{s.value}</div>
+          <div className="font-mono text-3xl font-bold sm:text-4xl">
+            {/^\d+$/.test(s.value) ? <CountUp to={Number(s.value)} /> : s.value}
+          </div>
           <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
         </ScrollReveal>
       ))}
@@ -149,6 +191,25 @@ export const Architecture = () => (
   </section>
 );
 
+// Бегущая строка модулей каталога (две встречные, пауза на hover)
+const ALL_MODULES = CATALOG.flatMap((c) => c.modules.map((m) => ({ ...m, cat: c.label })));
+const MarqueeRow = ({ items, reverse }: { items: typeof ALL_MODULES; reverse?: boolean }) => (
+  <div className="marquee-mask marquee-hover overflow-hidden">
+    <div className={`flex w-max gap-2.5 ${reverse ? "animate-marquee-rev" : "animate-marquee"}`}>
+      {[...items, ...items].map((m, i) => (
+        <span
+          key={`${m.name}-${i}`}
+          className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-sm font-medium text-foreground"
+        >
+          <span className={`h-1.5 w-1.5 rounded-full ${m.status === "available" ? "bg-accent" : "bg-muted-foreground/40"}`} />
+          {m.name}
+          <span className="text-[11px] text-muted-foreground">{m.cat}</span>
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
 // Интерактивный каталог: клик по категории → её модули
 export const Modules = () => {
   const [active, setActive] = useState(CATALOG[0].key);
@@ -159,12 +220,19 @@ export const Modules = () => {
       <div className="container">
         <SectionHead eyebrow="Маркетплейс модулей" title="27 модулей в 8 категориях" lead="Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке." />
 
-        <ScrollReveal variant="scale" className="mx-auto mt-10 max-w-2xl">
-          <VideoDemo demo="modules" plain />
+        {/* бегущий каталог */}
+        <ScrollReveal className="mt-10 space-y-2.5">
+          <MarqueeRow items={ALL_MODULES} />
+          <MarqueeRow items={[...ALL_MODULES].reverse()} reverse />
+        </ScrollReveal>
+
+        {/* живой мок маркетплейса — тумблеры включаются каскадом */}
+        <ScrollReveal variant="scale" className="mx-auto mt-10 max-w-3xl">
+          <MarketplaceLive />
           <p className="mt-3 text-center text-sm text-muted-foreground">Активация модуля — в один клик, прямо из админки.</p>
         </ScrollReveal>
 
-        {/* Табы категорий */}
+        {/* Табы категорий (морфящаяся пилюля) */}
         <div className="mt-10 flex flex-wrap justify-center gap-2">
           {CATALOG.map((c) => {
             const Icon = ICONS[c.icon];
@@ -173,12 +241,21 @@ export const Modules = () => {
               <button
                 key={c.key}
                 onClick={() => setActive(c.key)}
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
-                  on ? "border-accent bg-accent/15 text-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"
+                className={`relative inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                  on ? "border-transparent text-foreground" : "border-border bg-card text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {Icon && <Icon className="h-4 w-4" />}
-                {c.label}
+                {on && (
+                  <motion.span
+                    layoutId="cat-pill"
+                    className="absolute inset-0 rounded-full border border-accent bg-accent/15"
+                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative z-10 inline-flex items-center gap-2">
+                  {Icon && <Icon className="h-4 w-4" />}
+                  {c.label}
+                </span>
               </button>
             );
           })}
@@ -186,28 +263,45 @@ export const Modules = () => {
 
         {/* Модули выбранной категории */}
         <div className="mx-auto mt-8 max-w-4xl">
-          <p className="mb-5 text-center text-sm text-muted-foreground">{cat.blurb}</p>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.p
+              key={cat.key}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18 }}
+              className="mb-5 text-center text-sm text-muted-foreground"
+            >
+              {cat.blurb}
+            </motion.p>
+          </AnimatePresence>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {cat.modules.map((m) => (
-              <button
-                key={m.name}
-                type="button"
-                onClick={() => setInfo(cat)}
-                className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-[0_10px_28px_-14px_hsl(240_10%_6%/0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
-              >
-                <span className="font-medium">{m.name}</span>
-                <span className="flex shrink-0 items-center gap-2">
-                  {m.status === "available" ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-semibold text-foreground">
-                      <Check className="h-3 w-3" /> Доступно
-                    </span>
-                  ) : (
-                    <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">Скоро</span>
-                  )}
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </span>
-              </button>
-            ))}
+            <AnimatePresence mode="popLayout" initial={false}>
+              {cat.modules.map((m, i) => (
+                <motion.button
+                  key={`${cat.key}-${m.name}`}
+                  layout
+                  initial={{ opacity: 0, y: 16, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1, transition: { delay: i * 0.05, type: "spring", stiffness: 280, damping: 25 } }}
+                  exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.12 } }}
+                  type="button"
+                  onClick={() => setInfo(cat)}
+                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-[0_10px_28px_-14px_hsl(240_10%_6%/0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                >
+                  <span className="font-medium">{m.name}</span>
+                  <span className="flex shrink-0 items-center gap-2">
+                    {m.status === "available" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-semibold text-foreground">
+                        <Check className="h-3 w-3" /> Доступно
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">Скоро</span>
+                    )}
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </span>
+                </motion.button>
+              ))}
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -255,38 +349,59 @@ export const OperatorShowcase = () => (
   </section>
 );
 
-export const ApiCores = () => (
-  <section className="border-y border-border bg-primary py-16 sm:py-20 lg:py-24 text-primary-foreground">
-    <div className="container grid items-center gap-10 lg:grid-cols-2 lg:gap-12 [&>*]:min-w-0">
-      <ScrollReveal>
-        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">API-ядра</span>
-        <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{API_CORES.title}</h2>
-        <p className="mt-4 text-lg leading-relaxed text-primary-foreground/70">{API_CORES.lead}</p>
-        <div className="mt-8 grid gap-3 sm:grid-cols-2">
-          {API_CORES.cores.map((c) => (
-            <div key={c.title} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
-              <h3 className="font-display text-sm font-bold text-accent">{c.title}</h3>
-              <p className="mt-1 text-sm text-primary-foreground/70">{c.text}</p>
-            </div>
-          ))}
-        </div>
-      </ScrollReveal>
-      <ScrollReveal variant="left" delay={120}>
-        <div className="overflow-hidden rounded-xl border border-white/10 bg-[#0c0c12]">
-          <div className="flex items-center gap-1.5 border-b border-white/10 px-4 py-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-            <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+export const ApiCores = () => {
+  const [active, setActive] = useState(0);
+  return (
+    <section className="border-y border-border bg-primary py-16 sm:py-20 lg:py-24 text-primary-foreground">
+      <div className="container grid items-center gap-10 lg:grid-cols-2 lg:gap-12 [&>*]:min-w-0">
+        <ScrollReveal>
+          <div className="flex items-center gap-3">
+            <span className="h-2 w-10 rounded-sm bg-accent" />
+            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white/55">API-ядра</span>
           </div>
-          <pre className="overflow-x-auto p-5 font-mono text-[11px] leading-relaxed text-accent/90 sm:text-xs">{API_CORES.snippet}</pre>
-        </div>
-        <a href="#demo" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
-          Запросить API-доступ <ArrowRight className="h-4 w-4" />
-        </a>
-      </ScrollReveal>
-    </div>
-  </section>
-);
+          <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{API_CORES.title}</h2>
+          <p className="mt-4 text-lg leading-relaxed text-primary-foreground/70">{API_CORES.lead}</p>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            {API_CORES.cores.map((c, i) => {
+              const on = i === active;
+              return (
+                <motion.button
+                  key={c.title}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  animate={{
+                    borderColor: on ? "rgba(182,255,26,0.5)" : "rgba(255,255,255,0.1)",
+                    backgroundColor: on ? "rgba(182,255,26,0.06)" : "rgba(255,255,255,0.04)",
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="rounded-xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                >
+                  <span className="flex items-center justify-between gap-2">
+                    <h3 className="font-display text-sm font-bold text-accent">{c.title}</h3>
+                    <motion.span
+                      animate={{ opacity: on ? 1 : 0, scale: on ? 1 : 0.6 }}
+                      className="relative flex h-2 w-2 shrink-0"
+                    >
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                    </motion.span>
+                  </span>
+                  <p className="mt-1 text-sm text-primary-foreground/70">{c.text}</p>
+                </motion.button>
+              );
+            })}
+          </div>
+        </ScrollReveal>
+        <ScrollReveal variant="left" delay={120}>
+          <ApiTerminal active={active} onAdvance={setActive} />
+          <a href="#demo" className="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
+            Запросить API-доступ <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          </a>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+};
 
 export const Compliance = () => (
   <section id="compliance" className="container py-16 sm:py-20 lg:py-24">
