@@ -41,7 +41,7 @@ const Parallax = ({ children, className, amount = 26 }: { children: React.ReactN
 const VideoDemo = ({ demo, url, plain, dark }: { demo: string; url?: string; plain?: boolean; dark?: boolean }) => {
   const video = (
     <video className="block w-full" poster={`/shots/${demo}.png`} autoPlay muted loop playsInline preload="metadata">
-      <source src={`/demos/${demo}.webm`} type="video/webm" />
+      {/* только h264/mp4: vp9-webm с рендера ловил MEDIA_ERR_DECODE */}
       <source src={`/demos/${demo}.mp4`} type="video/mp4" />
     </video>
   );
