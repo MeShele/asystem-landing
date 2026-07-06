@@ -35,6 +35,29 @@
     --signal: 79 100% 55%;
     --royal-green: 152 60% 38%;
   }
+
+  /* Тёмная тема — тон шоурила (#0B0C0A), лайм остаётся сигналом */
+  .dark {
+    --background: 84 9% 4%;
+    --foreground: 80 24% 95%;
+    --card: 84 8% 7%;
+    --card-foreground: 80 24% 95%;
+    --popover: 84 8% 6%;
+    --popover-foreground: 80 24% 95%;
+    --primary: 80 24% 95%;
+    --primary-foreground: 84 9% 5%;
+    --secondary: 84 7% 9%;
+    --secondary-foreground: 80 24% 92%;
+    --muted: 84 7% 10%;
+    --muted-foreground: 80 7% 62%;
+    --accent: 79 100% 55%;
+    --accent-foreground: 240 10% 6%;
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 84 6% 14%;
+    --input: 84 6% 14%;
+    --ring: 79 100% 55%;
+  }
 }
 
 @layer base {
@@ -60,6 +83,8 @@
     border-color: hsl(var(--border));
     box-shadow: 0 8px 30px hsl(240 10% 6% / 0.06), 0 1px 2px hsl(240 10% 6% / 0.04);
   }
+  .dark .glass-card,
+  .dark .glass-panel { box-shadow: none; }
   .text-brand { color: hsl(var(--accent)); }
 }
 
@@ -91,6 +116,15 @@
   }
   .scroll-reveal-scale.revealed { opacity: 1; transform: scale(1); }
 
+  /* Архитектура: штрих «течёт» от ядра к ядрам */
+  @keyframes arch-dash {
+    to { stroke-dashoffset: -16; }
+  }
+  .arch-line { animation: arch-dash 2.4s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .arch-line { animation: none; }
+  }
+
   /* Бегущие строки каталога модулей */
   @keyframes marquee {
     to { transform: translateX(-50%); }
@@ -116,5 +150,8 @@
     border-color: hsl(var(--accent) / 0.55);
     box-shadow: 0 10px 30px hsl(240 10% 6% / 0.08);
     transform: translateY(-3px);
+  }
+  .dark .card-interactive:hover {
+    box-shadow: 0 12px 34px rgb(0 0 0 / 0.5);
   }
 }

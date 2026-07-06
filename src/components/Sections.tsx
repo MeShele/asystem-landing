@@ -106,7 +106,7 @@ export const Stats = () => (
   <section className="border-b border-border bg-secondary/40">
     <div className="container grid grid-cols-2 gap-px overflow-hidden md:grid-cols-4">
       {STATS.map((s, i) => (
-        <ScrollReveal key={s.label} delay={i * 80} className="px-6 py-8 text-center">
+        <ScrollReveal key={s.label} delay={i * 80} className="px-6 py-8 text-center transition-colors duration-300 hover:bg-secondary/70">
           <div className="font-mono text-3xl font-bold sm:text-4xl">
             {/^\d+$/.test(s.value) ? <CountUp to={Number(s.value)} /> : s.value}
           </div>
@@ -120,14 +120,21 @@ export const Stats = () => (
 export const Problem = () => (
   <section className="container py-16 sm:py-20 lg:py-24">
     <SectionHead eyebrow="Проблема" title={PROBLEM.title} lead={PROBLEM.lead} />
-    <div className="mt-12 grid gap-5 md:grid-cols-3">
+    <motion.div
+      variants={textStagger}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-80px" }}
+      className="mt-12 grid gap-5 md:grid-cols-3"
+    >
       {PROBLEM.pains.map((p, i) => (
-        <ScrollReveal key={p.title} delay={i * 80} className="glass-card p-6">
-          <h3 className="font-display text-lg font-bold">{p.title}</h3>
+        <motion.div key={p.title} variants={riseItem} className="card-interactive p-6">
+          <span className="font-mono text-xs font-semibold text-muted-foreground/70">0{i + 1}</span>
+          <h3 className="mt-3 font-display text-lg font-bold">{p.title}</h3>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.text}</p>
-        </ScrollReveal>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   </section>
 );
 
@@ -135,22 +142,26 @@ export const Features = () => (
   <section id="features" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
     <div className="container">
       <SectionHead eyebrow="Возможности" title="Всё для запуска — в одной платформе" />
-      <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {FEATURES.map((f, i) => {
+      <motion.div
+        variants={textStagger}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-70px" }}
+        className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+      >
+        {FEATURES.map((f) => {
           const Icon = ICONS[f.icon];
           return (
-            <ScrollReveal key={f.title} delay={(i % 4) * 70}>
-              <div className="card-interactive h-full p-6">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15">
-                  {Icon && <Icon className="h-5 w-5 text-foreground" />}
-                </div>
-                <h3 className="mt-4 font-display text-base font-bold">{f.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.text}</p>
+            <motion.div key={f.title} variants={riseItem} className="group card-interactive h-full p-6">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent/15 transition-colors duration-300 group-hover:bg-accent">
+                {Icon && <Icon className="h-5 w-5 text-foreground transition-colors duration-300 group-hover:text-accent-foreground" />}
               </div>
-            </ScrollReveal>
+              <h3 className="mt-4 font-display text-base font-bold">{f.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{f.text}</p>
+            </motion.div>
           );
         })}
-      </div>
+      </motion.div>
     </div>
   </section>
 );
@@ -158,19 +169,35 @@ export const Features = () => (
 export const HowItWorks = () => (
   <section id="how" className="container py-16 sm:py-20 lg:py-24">
     <SectionHead eyebrow="Как это работает" title="От лицензии до запуска — четыре шага" />
-    <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {STEPS.map((s, i) => (
-        <ScrollReveal key={s.n} delay={i * 90}>
-          <div className="relative h-full rounded-[var(--radius)] border border-border bg-card p-6">
-            <div className="font-mono text-sm font-bold text-accent-foreground">
-              <span className="rounded-md bg-accent px-2 py-1">{s.n}</span>
-            </div>
-            <h3 className="mt-4 font-display text-lg font-bold">{s.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
+    <motion.div
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-80px" }}
+      variants={{ hidden: {}, show: { transition: { staggerChildren: 0.14 } } }}
+      className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+    >
+      {STEPS.map((s) => (
+        <motion.div
+          key={s.n}
+          variants={{
+            hidden: { opacity: 0, y: 20 },
+            show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 130, damping: 22 } },
+          }}
+          className="relative h-full overflow-hidden rounded-[var(--radius)] border border-border bg-card p-6"
+        >
+          {/* прогресс-сегмент рисуется по мере входа шага */}
+          <motion.span
+            variants={{ hidden: { scaleX: 0 }, show: { scaleX: 1, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } } }}
+            className="absolute inset-x-0 top-0 h-[3px] origin-left bg-accent"
+          />
+          <div className="font-mono text-sm font-bold text-accent-foreground">
+            <span className="rounded-md bg-accent px-2 py-1">{s.n}</span>
           </div>
-        </ScrollReveal>
+          <h3 className="mt-4 font-display text-lg font-bold">{s.title}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.text}</p>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   </section>
 );
 
@@ -352,7 +379,7 @@ export const OperatorShowcase = () => (
 export const ApiCores = () => {
   const [active, setActive] = useState(0);
   return (
-    <section className="border-y border-border bg-primary py-16 sm:py-20 lg:py-24 text-primary-foreground">
+    <section className="border-y border-white/10 bg-[#0B0C0A] py-16 sm:py-20 lg:py-24 text-white">
       <div className="container grid items-center gap-10 lg:grid-cols-2 lg:gap-12 [&>*]:min-w-0">
         <ScrollReveal>
           <div className="flex items-center gap-3">
@@ -360,7 +387,7 @@ export const ApiCores = () => {
             <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white/55">API-ядра</span>
           </div>
           <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{API_CORES.title}</h2>
-          <p className="mt-4 text-lg leading-relaxed text-primary-foreground/70">{API_CORES.lead}</p>
+          <p className="mt-4 text-lg leading-relaxed text-white/65">{API_CORES.lead}</p>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {API_CORES.cores.map((c, i) => {
               const on = i === active;
@@ -386,7 +413,7 @@ export const ApiCores = () => {
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
                     </motion.span>
                   </span>
-                  <p className="mt-1 text-sm text-primary-foreground/70">{c.text}</p>
+                  <p className="mt-1 text-sm text-white/65">{c.text}</p>
                 </motion.button>
               );
             })}
@@ -406,16 +433,23 @@ export const ApiCores = () => {
 export const Compliance = () => (
   <section id="compliance" className="container py-16 sm:py-20 lg:py-24">
     <SectionHead eyebrow="Комплайнс и безопасность" title={COMPLIANCE.title} lead={COMPLIANCE.lead} />
-    <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {COMPLIANCE.points.map((p, i) => (
-        <ScrollReveal key={p.title} delay={(i % 3) * 70}>
-          <div className="h-full rounded-[var(--radius)] border border-border bg-card p-6">
-            <div className="h-1 w-8 rounded-full bg-accent" />
-            <h3 className="mt-4 font-display text-base font-bold">{p.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.text}</p>
-          </div>
-        </ScrollReveal>
+    <motion.div
+      variants={textStagger}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-70px" }}
+      className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      {COMPLIANCE.points.map((p) => (
+        <motion.div key={p.title} variants={riseItem} className="card-interactive h-full p-6">
+          <motion.div
+            variants={{ hidden: { scaleX: 0 }, show: { scaleX: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } } }}
+            className="h-1 w-8 origin-left rounded-full bg-accent"
+          />
+          <h3 className="mt-4 font-display text-base font-bold">{p.title}</h3>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.text}</p>
+        </motion.div>
       ))}
-    </div>
+    </motion.div>
   </section>
 );

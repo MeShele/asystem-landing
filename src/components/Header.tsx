@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
+import ThemeToggle from "@/components/ThemeToggle";
 import { NAV } from "@/content";
 
 const Header = () => {
@@ -52,45 +54,59 @@ const Header = () => {
           })}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           <Button variant="signal" size="sm" asChild>
             <a href="#demo">Запросить демо</a>
           </Button>
         </div>
 
-        <button
-          className={`md:hidden ${linkBase} p-1`}
-          onClick={() => setOpen((v) => !v)}
-          aria-label="Меню"
-          aria-expanded={open}
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+          <ThemeToggle />
+          <button
+            className={`${linkBase} p-1`}
+            onClick={() => setOpen((v) => !v)}
+            aria-label="Меню"
+            aria-expanded={open}
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
-      {open && (
-        <div className="border-t border-border bg-background md:hidden">
-          <nav className="container flex flex-col gap-1 py-4">
-            {NAV.map((n) => {
-              const on = active === n.href.slice(1);
-              return (
-                <a
-                  key={n.href}
-                  href={n.href}
-                  onClick={() => setOpen(false)}
-                  className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${on ? "bg-accent/10 text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-                >
-                  <span className={`h-4 w-0.5 rounded-full bg-accent transition-opacity ${on ? "opacity-100" : "opacity-0"}`} />
-                  {n.label}
-                </a>
-              );
-            })}
-            <Button variant="signal" className="mt-2" asChild>
-              <a href="#demo" onClick={() => setOpen(false)}>Запросить демо</a>
-            </Button>
-          </nav>
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 32 }}
+            className="overflow-hidden border-t border-border bg-background md:hidden"
+          >
+            <nav className="container flex flex-col gap-1 py-4">
+              {NAV.map((n, i) => {
+                const on = active === n.href.slice(1);
+                return (
+                  <motion.a
+                    key={n.href}
+                    href={n.href}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0, transition: { delay: 0.04 * i } }}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${on ? "bg-accent/10 text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                  >
+                    <span className={`h-4 w-0.5 rounded-full bg-accent transition-opacity ${on ? "opacity-100" : "opacity-0"}`} />
+                    {n.label}
+                  </motion.a>
+                );
+              })}
+              <Button variant="signal" className="mt-2" asChild>
+                <a href="#demo" onClick={() => setOpen(false)}>Запросить демо</a>
+              </Button>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 };

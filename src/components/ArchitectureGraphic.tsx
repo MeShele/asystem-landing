@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Boxes } from "lucide-react";
+import { motion } from "motion/react";
 import { ICONS } from "@/lib/icons";
 import InfoModal from "@/components/InfoModal";
 import { CATALOG, type CatalogCategory } from "@/modulesCatalog";
@@ -71,19 +72,45 @@ const ArchitectureGraphic = () => {
       <div className="relative mx-auto hidden aspect-square w-full max-w-2xl lg:block">
         <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" aria-hidden>
           {NODES.map((p, i) => (
-            <line key={i} x1="50" y1="50" x2={p.x} y2={p.y} stroke="hsl(var(--accent))" strokeWidth="0.4" strokeOpacity="0.55" strokeDasharray="1.6 1.6" strokeLinecap="round" />
+            <line
+              key={i}
+              x1="50"
+              y1="50"
+              x2={p.x}
+              y2={p.y}
+              stroke="hsl(var(--accent))"
+              strokeWidth="0.4"
+              strokeOpacity="0.55"
+              strokeDasharray="1.6 1.6"
+              strokeLinecap="round"
+              className="arch-line"
+              style={{ animationDelay: `${i * 0.35}s` }}
+            />
           ))}
         </svg>
-        <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.7 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
+        >
           <CenterNode />
-        </div>
+        </motion.div>
         {CORES.map((c, i) => (
           <div
             key={c.key}
             style={{ left: `${NODES[i].x}%`, top: `${NODES[i].y}%` }}
             className="absolute z-10 -translate-x-1/2 -translate-y-1/2"
           >
-            <CoreCard core={c} compact w="w-40" onClick={() => open(c)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, margin: "-90px" }}
+              transition={{ type: "spring", stiffness: 220, damping: 20, delay: 0.15 + i * 0.08 }}
+            >
+              <CoreCard core={c} compact w="w-40" onClick={() => open(c)} />
+            </motion.div>
           </div>
         ))}
       </div>
@@ -94,11 +121,25 @@ const ArchitectureGraphic = () => {
           <CenterNode />
         </div>
         <div className="mx-auto my-4 h-6 w-px bg-gradient-to-b from-accent/60 to-border" />
-        <div className="grid grid-cols-2 gap-3">
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
+          className="grid grid-cols-2 gap-3"
+        >
           {CORES.map((c) => (
-            <CoreCard key={c.key} core={c} compact onClick={() => open(c)} />
+            <motion.div
+              key={c.key}
+              variants={{
+                hidden: { opacity: 0, y: 14, scale: 0.97 },
+                show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 240, damping: 22 } },
+              }}
+            >
+              <CoreCard core={c} compact onClick={() => open(c)} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">Нажмите на ядро — описание и провайдеры</p>
