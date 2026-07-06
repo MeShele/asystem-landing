@@ -88,15 +88,18 @@ const ArchitectureGraphic = () => {
             />
           ))}
         </svg>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.7 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ type: "spring", stiffness: 200, damping: 18 }}
-          className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2"
-        >
-          <CenterNode />
-        </motion.div>
+        {/* обёртка держит позиционирование (motion затирает transform — translate
+            и scale обязаны жить на разных элементах) */}
+        <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.7 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 200, damping: 18 }}
+          >
+            <CenterNode />
+          </motion.div>
+        </div>
         {CORES.map((c, i) => (
           <div
             key={c.key}

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -37,12 +37,26 @@ const Parallax = ({ children, className, amount = 26 }: { children: React.ReactN
   );
 };
 
-// Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos)
+// Реактивная тема: следим за классом dark на <html> (тогл в хедере)
+const useIsDark = () => {
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  useEffect(() => {
+    const obs = new MutationObserver(() => setDark(document.documentElement.classList.contains("dark")));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+};
+
+// Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos).
+// Клипы отрендерены в двух темах — светлая сцена для светлой темы.
 const VideoDemo = ({ demo, url, plain }: { demo: string; url?: string; plain?: boolean }) => {
+  const dark = useIsDark();
+  const sfx = dark ? "" : "-light";
   const video = (
-    <video className="block w-full" poster={`/shots/${demo}.png`} autoPlay muted loop playsInline preload="metadata">
+    <video key={sfx} className="block w-full" poster={`/shots/${demo}${sfx}.png`} autoPlay muted loop playsInline preload="metadata">
       {/* только h264/mp4: vp9-webm с рендера ловил MEDIA_ERR_DECODE */}
-      <source src={`/demos/${demo}.mp4`} type="video/mp4" />
+      <source src={`/demos/${demo}${sfx}.mp4`} type="video/mp4" />
     </video>
   );
   // plain — клип сам тёмный (кино-кадр): на светлой теме — карточка с тенью,
