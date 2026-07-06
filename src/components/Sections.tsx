@@ -38,17 +38,18 @@ const Parallax = ({ children, className, amount = 26 }: { children: React.ReactN
 };
 
 // Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos)
-const VideoDemo = ({ demo, url, plain, dark }: { demo: string; url?: string; plain?: boolean; dark?: boolean }) => {
+const VideoDemo = ({ demo, url, plain }: { demo: string; url?: string; plain?: boolean }) => {
   const video = (
     <video className="block w-full" poster={`/shots/${demo}.png`} autoPlay muted loop playsInline preload="metadata">
       {/* только h264/mp4: vp9-webm с рендера ловил MEDIA_ERR_DECODE */}
       <source src={`/demos/${demo}.mp4`} type="video/mp4" />
     </video>
   );
-  // plain — клип уже содержит своё обрамление (3D-телефон / браузер), без внешней рамки
+  // plain — клип сам тёмный (кино-кадр): на светлой теме — карточка с тенью,
+  // в тёмной — бесшовно сливается с фоном
   if (plain) {
     return (
-      <div className={`overflow-hidden rounded-2xl ${dark ? "" : "border border-border shadow-[0_30px_80px_-24px_hsl(240_10%_6%/0.4)]"}`}>
+      <div className="overflow-hidden rounded-2xl border border-border shadow-[0_36px_90px_-36px_hsl(240_10%_6%/0.5)] dark:border-white/10 dark:shadow-none">
         {video}
       </div>
     );
@@ -67,8 +68,8 @@ const riseItem = {
 } as const;
 
 // Двухколоночный демо-блок «текст + живое видео», размещается у своей темы
-const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain, dark }: {
-  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; plain?: boolean; dark?: boolean;
+const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain }: {
+  eyebrow: string; title: string; points: string[]; demo: string; url?: string; reverse?: boolean; plain?: boolean;
 }) => (
   <div className="container grid items-center gap-10 lg:grid-cols-2">
     <motion.div
@@ -79,16 +80,16 @@ const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain, dark }: {
       className={reverse ? "lg:order-2" : ""}
     >
       <motion.div variants={riseItem} className="flex items-center gap-3">
-        {dark && <span className="h-2 w-10 rounded-sm bg-accent" />}
-        <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${dark ? "font-mono text-white/55" : "text-muted-foreground"}`}>{eyebrow}</span>
+        <span className="h-2 w-10 rounded-sm bg-accent" />
+        <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</span>
       </motion.div>
-      <motion.h2 variants={riseItem} className={`mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl ${dark ? "text-white" : ""}`}>
+      <motion.h2 variants={riseItem} className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
         {title}
       </motion.h2>
       <ul className="mt-6 space-y-3">
         {points.map((p) => (
-          <motion.li key={p} variants={riseItem} className={`flex items-start gap-2.5 leading-relaxed ${dark ? "text-white/65" : "text-muted-foreground"}`}>
-            <Check className={`mt-0.5 h-5 w-5 shrink-0 ${dark ? "text-accent" : "text-foreground"}`} />
+          <motion.li key={p} variants={riseItem} className="flex items-start gap-2.5 leading-relaxed text-muted-foreground">
+            <Check className="mt-0.5 h-5 w-5 shrink-0 text-foreground dark:text-accent" />
             <span>{p}</span>
           </motion.li>
         ))}
@@ -96,7 +97,7 @@ const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain, dark }: {
     </motion.div>
     <ScrollReveal variant={reverse ? "right" : "left"} delay={120} className={reverse ? "lg:order-1" : ""}>
       <Parallax>
-        <VideoDemo demo={demo} url={url} plain={plain} dark={dark} />
+        <VideoDemo demo={demo} url={url} plain={plain} />
       </Parallax>
     </ScrollReveal>
   </div>
@@ -339,13 +340,12 @@ export const Modules = () => {
 
 // Демо клиентского обменника — у темы «клиент»
 export const ClientShowcase = () => (
-  <section className="border-y border-white/10 bg-[#0B0C0A] py-16 sm:py-20 lg:py-24">
+  <section className="border-y border-border bg-background py-16 sm:py-20 lg:py-24">
     <Showcase
       eyebrow="Вашим клиентам"
       title="Обмен крипты — в пару кликов"
       url="exchange.your-exchange.kg"
       demo="exchange"
-      dark
       plain
       points={[
         "Покупка и продажа крипты на фиат — без лишних шагов",
@@ -358,13 +358,12 @@ export const ClientShowcase = () => (
 
 // Демо админки оператора — у темы «оператор»
 export const OperatorShowcase = () => (
-  <section className="border-y border-white/10 bg-[#0B0C0A] py-16 sm:py-20 lg:py-24">
+  <section className="border-y border-border bg-background py-16 sm:py-20 lg:py-24">
     <Showcase
       eyebrow="Вам как оператору"
       title="Заявки, выплаты и аудит — в одной админке"
       url="admin.your-exchange.kg"
       demo="orders"
-      dark
       plain
       reverse
       points={[
@@ -379,32 +378,31 @@ export const OperatorShowcase = () => (
 export const ApiCores = () => {
   const [active, setActive] = useState(0);
   return (
-    <section className="border-y border-white/10 bg-[#0B0C0A] py-16 sm:py-20 lg:py-24 text-white">
+    <section className="border-y border-border bg-background py-16 sm:py-20 lg:py-24">
       <div className="container grid items-center gap-10 lg:grid-cols-2 lg:gap-12 [&>*]:min-w-0">
         <ScrollReveal>
           <div className="flex items-center gap-3">
             <span className="h-2 w-10 rounded-sm bg-accent" />
-            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white/55">API-ядра</span>
+            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">API-ядра</span>
           </div>
           <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{API_CORES.title}</h2>
-          <p className="mt-4 text-lg leading-relaxed text-white/65">{API_CORES.lead}</p>
+          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{API_CORES.lead}</p>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             {API_CORES.cores.map((c, i) => {
               const on = i === active;
               return (
-                <motion.button
+                <button
                   key={c.title}
                   type="button"
                   onClick={() => setActive(i)}
-                  animate={{
-                    borderColor: on ? "rgba(182,255,26,0.5)" : "rgba(255,255,255,0.1)",
-                    backgroundColor: on ? "rgba(182,255,26,0.06)" : "rgba(255,255,255,0.04)",
-                  }}
-                  transition={{ duration: 0.3 }}
-                  className="rounded-xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+                  className={`rounded-xl border p-4 text-left transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
+                    on
+                      ? "border-accent/60 bg-accent/[0.08] dark:border-accent/50 dark:bg-accent/[0.06]"
+                      : "border-border bg-secondary/40 hover:border-accent/40 dark:bg-card"
+                  }`}
                 >
                   <span className="flex items-center justify-between gap-2">
-                    <h3 className="font-display text-sm font-bold text-accent">{c.title}</h3>
+                    <h3 className="font-display text-sm font-bold text-foreground dark:text-accent">{c.title}</h3>
                     <motion.span
                       animate={{ opacity: on ? 1 : 0, scale: on ? 1 : 0.6 }}
                       className="relative flex h-2 w-2 shrink-0"
@@ -413,15 +411,20 @@ export const ApiCores = () => {
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
                     </motion.span>
                   </span>
-                  <p className="mt-1 text-sm text-white/65">{c.text}</p>
-                </motion.button>
+                  <p className="mt-1 text-sm text-muted-foreground">{c.text}</p>
+                </button>
               );
             })}
           </div>
         </ScrollReveal>
         <ScrollReveal variant="left" delay={120}>
-          <ApiTerminal active={active} onAdvance={setActive} />
-          <a href="#demo" className="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
+          <div className="overflow-hidden rounded-xl shadow-[0_30px_70px_-30px_hsl(240_10%_6%/0.4)] dark:shadow-none">
+            <ApiTerminal active={active} onAdvance={setActive} />
+          </div>
+          <a
+            href="#demo"
+            className="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-4 hover:underline dark:text-accent"
+          >
             Запросить API-доступ <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
         </ScrollReveal>

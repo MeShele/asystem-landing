@@ -122,26 +122,26 @@ export const Faq = () => {
 export const FinalCta = () => {
   const [sent, setSent] = useState(false);
   const input =
-    "h-11 w-full rounded-[var(--radius)] border border-white/10 bg-white/[0.06] px-4 text-sm text-white placeholder:text-white/40 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
+    "h-11 w-full rounded-[var(--radius)] border border-input bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
   return (
-    <section id="demo" className="relative overflow-hidden border-t border-white/10 bg-[#0B0C0A] py-16 text-white sm:py-20 lg:py-24">
+    <section id="demo" className="relative overflow-hidden border-t border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
       {/* лаймовое дыхание за формой */}
-      <div className="absolute -right-24 top-1/2 h-[26rem] w-[26rem] -translate-y-1/2 rounded-full bg-accent/10 blur-[120px]" />
+      <div className="absolute -right-24 top-1/2 h-[26rem] w-[26rem] -translate-y-1/2 rounded-full bg-accent/15 blur-[120px] dark:bg-accent/10" />
       <div className="container relative grid items-center gap-12 lg:grid-cols-2">
         <ScrollReveal>
           <div className="flex items-center gap-3">
             <span className="h-2 w-10 rounded-sm bg-accent" />
-            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-white/55">Демо</span>
+            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Демо</span>
           </div>
           <h2 className="mt-3 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">{FINAL_CTA.title}</h2>
-          <p className="mt-4 text-lg text-white/65">{FINAL_CTA.sub}</p>
-          <div className="mt-6 flex items-center gap-2 text-sm text-white/55">
-            <Check className="h-4 w-4 text-accent" /> Ответим в течение рабочего дня
+          <p className="mt-4 text-lg text-muted-foreground">{FINAL_CTA.sub}</p>
+          <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+            <Check className="h-4 w-4 text-foreground dark:text-accent" /> Ответим в течение рабочего дня
           </div>
         </ScrollReveal>
 
         <ScrollReveal variant="left" delay={120}>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-7 backdrop-blur-sm">
+          <div className="rounded-2xl border border-border bg-card p-7 shadow-[0_24px_70px_-28px_hsl(240_10%_6%/0.3)] dark:shadow-none">
             {sent ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.94 }}
@@ -158,7 +158,7 @@ export const FinalCta = () => {
                   <Check className="h-6 w-6 text-accent-foreground" />
                 </motion.div>
                 <p className="mt-4 font-display text-lg font-bold">Заявка отправлена</p>
-                <p className="mt-1 text-sm text-white/55">Свяжемся с вами в ближайшее время.</p>
+                <p className="mt-1 text-sm text-muted-foreground">Свяжемся с вами в ближайшее время.</p>
               </motion.div>
             ) : (
               <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
@@ -168,7 +168,7 @@ export const FinalCta = () => {
                 <Button type="submit" variant="signal" className="group w-full">
                   {FINAL_CTA.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Button>
-                <p className="text-center text-xs text-white/40">Нажимая, вы соглашаетесь на обработку контактных данных</p>
+                <p className="text-center text-xs text-muted-foreground/80">Нажимая, вы соглашаетесь на обработку контактных данных</p>
               </form>
             )}
           </div>

@@ -21,17 +21,17 @@ const Showreel = () => {
   }, []);
 
   return (
-    <section id="showreel" className="border-b border-border bg-[#0B0C0A]">
+    <section id="showreel" className="border-b border-border bg-background">
       <div className="container py-14 sm:py-16">
         <ScrollReveal>
           <div className="mx-auto max-w-4xl">
             <div className="flex items-center gap-3">
               <span className="h-2 w-14 rounded-sm bg-accent" />
-              <span className="font-mono text-xs uppercase tracking-[0.28em] text-white/55">
+              <span className="font-mono text-xs uppercase tracking-[0.28em] text-muted-foreground">
                 Платформа за 30 секунд
               </span>
             </div>
-            <div className="mt-6 overflow-hidden rounded-xl border border-white/10 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)]">
+            <div className="mt-6 overflow-hidden rounded-xl border border-border shadow-[0_40px_120px_-40px_hsl(240_10%_6%/0.45)] dark:border-white/10 dark:shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)]">
               <video
                 ref={ref}
                 muted
