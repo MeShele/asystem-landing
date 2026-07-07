@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Check, Plus, ArrowRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -224,6 +225,12 @@ export const Footer = () => (
             {n.label}
           </a>
         ))}
+        <Link
+          to="/blueprint"
+          className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          Чек-лист запуска
+        </Link>
       </nav>
       <p className="text-xs text-muted-foreground">© 2026 ASystem Core. Все права защищены.</p>
     </div>

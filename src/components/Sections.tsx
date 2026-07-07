@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, Check, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Check, ChevronRight, ClipboardCheck } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
+import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import { BrowserFrame } from "@/components/Hero";
 import ArchitectureGraphic from "@/components/ArchitectureGraphic";
@@ -481,6 +483,33 @@ export const ApiCores = () => {
     </section>
   );
 };
+
+// Лид-магнит: чек-лист запуска обменника в КР (страница /blueprint)
+export const BlueprintCta = () => (
+  <section className="border-y border-border bg-secondary/30">
+    <ScrollReveal className="container flex flex-col items-center gap-6 py-12 text-center lg:flex-row lg:justify-between lg:text-left">
+      <div className="flex items-start gap-4">
+        <span className="hidden h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent/15 sm:grid">
+          <ClipboardCheck className="h-6 w-6 text-foreground" />
+        </span>
+        <div>
+          <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
+            Чек-лист запуска обменника в Кыргызстане
+          </h2>
+          <p className="mt-1.5 max-w-xl text-muted-foreground">
+            Лицензия, KYC/AML, отчётность ГСФР, хранение данных, типичные грабли — весь путь по шагам,
+            со ссылками на НПА.
+          </p>
+        </div>
+      </div>
+      <Button variant="signal" size="lg" className="group shrink-0" asChild>
+        <Link to="/blueprint">
+          Открыть чек-лист <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+        </Link>
+      </Button>
+    </ScrollReveal>
+  </section>
+);
 
 export const Compliance = () => (
   <section id="compliance" className="container py-16 sm:py-20 lg:py-24">
