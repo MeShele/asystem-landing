@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Check, ChevronRight, ClipboardCheck } from "lucide-react";
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
+import { AnimatePresence, motion, useInView, useReducedMotion, useScroll, useSpring, useTransform } from "motion/react";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import { BrowserFrame } from "@/components/Hero";
@@ -484,32 +484,144 @@ export const ApiCores = () => {
   );
 };
 
-// Лид-магнит: чек-лист запуска обменника в КР (страница /blueprint)
-export const BlueprintCta = () => (
-  <section className="border-y border-border bg-secondary/30">
-    <ScrollReveal className="container flex flex-col items-center gap-6 py-12 text-center lg:flex-row lg:justify-between lg:text-left">
-      <div className="flex items-start gap-4">
-        <span className="hidden h-12 w-12 shrink-0 place-items-center rounded-xl bg-accent/15 sm:grid">
-          <ClipboardCheck className="h-6 w-6 text-foreground" />
-        </span>
-        <div>
-          <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
-            Чек-лист запуска обменника в Кыргызстане
-          </h2>
-          <p className="mt-1.5 max-w-xl text-muted-foreground">
-            Лицензия, KYC/AML, отчётность ГСФР, хранение данных, типичные грабли — весь путь по шагам,
-            со ссылками на НПА.
-          </p>
-        </div>
+// Лид-магнит: моушн-подводка к /blueprint — мини-чек-лист сам себя прощёлкивает
+const BP_ITEMS = [
+  "Юрлицо и лицензия оператора обмена ВА",
+  "KYC: верификация, 18+, резидентство, PEP",
+  "AML: санкции, 156 кодов, лимиты",
+  "Отчётность ГСФР и хранение 5 лет",
+  "Серверы в КР, бэкапы, аудит-трейл",
+];
+
+export const BlueprintCta = () => {
+  const widgetRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(widgetRef, { once: true, margin: "-90px" });
+  const reduced = useReducedMotion();
+  const [n, setN] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    if (reduced) {
+      setN(BP_ITEMS.length);
+      return;
+    }
+    let i = 0;
+    let id: number | undefined;
+    const start = setTimeout(() => {
+      setN(++i);
+      id = window.setInterval(() => {
+        setN(++i);
+        if (i >= BP_ITEMS.length) clearInterval(id);
+      }, 520);
+    }, 500);
+    return () => {
+      clearTimeout(start);
+      if (id !== undefined) clearInterval(id);
+    };
+  }, [inView, reduced]);
+
+  const progress = n / BP_ITEMS.length;
+
+  return (
+    <section className="border-y border-border bg-secondary/30 py-16 sm:py-20">
+      <div className="container grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+        {/* подводка */}
+        <motion.div
+          variants={textStagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-90px" }}
+        >
+          <motion.div variants={riseItem} className="flex items-center gap-3">
+            <span className="h-2 w-10 rounded-sm bg-accent" />
+            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              С чего начать
+            </span>
+          </motion.div>
+          <motion.h2 variants={riseItem} className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+            Не знаете, с чего начать запуск обменника?
+          </motion.h2>
+          <motion.p variants={riseItem} className="mt-4 text-lg leading-relaxed text-muted-foreground">
+            Мы прошли этот путь и собрали его в один чек-лист: лицензия, KYC/AML, отчётность ГСФР,
+            хранение данных — и грабли, на которых теряют месяцы.
+          </motion.p>
+          <motion.div variants={riseItem} className="mt-7">
+            <Button variant="signal" size="lg" className="group" asChild>
+              <Link to="/blueprint">
+                Открыть чек-лист <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </Button>
+          </motion.div>
+        </motion.div>
+
+        {/* живой мини-чек-лист */}
+        <ScrollReveal variant="left" delay={100}>
+          <div ref={widgetRef} className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_80px_-32px_hsl(240_10%_6%/0.35)] dark:shadow-none">
+            <div className="flex items-center gap-2.5 border-b border-border bg-secondary/60 px-4 py-3">
+              <ClipboardCheck className="h-4 w-4 text-foreground" />
+              <span className="text-sm font-bold">Чек-лист запуска · Кыргызстан</span>
+              <span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
+                {n}/{BP_ITEMS.length}
+              </span>
+            </div>
+            {/* прогресс */}
+            <div className="h-1 w-full bg-secondary">
+              <motion.div
+                className="h-full bg-accent"
+                animate={{ width: `${progress * 100}%` }}
+                transition={{ type: "spring", stiffness: 160, damping: 26 }}
+              />
+            </div>
+            <div className="space-y-1 p-3 sm:p-4">
+              {BP_ITEMS.map((item, i) => {
+                const done = i < n;
+                return (
+                  <div
+                    key={item}
+                    className={`flex items-center gap-3 rounded-lg px-2.5 py-2 transition-colors duration-300 ${
+                      done ? "bg-accent/[0.07]" : ""
+                    }`}
+                  >
+                    <motion.span
+                      animate={{
+                        backgroundColor: done ? "#B6FF1A" : "rgba(0,0,0,0)",
+                        borderColor: done ? "#B6FF1A" : "hsl(var(--border))",
+                        scale: done ? 1 : 0.96,
+                      }}
+                      transition={{ type: "spring", stiffness: 340, damping: 22 }}
+                      className="grid h-5 w-5 shrink-0 place-items-center rounded-md border-2"
+                    >
+                      <motion.svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        animate={{ opacity: done ? 1 : 0, scale: done ? 1 : 0.4 }}
+                        transition={{ type: "spring", stiffness: 380, damping: 20 }}
+                      >
+                        <path d="M4 12.5 9.5 18 20 6.5" stroke="#0B0C0A" strokeWidth="3.4" strokeLinecap="round" strokeLinejoin="round" />
+                      </motion.svg>
+                    </motion.span>
+                    <span className={`text-sm transition-colors duration-300 ${done ? "font-medium text-foreground" : "text-muted-foreground"}`}>
+                      {item}
+                    </span>
+                  </div>
+                );
+              })}
+              <Link
+                to="/blueprint"
+                className="group mt-1 flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
+              >
+                …и ещё 25+ пунктов в полном чек-листе
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </div>
+          </div>
+        </ScrollReveal>
       </div>
-      <Button variant="signal" size="lg" className="group shrink-0" asChild>
-        <Link to="/blueprint">
-          Открыть чек-лист <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </Link>
-      </Button>
-    </ScrollReveal>
-  </section>
-);
+    </section>
+  );
+};
 
 export const Compliance = () => (
   <section id="compliance" className="container py-16 sm:py-20 lg:py-24">

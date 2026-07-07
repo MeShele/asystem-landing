@@ -216,21 +216,25 @@ export const Footer = () => (
     <div className="container flex flex-col items-center justify-between gap-6 py-10 sm:flex-row">
       <Logo mark="h-7 w-7" icon="h-4 w-4" text="text-sm" />
       <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-x-6">
-        {NAV.map((n) => (
-          <a
-            key={n.href}
-            href={n.href}
-            className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-          >
-            {n.label}
-          </a>
-        ))}
-        <Link
-          to="/blueprint"
-          className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-        >
-          Чек-лист запуска
-        </Link>
+        {NAV.map((n) =>
+          n.href.startsWith("/") ? (
+            <Link
+              key={n.href}
+              to={n.href}
+              className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+            >
+              {n.label}
+            </Link>
+          ) : (
+            <a
+              key={n.href}
+              href={n.href}
+              className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+            >
+              {n.label}
+            </a>
+          ),
+        )}
       </nav>
       <p className="text-xs text-muted-foreground">© 2026 ASystem Core. Все права защищены.</p>
     </div>

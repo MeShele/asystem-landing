@@ -9,6 +9,7 @@ export const NAV = [
   { label: "Как работает", href: "#how" },
   { label: "Комплайнс", href: "#compliance" },
   { label: "Тарифы", href: "#pricing" },
+  { label: "Чек-лист", href: "/blueprint" }, // страница-лидмагнит (router)
 ];
 
 export const HERO = {
