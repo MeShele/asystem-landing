@@ -29,7 +29,7 @@ export const HERO: typeof RU.HERO = {
 export const DEMO_URL = "https://demo.asystem.ai";
 
 export const STATS: typeof RU.STATS = [
-  { value: "27", label: "modules in the marketplace" },
+  { value: "28", label: "modules in the marketplace" },
   { value: "4", label: "exchanges live in production" },
   { value: "1 click", label: "to deploy an exchange" },
   { value: "SFIS", label: "KG compliance built in" },
