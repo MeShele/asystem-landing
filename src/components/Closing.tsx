@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
 import Logo from "@/components/Logo";
-import { PRICING, FAQ, FINAL_CTA, NAV } from "@/content";
+import { useContent, useLang } from "@/i18n";
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.11 } } };
 const rise = {
@@ -13,12 +13,15 @@ const rise = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 20 } },
 } as const;
 
-export const Pricing = () => (
+export const Pricing = () => {
+  const { PRICING } = useContent();
+  const { t } = useLang();
+  return (
   <section id="pricing" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
     <div className="container">
       <ScrollReveal className="mx-auto max-w-2xl text-center">
-        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Тарифы</span>
-        <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Выберите модель запуска</h2>
+        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{t("Тарифы", "Pricing")}</span>
+        <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("Выберите модель запуска", "Choose your launch model")}</h2>
         <p className="mt-4 text-lg text-muted-foreground">{PRICING.note}</p>
       </ScrollReveal>
 
@@ -40,7 +43,7 @@ export const Pricing = () => (
             }`}
           >
             {p.featured && (
-              <span className="mb-4 inline-flex w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">Популярный</span>
+              <span className="mb-4 inline-flex w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">{t("Популярный", "Popular")}</span>
             )}
             <h3 className="font-display text-xl font-extrabold">{p.name}</h3>
             <p className="mt-1 text-sm font-semibold text-foreground">{p.tagline}</p>
@@ -48,7 +51,7 @@ export const Pricing = () => (
 
             <div className="mt-5 border-t border-border pt-5">
               <div className="font-display text-lg font-bold">{p.priceLabel}</div>
-              <div className="text-sm text-muted-foreground">условия — на демо</div>
+              <div className="text-sm text-muted-foreground">{t("условия — на демо", "terms discussed on a demo")}</div>
             </div>
 
             <ul className="mt-5 flex-1 space-y-2.5">
@@ -68,15 +71,18 @@ export const Pricing = () => (
       </motion.div>
     </div>
   </section>
-);
+  );
+};
 
 export const Faq = () => {
+  const { FAQ } = useContent();
+  const { t } = useLang();
   const [open, setOpen] = useState<number | null>(0);
   return (
     <section className="container py-16 sm:py-20 lg:py-24">
       <ScrollReveal className="mx-auto max-w-2xl text-center">
         <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">FAQ</span>
-        <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Частые вопросы</h2>
+        <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("Частые вопросы", "Frequently asked questions")}</h2>
       </ScrollReveal>
       <ScrollReveal className="mx-auto mt-10 max-w-3xl">
         <div className="divide-y divide-border rounded-2xl border border-border bg-card">
@@ -121,12 +127,14 @@ export const Faq = () => {
 };
 
 const CTA_TOPICS = [
-  { key: "turnkey", label: "Обменник под ключ" },
-  { key: "api", label: "Только API-ядра" },
-  { key: "license", label: "Вопрос по лицензии" },
+  { key: "turnkey", ru: "Обменник под ключ", en: "Turnkey exchange" },
+  { key: "api", ru: "Только API-ядра", en: "API cores only" },
+  { key: "license", ru: "Вопрос по лицензии", en: "Licence question" },
 ] as const;
 
 export const FinalCta = () => {
+  const { FINAL_CTA } = useContent();
+  const { lang, t } = useLang();
   const [sent, setSent] = useState(false);
   const [topic, setTopic] = useState<(typeof CTA_TOPICS)[number]["key"]>("turnkey");
   const input =
@@ -139,12 +147,12 @@ export const FinalCta = () => {
         <ScrollReveal>
           <div className="flex items-center gap-3">
             <span className="h-2 w-10 rounded-sm bg-accent" />
-            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">Демо</span>
+            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{t("Демо", "Demo")}</span>
           </div>
           <h2 className="mt-3 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">{FINAL_CTA.title}</h2>
           <p className="mt-4 text-lg text-muted-foreground">{FINAL_CTA.sub}</p>
           <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
-            <Check className="h-4 w-4 text-foreground dark:text-accent" /> Ответим в течение рабочего дня
+            <Check className="h-4 w-4 text-foreground dark:text-accent" /> {t("Ответим в течение рабочего дня", "We reply within one business day")}
           </div>
         </ScrollReveal>
 
@@ -165,20 +173,20 @@ export const FinalCta = () => {
                 >
                   <Check className="h-6 w-6 text-accent-foreground" />
                 </motion.div>
-                <p className="mt-4 font-display text-lg font-bold">Заявка отправлена</p>
-                <p className="mt-1 text-sm text-muted-foreground">Свяжемся с вами в ближайшее время.</p>
+                <p className="mt-4 font-display text-lg font-bold">{t("Заявка отправлена", "Request sent")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t("Свяжемся с вами в ближайшее время.", "We'll get back to you shortly.")}</p>
               </motion.div>
             ) : (
               <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
                 {/* чат-гид: сценарий обращения — сегментация до разговора */}
                 <div className="flex flex-wrap gap-1.5 pb-1">
-                  {CTA_TOPICS.map((t) => {
-                    const on = topic === t.key;
+                  {CTA_TOPICS.map((tp) => {
+                    const on = topic === tp.key;
                     return (
                       <button
-                        key={t.key}
+                        key={tp.key}
                         type="button"
-                        onClick={() => setTopic(t.key)}
+                        onClick={() => setTopic(tp.key)}
                         className={`relative rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
                           on ? "border-transparent text-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"
                         }`}
@@ -190,18 +198,18 @@ export const FinalCta = () => {
                             transition={{ type: "spring", stiffness: 380, damping: 32 }}
                           />
                         )}
-                        <span className="relative z-10">{t.label}</span>
+                        <span className="relative z-10">{tp[lang]}</span>
                       </button>
                     );
                   })}
                 </div>
-                <input required placeholder="Имя" className={input} />
-                <input required placeholder="Компания" className={input} />
-                <input required type="text" placeholder="Telegram / email / телефон" className={input} />
+                <input required placeholder={t("Имя", "Name")} className={input} />
+                <input required placeholder={t("Компания", "Company")} className={input} />
+                <input required type="text" placeholder={t("Telegram / email / телефон", "Telegram / email / phone")} className={input} />
                 <Button type="submit" variant="signal" className="group w-full">
                   {FINAL_CTA.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Button>
-                <p className="text-center text-xs text-muted-foreground/80">Нажимая, вы соглашаетесь на обработку контактных данных</p>
+                <p className="text-center text-xs text-muted-foreground/80">{t("Нажимая, вы соглашаетесь на обработку контактных данных", "By submitting you agree to the processing of your contact details")}</p>
               </form>
             )}
           </div>
@@ -211,7 +219,10 @@ export const FinalCta = () => {
   );
 };
 
-export const Footer = () => (
+export const Footer = () => {
+  const { NAV } = useContent();
+  const { t } = useLang();
+  return (
   <footer className="border-t border-border bg-background">
     <div className="container flex flex-col items-center justify-between gap-6 py-10 sm:flex-row">
       <Logo mark="h-7 w-7" icon="h-4 w-4" text="text-sm" />
@@ -236,7 +247,8 @@ export const Footer = () => (
           ),
         )}
       </nav>
-      <p className="text-xs text-muted-foreground">© 2026 ASystem Core. Все права защищены.</p>
+      <p className="text-xs text-muted-foreground">© 2026 ASystem Core. {t("Все права защищены.", "All rights reserved.")}</p>
     </div>
   </footer>
-);
+  );
+};

@@ -1,18 +1,29 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "motion/react";
+import { useLang } from "@/i18n";
 
 // Живой мок маркетплейса: при входе в вьюпорт тумблеры модулей включаются
 // каскадом, бейджи «Подключено» попают, счётчик «Мои модули» тикает.
 // Тема-зависимый: светлое «окно админки» в светлой теме, тёмное — в тёмной.
 
-const ITEMS = [
-  { name: "ASystem KYC", desc: "верификация + скоринг" },
-  { name: "Didit", desc: "KYC-провайдер" },
-  { name: "Finik QR", desc: "приём оплат" },
-  { name: "Comply Core", desc: "комплайнс ГСФР" },
-  { name: "ORGON Custody", desc: "кошельки и выплаты" },
-  { name: "Отчёты Финнадзор", desc: "автоотчётность" },
-];
+const ITEMS = {
+  ru: [
+    { name: "ASystem KYC", desc: "верификация + скоринг" },
+    { name: "Didit", desc: "KYC-провайдер" },
+    { name: "Finik QR", desc: "приём оплат" },
+    { name: "Comply Core", desc: "комплайнс ГСФР" },
+    { name: "ORGON Custody", desc: "кошельки и выплаты" },
+    { name: "Отчёты Финнадзор", desc: "автоотчётность" },
+  ],
+  en: [
+    { name: "ASystem KYC", desc: "verification + scoring" },
+    { name: "Didit", desc: "KYC provider" },
+    { name: "Finik QR", desc: "payment acceptance" },
+    { name: "Comply Core", desc: "SFIS compliance" },
+    { name: "ORGON Custody", desc: "wallets and payouts" },
+    { name: "FinSupervision reports", desc: "auto-reporting" },
+  ],
+};
 
 const spring = { type: "spring", stiffness: 320, damping: 26 } as const;
 
@@ -31,6 +42,8 @@ const Toggle = ({ on }: { on: boolean }) => (
 );
 
 const MarketplaceLive = () => {
+  const { lang, t } = useLang();
+  const items = ITEMS[lang];
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-90px" });
   const reduced = useReducedMotion();
@@ -39,7 +52,7 @@ const MarketplaceLive = () => {
   useEffect(() => {
     if (!inView) return;
     if (reduced) {
-      setN(ITEMS.length);
+      setN(items.length);
       return;
     }
     let i = 0;
@@ -48,14 +61,14 @@ const MarketplaceLive = () => {
       setN(++i);
       id = window.setInterval(() => {
         setN(++i);
-        if (i >= ITEMS.length) clearInterval(id);
+        if (i >= items.length) clearInterval(id);
       }, 420);
     }, 450);
     return () => {
       clearTimeout(start);
       if (id !== undefined) clearInterval(id);
     };
-  }, [inView, reduced]);
+  }, [inView, reduced, items.length]);
 
   return (
     <div
@@ -68,16 +81,16 @@ const MarketplaceLive = () => {
         <span className="h-2.5 w-2.5 rounded-full bg-foreground/15" />
         <span className="h-2.5 w-2.5 rounded-full bg-foreground/15" />
         <span className="ml-3 hidden rounded-md bg-background px-3 py-0.5 font-mono text-[11px] text-muted-foreground sm:block">
-          админка · модули
+          {t("админка · модули", "admin · modules")}
         </span>
         <span className="ml-auto rounded-full border border-accent/40 bg-accent/10 px-3 py-0.5 font-mono text-[11px] font-semibold tabular-nums text-foreground dark:text-accent">
-          Мои модули · {n}
+          {t("Мои модули", "My modules")} · {n}
         </span>
       </div>
 
       {/* грид модулей */}
       <div className="grid gap-2.5 p-4 sm:grid-cols-2 sm:p-5 lg:grid-cols-3">
-        {ITEMS.map((m, i) => {
+        {items.map((m, i) => {
           const on = i < n;
           return (
             <div
@@ -99,7 +112,7 @@ const MarketplaceLive = () => {
                         transition={spring}
                         className="inline-flex rounded-full border border-accent/40 bg-accent/15 px-2 py-px text-[10px] font-semibold leading-4 text-foreground dark:bg-accent/10 dark:text-accent"
                       >
-                        Подключено
+                        {t("Подключено", "Enabled")}
                       </motion.span>
                     ) : (
                       <motion.span key="desc" exit={{ opacity: 0 }} className="block truncate text-xs text-muted-foreground">
@@ -121,7 +134,7 @@ const MarketplaceLive = () => {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
         </span>
-        <span className="text-xs text-muted-foreground">Включаются тумблером — без правки кода и передеплоя</span>
+        <span className="text-xs text-muted-foreground">{t("Включаются тумблером — без правки кода и передеплоя", "Enabled with a toggle — no code changes, no redeploys")}</span>
       </div>
     </div>
   );

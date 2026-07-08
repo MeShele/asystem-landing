@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { useLang } from "@/i18n";
 
 // Переключатель темы. Дефолт — светлая; выбор живёт в localStorage("asys-theme"),
 // класс на <html> ставится до первой отрисовки скриптом в index.html.
 const ThemeToggle = ({ className = "" }: { className?: string }) => {
+  const { t } = useLang();
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
 
   const flip = () => {
@@ -22,7 +24,7 @@ const ThemeToggle = ({ className = "" }: { className?: string }) => {
     <button
       type="button"
       onClick={flip}
-      aria-label={dark ? "Светлая тема" : "Тёмная тема"}
+      aria-label={dark ? t("Светлая тема", "Light theme") : t("Тёмная тема", "Dark theme")}
       className={`grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-accent/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${className}`}
     >
       <AnimatePresence mode="popLayout" initial={false}>

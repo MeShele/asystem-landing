@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ArrowRight, ArrowDownUp, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ExchangeModal from "@/components/ExchangeModal";
+import { useLang } from "@/i18n";
 
 type Mode = "buy" | "sell";
 
@@ -19,6 +20,7 @@ const CurrencyPill = ({ code }: { code: string }) => (
 /** Live, self-contained exchange field for the hero banner — buy/sell toggle,
  *  give/receive amounts, a real-time ticking rate. Presentational only. */
 const ExchangeWidget = () => {
+  const { t } = useLang();
   const [mode, setMode] = useState<Mode>("buy");
   const [give, setGive] = useState("1000");
   const [rate, setRate] = useState(BASE_RATE);
@@ -60,20 +62,20 @@ const ExchangeWidget = () => {
                 mode === m ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {m === "buy" ? "Купить" : "Продать"}
+              {m === "buy" ? t("Купить", "Buy") : t("Продать", "Sell")}
             </button>
           ))}
         </div>
 
         {/* give */}
         <div className="mt-4 rounded-xl border border-border bg-secondary/40 px-4 py-3">
-          <div className="text-xs font-medium text-muted-foreground">Вы отдаёте</div>
+          <div className="text-xs font-medium text-muted-foreground">{t("Вы отдаёте", "You send")}</div>
           <div className="mt-1 flex items-center justify-between gap-3">
             <input
               value={give}
               onChange={(e) => setGive(e.target.value)}
               inputMode="decimal"
-              aria-label="Сумма к обмену"
+              aria-label={t("Сумма к обмену", "Amount to exchange")}
               className="w-full min-w-0 bg-transparent font-mono text-2xl font-semibold sm:text-[1.7rem] text-foreground outline-none"
             />
             <CurrencyPill code={giveCur} />
@@ -84,7 +86,7 @@ const ExchangeWidget = () => {
         <div className="relative flex justify-center">
           <button
             onClick={() => setMode((m) => (m === "buy" ? "sell" : "buy"))}
-            aria-label="Поменять направление"
+            aria-label={t("Поменять направление", "Swap direction")}
             className="-my-3 z-10 grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-foreground shadow-sm transition-transform duration-300 hover:rotate-180 hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
           >
             <ArrowDownUp className="h-4 w-4" />
@@ -93,7 +95,7 @@ const ExchangeWidget = () => {
 
         {/* get */}
         <div className="rounded-xl border border-border bg-secondary/40 px-4 py-3">
-          <div className="text-xs font-medium text-muted-foreground">Вы получаете</div>
+          <div className="text-xs font-medium text-muted-foreground">{t("Вы получаете", "You receive")}</div>
           <div className="mt-1 flex items-center justify-between gap-3">
             <span className={`font-mono text-2xl font-semibold sm:text-[1.7rem] tabular-nums transition-colors duration-300 ${flash ? "text-accent" : "text-foreground"}`}>
               {fmt(get)}
@@ -109,7 +111,7 @@ const ExchangeWidget = () => {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
             </span>
-            Курс в реальном времени
+            {t("Курс в реальном времени", "Real-time rate")}
           </span>
           <span className="flex items-center gap-1 font-mono text-foreground">
             1 USDT = {rate.toFixed(2)} KGS
@@ -118,7 +120,7 @@ const ExchangeWidget = () => {
         </div>
 
         <Button type="button" variant="signal" size="lg" className="mt-4 w-full" onClick={() => setModalOpen(true)}>
-          {mode === "buy" ? "Купить USDT" : "Продать USDT"}
+          {mode === "buy" ? t("Купить USDT", "Buy USDT") : t("Продать USDT", "Sell USDT")}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>

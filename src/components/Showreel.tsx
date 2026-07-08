@@ -1,9 +1,11 @@
 import { useEffect, useRef } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
+import { useLang } from "@/i18n";
 
 // Продуктовый шоурил (30 сек, Remotion: ../asystem-promo). Автоплей только в зоне
 // видимости — экономим батарею/трафик и гарантируем старт с начала при показе.
 const Showreel = () => {
+  const { t } = useLang();
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -28,7 +30,7 @@ const Showreel = () => {
             <div className="flex items-center gap-3">
               <span className="h-2 w-14 rounded-sm bg-accent" />
               <span className="font-mono text-xs uppercase tracking-[0.28em] text-muted-foreground">
-                Платформа за 30 секунд
+                {t("Платформа за 30 секунд", "The platform in 30 seconds")}
               </span>
             </div>
             <div className="mt-6 overflow-hidden rounded-xl border border-border shadow-[0_40px_120px_-40px_hsl(240_10%_6%/0.45)] dark:border-white/10 dark:shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)]">

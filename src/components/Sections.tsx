@@ -12,10 +12,9 @@ import MarketplaceLive from "@/components/MarketplaceLive";
 import ApiTerminal from "@/components/ApiTerminal";
 import ProviderLogo from "@/components/ProviderLogo";
 import { ICONS } from "@/lib/icons";
-import {
-  STATS, PROBLEM, FEATURES, STEPS, API_CORES, COMPLIANCE, DEMO_URL, INTEGRATIONS,
-} from "@/content";
-import { CATALOG, type CatalogCategory } from "@/modulesCatalog";
+import { DEMO_URL, INTEGRATIONS } from "@/content";
+import { useContent, useLang } from "@/i18n";
+import { CATALOG, moduleName, type CatalogCategory } from "@/modulesCatalog";
 
 const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string; lead?: string }) => (
   <ScrollReveal className="mx-auto max-w-2xl text-center">
@@ -134,11 +133,13 @@ const Showcase = ({ eyebrow, title, points, demo, url, reverse, plain, demoLink 
 );
 
 // Логобар доверия: интеграции из коробки (KYC, платежи, custody, комплайнс)
-export const IntegrationsBar = () => (
+export const IntegrationsBar = () => {
+  const { t } = useLang();
+  return (
   <section className="border-b border-border bg-background">
     <ScrollReveal className="container flex flex-col items-center gap-4 py-8 lg:flex-row lg:justify-between">
       <span className="shrink-0 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-        Интеграции из коробки
+        {t("Интеграции из коробки", "Integrations out of the box")}
       </span>
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-3">
         {INTEGRATIONS.map((p) => (
@@ -150,9 +151,12 @@ export const IntegrationsBar = () => (
       </div>
     </ScrollReveal>
   </section>
-);
+  );
+};
 
-export const Stats = () => (
+export const Stats = () => {
+  const { STATS } = useContent();
+  return (
   <section className="border-b border-border bg-secondary/40">
     <div className="container grid grid-cols-2 gap-px overflow-hidden md:grid-cols-4">
       {STATS.map((s, i) => (
@@ -165,11 +169,15 @@ export const Stats = () => (
       ))}
     </div>
   </section>
-);
+  );
+};
 
-export const Problem = () => (
+export const Problem = () => {
+  const { PROBLEM } = useContent();
+  const { t } = useLang();
+  return (
   <section className="container py-16 sm:py-20 lg:py-24">
-    <SectionHead eyebrow="Проблема" title={PROBLEM.title} lead={PROBLEM.lead} />
+    <SectionHead eyebrow={t("Проблема", "The problem")} title={PROBLEM.title} lead={PROBLEM.lead} />
     <motion.div
       variants={textStagger}
       initial="hidden"
@@ -186,12 +194,16 @@ export const Problem = () => (
       ))}
     </motion.div>
   </section>
-);
+  );
+};
 
-export const Features = () => (
+export const Features = () => {
+  const { FEATURES } = useContent();
+  const { t } = useLang();
+  return (
   <section id="features" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
     <div className="container">
-      <SectionHead eyebrow="Возможности" title="Всё для запуска — в одной платформе" />
+      <SectionHead eyebrow={t("Возможности", "Features")} title={t("Всё для запуска — в одной платформе", "Everything for launch — in one platform")} />
       <motion.div
         variants={textStagger}
         initial="hidden"
@@ -214,11 +226,15 @@ export const Features = () => (
       </motion.div>
     </div>
   </section>
-);
+  );
+};
 
-export const HowItWorks = () => (
+export const HowItWorks = () => {
+  const { STEPS } = useContent();
+  const { t } = useLang();
+  return (
   <section id="how" className="container py-16 sm:py-20 lg:py-24">
-    <SectionHead eyebrow="Как это работает" title="От лицензии до запуска — четыре шага" />
+    <SectionHead eyebrow={t("Как это работает", "How it works")} title={t("От лицензии до запуска — четыре шага", "From licence to launch — four steps")} />
     <motion.div
       initial="hidden"
       whileInView="show"
@@ -249,28 +265,40 @@ export const HowItWorks = () => (
       ))}
     </motion.div>
   </section>
-);
+  );
+};
 
 // Радиальная архитектура: ядро в центре → ядра вокруг → модули по краям
-export const Architecture = () => (
+export const Architecture = () => {
+  const { t } = useLang();
+  return (
   <section className="container py-16 sm:py-20 lg:py-24">
     <SectionHead
-      eyebrow="Архитектура"
-      title="Ядро в центре, ядра вокруг, модули по краям"
-      lead="В центре — ядро платформы. Вокруг — функциональные ядра: KYC, платежи, AML, отчётность, custody, ликвидность. От каждого ядра расходятся конкретные модули и провайдеры. Берёте обменник целиком — или подключаете отдельные ядра по API."
+      eyebrow={t("Архитектура", "Architecture")}
+      title={t("Ядро в центре, ядра вокруг, модули по краям", "A core at the center, cores around it, modules at the edges")}
+      lead={t(
+        "В центре — ядро платформы. Вокруг — функциональные ядра: KYC, платежи, AML, отчётность, custody, ликвидность. От каждого ядра расходятся конкретные модули и провайдеры. Берёте обменник целиком — или подключаете отдельные ядра по API.",
+        "The platform core sits at the center. Around it — functional cores: KYC, payments, AML, reporting, custody, liquidity. Each core branches into concrete modules and providers. Take the full exchange — or plug in individual cores via API.",
+      )}
     />
     <ScrollReveal variant="scale" className="mt-14">
       <ArchitectureGraphic />
     </ScrollReveal>
     <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-muted-foreground">
-      Каждый модуль включается тумблером, не трогая ядро. Ядра можно использовать и без обменника — через публичный API.
+      {t(
+        "Каждый модуль включается тумблером, не трогая ядро. Ядра можно использовать и без обменника — через публичный API.",
+        "Every module is enabled with a toggle without touching the core. Cores can also be used without the exchange — via a public API.",
+      )}
     </p>
   </section>
-);
+  );
+};
 
 // Бегущая строка модулей каталога (две встречные, пауза на hover)
 const ALL_MODULES = CATALOG.flatMap((c) => c.modules.map((m) => ({ ...m, cat: c.label })));
-const MarqueeRow = ({ items, reverse }: { items: typeof ALL_MODULES; reverse?: boolean }) => (
+const MarqueeRow = ({ items, reverse }: { items: typeof ALL_MODULES; reverse?: boolean }) => {
+  const { lang, l } = useLang();
+  return (
   <div className="marquee-mask marquee-hover overflow-hidden">
     <div className={`flex w-max gap-2.5 ${reverse ? "animate-marquee-rev" : "animate-marquee"}`}>
       {[...items, ...items].map((m, i) => (
@@ -279,23 +307,32 @@ const MarqueeRow = ({ items, reverse }: { items: typeof ALL_MODULES; reverse?: b
           className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-sm font-medium text-foreground"
         >
           <span className={`h-1.5 w-1.5 rounded-full ${m.status === "available" ? "bg-accent" : "bg-muted-foreground/40"}`} />
-          {m.name}
-          <span className="text-[11px] text-muted-foreground">{m.cat}</span>
+          {moduleName(m, lang)}
+          <span className="text-[11px] text-muted-foreground">{l(m.cat)}</span>
         </span>
       ))}
     </div>
   </div>
-);
+  );
+};
 
 // Интерактивный каталог: клик по категории → её модули
 export const Modules = () => {
+  const { lang, l, t } = useLang();
   const [active, setActive] = useState(CATALOG[0].key);
   const [info, setInfo] = useState<CatalogCategory | null>(null);
   const cat = CATALOG.find((c) => c.key === active) ?? CATALOG[0];
   return (
     <section id="modules" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
       <div className="container">
-        <SectionHead eyebrow="Маркетплейс модулей" title="27 модулей в 8 категориях" lead="Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке." />
+        <SectionHead
+          eyebrow={t("Маркетплейс модулей", "Module marketplace")}
+          title={t("27 модулей в 8 категориях", "27 modules across 8 categories")}
+          lead={t(
+            "Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке.",
+            "Pick a category to see what's inside. Modules are enabled with a toggle in the admin panel.",
+          )}
+        />
 
         {/* бегущий каталог */}
         <ScrollReveal className="mt-10 space-y-2.5">
@@ -306,7 +343,9 @@ export const Modules = () => {
         {/* живой мок маркетплейса — тумблеры включаются каскадом */}
         <ScrollReveal variant="scale" className="mx-auto mt-10 max-w-3xl">
           <MarketplaceLive />
-          <p className="mt-3 text-center text-sm text-muted-foreground">Активация модуля — в один клик, прямо из админки.</p>
+          <p className="mt-3 text-center text-sm text-muted-foreground">
+            {t("Активация модуля — в один клик, прямо из админки.", "Module activation takes one click, right from the admin panel.")}
+          </p>
         </ScrollReveal>
 
         {/* Табы категорий (морфящаяся пилюля) */}
@@ -331,7 +370,7 @@ export const Modules = () => {
                 )}
                 <span className="relative z-10 inline-flex items-center gap-2">
                   {Icon && <Icon className="h-4 w-4" />}
-                  {c.label}
+                  {l(c.label)}
                 </span>
               </button>
             );
@@ -349,7 +388,7 @@ export const Modules = () => {
               transition={{ duration: 0.18 }}
               className="mb-5 text-center text-sm text-muted-foreground"
             >
-              {cat.blurb}
+              {l(cat.blurb)}
             </motion.p>
           </AnimatePresence>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -365,14 +404,14 @@ export const Modules = () => {
                   onClick={() => setInfo(cat)}
                   className="flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-accent/60 hover:shadow-[0_10px_28px_-14px_hsl(240_10%_6%/0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
                 >
-                  <span className="font-medium">{m.name}</span>
+                  <span className="font-medium">{moduleName(m, lang)}</span>
                   <span className="flex shrink-0 items-center gap-2">
                     {m.status === "available" ? (
                       <span className="inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-semibold text-foreground">
-                        <Check className="h-3 w-3" /> Доступно
+                        <Check className="h-3 w-3" /> {t("Доступно", "Available")}
                       </span>
                     ) : (
-                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">Скоро</span>
+                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">{t("Скоро", "Soon")}</span>
                     )}
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </span>
@@ -388,45 +427,53 @@ export const Modules = () => {
 };
 
 // Демо клиентского обменника — у темы «клиент»
-export const ClientShowcase = () => (
+export const ClientShowcase = () => {
+  const { t } = useLang();
+  return (
   <section className="border-y border-border bg-background py-16 sm:py-20 lg:py-24">
     <Showcase
-      eyebrow="Вашим клиентам"
-      title="Обмен крипты — в пару кликов"
+      eyebrow={t("Вашим клиентам", "For your clients")}
+      title={t("Обмен крипты — в пару кликов", "Crypto exchange in a couple of clicks")}
       url="exchange.your-exchange.kg"
       demo="exchange"
       plain
       points={[
-        "Покупка и продажа крипты на фиат — без лишних шагов",
-        "Курс в реальном времени и прозрачная комиссия",
-        "Адаптив под мобильные — большинство клиентов с телефона",
+        t("Покупка и продажа крипты на фиат — без лишних шагов", "Buy and sell crypto for fiat — no extra steps"),
+        t("Курс в реальном времени и прозрачная комиссия", "Real-time rates and a transparent fee"),
+        t("Адаптив под мобильные — большинство клиентов с телефона", "Mobile-first — most clients come from their phone"),
       ]}
-      demoLink={{ label: "Потрогать вживую на демо-стенде", href: DEMO_URL }}
+      demoLink={{ label: t("Потрогать вживую на демо-стенде", "Try it live on the demo stand"), href: DEMO_URL }}
     />
   </section>
-);
+  );
+};
 
 // Демо админки оператора — у темы «оператор»
-export const OperatorShowcase = () => (
+export const OperatorShowcase = () => {
+  const { t } = useLang();
+  return (
   <section className="border-y border-border bg-background py-16 sm:py-20 lg:py-24">
     <Showcase
-      eyebrow="Вам как оператору"
-      title="Заявки, выплаты и аудит — в одной админке"
+      eyebrow={t("Вам как оператору", "For you as an operator")}
+      title={t("Заявки, выплаты и аудит — в одной админке", "Orders, payouts and audit — in one admin panel")}
       url="admin.your-exchange.kg"
       demo="orders"
       plain
       reverse
       points={[
-        "Канбан заявок: статусы, подтверждение выплат, фильтры",
-        "Полный аудит-трейл по каждой транзакции",
-        "Роли и права: администратор, оператор, комплайнс-офицер",
+        t("Канбан заявок: статусы, подтверждение выплат, фильтры", "Order kanban: statuses, payout confirmation, filters"),
+        t("Полный аудит-трейл по каждой транзакции", "A full audit trail for every transaction"),
+        t("Роли и права: администратор, оператор, комплайнс-офицер", "Roles and permissions: admin, operator, compliance officer"),
       ]}
-      demoLink={{ label: "Открыть демо-админку", href: `${DEMO_URL}/admin/login` }}
+      demoLink={{ label: t("Открыть демо-админку", "Open the demo admin panel"), href: `${DEMO_URL}/admin/login` }}
     />
   </section>
-);
+  );
+};
 
 export const ApiCores = () => {
+  const { API_CORES } = useContent();
+  const { t } = useLang();
   const [active, setActive] = useState(0);
   return (
     <section className="border-y border-border bg-background py-16 sm:py-20 lg:py-24">
@@ -434,7 +481,7 @@ export const ApiCores = () => {
         <ScrollReveal>
           <div className="flex items-center gap-3">
             <span className="h-2 w-10 rounded-sm bg-accent" />
-            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">API-ядра</span>
+            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{t("API-ядра", "API cores")}</span>
           </div>
           <h2 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{API_CORES.title}</h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground">{API_CORES.lead}</p>
@@ -476,7 +523,7 @@ export const ApiCores = () => {
             href="#demo"
             className="group mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-foreground underline-offset-4 hover:underline dark:text-accent"
           >
-            Запросить API-доступ <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            {t("Запросить API-доступ", "Request API access")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
         </ScrollReveal>
       </div>
@@ -485,15 +532,26 @@ export const ApiCores = () => {
 };
 
 // Лид-магнит: моушн-подводка к /blueprint — мини-чек-лист сам себя прощёлкивает
-const BP_ITEMS = [
-  "Юрлицо и лицензия оператора обмена ВА",
-  "KYC: верификация, 18+, резидентство, PEP",
-  "AML: санкции, 156 кодов, лимиты",
-  "Отчётность ГСФР и хранение 5 лет",
-  "Серверы в КР, бэкапы, аудит-трейл",
-];
+const BP_ITEMS = {
+  ru: [
+    "Юрлицо и лицензия оператора обмена ВА",
+    "KYC: верификация, 18+, резидентство, PEP",
+    "AML: санкции, 156 кодов, лимиты",
+    "Отчётность ГСФР и хранение 5 лет",
+    "Серверы в КР, бэкапы, аудит-трейл",
+  ],
+  en: [
+    "Legal entity and VA exchange operator licence",
+    "KYC: verification, 18+, residency, PEP",
+    "AML: sanctions, 156 codes, limits",
+    "SFIS reporting and 5-year retention",
+    "Servers in the KR, backups, audit trail",
+  ],
+};
 
 export const BlueprintCta = () => {
+  const { lang, t } = useLang();
+  const items = BP_ITEMS[lang];
   const widgetRef = useRef<HTMLDivElement>(null);
   const inView = useInView(widgetRef, { once: true, margin: "-90px" });
   const reduced = useReducedMotion();
@@ -502,7 +560,7 @@ export const BlueprintCta = () => {
   useEffect(() => {
     if (!inView) return;
     if (reduced) {
-      setN(BP_ITEMS.length);
+      setN(items.length);
       return;
     }
     let i = 0;
@@ -511,16 +569,16 @@ export const BlueprintCta = () => {
       setN(++i);
       id = window.setInterval(() => {
         setN(++i);
-        if (i >= BP_ITEMS.length) clearInterval(id);
+        if (i >= items.length) clearInterval(id);
       }, 520);
     }, 500);
     return () => {
       clearTimeout(start);
       if (id !== undefined) clearInterval(id);
     };
-  }, [inView, reduced]);
+  }, [inView, reduced, items.length]);
 
-  const progress = n / BP_ITEMS.length;
+  const progress = n / items.length;
 
   return (
     <section className="border-y border-border bg-secondary/30 py-16 sm:py-20">
@@ -535,20 +593,22 @@ export const BlueprintCta = () => {
           <motion.div variants={riseItem} className="flex items-center gap-3">
             <span className="h-2 w-10 rounded-sm bg-accent" />
             <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              С чего начать
+              {t("С чего начать", "Where to start")}
             </span>
           </motion.div>
           <motion.h2 variants={riseItem} className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-            Не знаете, с чего начать запуск обменника?
+            {t("Не знаете, с чего начать запуск обменника?", "Not sure where to start your exchange launch?")}
           </motion.h2>
           <motion.p variants={riseItem} className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            Мы прошли этот путь и собрали его в один чек-лист: лицензия, KYC/AML, отчётность ГСФР,
-            хранение данных — и грабли, на которых теряют месяцы.
+            {t(
+              "Мы прошли этот путь и собрали его в один чек-лист: лицензия, KYC/AML, отчётность ГСФР, хранение данных — и грабли, на которых теряют месяцы.",
+              "We've walked this path and distilled it into one checklist: licence, KYC/AML, SFIS reporting, data retention — and the pitfalls that cost months.",
+            )}
           </motion.p>
           <motion.div variants={riseItem} className="mt-7">
             <Button variant="signal" size="lg" className="group" asChild>
               <Link to="/blueprint">
-                Открыть чек-лист <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                {t("Открыть чек-лист", "Open the checklist")} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </Button>
           </motion.div>
@@ -559,9 +619,9 @@ export const BlueprintCta = () => {
           <div ref={widgetRef} className="overflow-hidden rounded-2xl border border-border bg-card shadow-[0_30px_80px_-32px_hsl(240_10%_6%/0.35)] dark:shadow-none">
             <div className="flex items-center gap-2.5 border-b border-border bg-secondary/60 px-4 py-3">
               <ClipboardCheck className="h-4 w-4 text-foreground" />
-              <span className="text-sm font-bold">Чек-лист запуска · Кыргызстан</span>
+              <span className="text-sm font-bold">{t("Чек-лист запуска · Кыргызстан", "Launch checklist · Kyrgyzstan")}</span>
               <span className="ml-auto font-mono text-xs tabular-nums text-muted-foreground">
-                {n}/{BP_ITEMS.length}
+                {n}/{items.length}
               </span>
             </div>
             {/* прогресс */}
@@ -573,7 +633,7 @@ export const BlueprintCta = () => {
               />
             </div>
             <div className="space-y-1 p-3 sm:p-4">
-              {BP_ITEMS.map((item, i) => {
+              {items.map((item, i) => {
                 const done = i < n;
                 return (
                   <div
@@ -612,7 +672,7 @@ export const BlueprintCta = () => {
                 to="/blueprint"
                 className="group mt-1 flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-semibold text-foreground underline-offset-4 hover:underline"
               >
-                …и ещё 25+ пунктов в полном чек-листе
+                {t("…и ещё 25+ пунктов в полном чек-листе", "…and 25+ more items in the full checklist")}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </div>
@@ -623,9 +683,12 @@ export const BlueprintCta = () => {
   );
 };
 
-export const Compliance = () => (
+export const Compliance = () => {
+  const { COMPLIANCE } = useContent();
+  const { t } = useLang();
+  return (
   <section id="compliance" className="container py-16 sm:py-20 lg:py-24">
-    <SectionHead eyebrow="Комплайнс и безопасность" title={COMPLIANCE.title} lead={COMPLIANCE.lead} />
+    <SectionHead eyebrow={t("Комплайнс и безопасность", "Compliance and security")} title={COMPLIANCE.title} lead={COMPLIANCE.lead} />
     <motion.div
       variants={textStagger}
       initial="hidden"
@@ -645,4 +708,5 @@ export const Compliance = () => (
       ))}
     </motion.div>
   </section>
-);
+  );
+};

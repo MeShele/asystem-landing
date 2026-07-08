@@ -4,9 +4,12 @@ import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
-import { NAV } from "@/content";
+import LangToggle from "@/components/LangToggle";
+import { useContent, useLang } from "@/i18n";
 
 const Header = () => {
+  const { NAV } = useContent();
+  const { t } = useLang();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("");
 
@@ -24,7 +27,7 @@ const Header = () => {
     );
     els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
-  }, []);
+  }, [NAV]);
 
   const linkBase =
     "rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
@@ -55,18 +58,20 @@ const Header = () => {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <LangToggle />
           <ThemeToggle />
           <Button variant="signal" size="sm" asChild>
-            <a href="#demo">Запросить демо</a>
+            <a href="#demo">{t("Запросить демо", "Request a demo")}</a>
           </Button>
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
+          <LangToggle />
           <ThemeToggle />
           <button
             className={`${linkBase} p-1`}
             onClick={() => setOpen((v) => !v)}
-            aria-label="Меню"
+            aria-label={t("Меню", "Menu")}
             aria-expanded={open}
           >
             {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -101,7 +106,7 @@ const Header = () => {
                 );
               })}
               <Button variant="signal" className="mt-2" asChild>
-                <a href="#demo" onClick={() => setOpen(false)}>Запросить демо</a>
+                <a href="#demo" onClick={() => setOpen(false)}>{t("Запросить демо", "Request a demo")}</a>
               </Button>
             </nav>
           </motion.div>

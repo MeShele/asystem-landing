@@ -3,6 +3,7 @@ import { Boxes } from "lucide-react";
 import { motion } from "motion/react";
 import { ICONS } from "@/lib/icons";
 import InfoModal from "@/components/InfoModal";
+import { useLang } from "@/i18n";
 import { CATALOG, type CatalogCategory } from "@/modulesCatalog";
 
 /** Core in the center → functional cores around it → modules branching from each core. */
@@ -12,7 +13,7 @@ const CORES: Core[] = [
   { key: "kyc", label: "KYC Core", icon: "UserCheck", cat: "kyc", modules: ["ASystem KYC", "SumSub", "Didit", "BiometricVision"] },
   { key: "pay", label: "Payment Core", icon: "CreditCard", cat: "payments", modules: ["Finik QR", "CoreX", "ElQR"] },
   { key: "aml", label: "AML Core", icon: "ShieldAlert", cat: "aml", modules: ["Comply Core", "ComplyAdvantage"] },
-  { key: "rep", label: "Reporting Core", icon: "FileSpreadsheet", cat: "reporting", modules: ["Финнадзор", "Данные комплайнс"] },
+  { key: "rep", label: "Reporting Core", icon: "FileSpreadsheet", cat: "reporting", modules: ["FinSupervision", "Compliance Data"] },
   { key: "cust", label: "Custody Core", icon: "Wallet", cat: "wallets", modules: ["ORGON", "DFNS", "Argon"] },
   { key: "liq", label: "Liquidity Core", icon: "Repeat", cat: "exchanges", modules: ["Binance", "Kraken", "ByBit"] },
 ];
@@ -51,18 +52,22 @@ const CoreCard = ({ core, compact, w = "w-full", onClick }: { core: Core; compac
   );
 };
 
-const CenterNode = () => (
+const CenterNode = () => {
+  const { t } = useLang();
+  return (
   <div className="relative grid place-items-center">
     <span className="absolute h-24 w-24 animate-ping rounded-full bg-accent/25" />
     <div className="relative flex flex-col items-center gap-0.5 rounded-2xl border-2 border-accent bg-accent px-6 py-4 text-accent-foreground shadow-[0_16px_40px_-12px_hsl(79_100%_55%/0.6)]">
       <Boxes className="h-6 w-6" />
       <span className="font-display text-sm font-extrabold">ASystem Core</span>
-      <span className="text-[10px] font-medium opacity-75">Ядро платформы</span>
+      <span className="text-[10px] font-medium opacity-75">{t("Ядро платформы", "Platform core")}</span>
     </div>
   </div>
-);
+  );
+};
 
 const ArchitectureGraphic = () => {
+  const { t } = useLang();
   const [cat, setCat] = useState<CatalogCategory | null>(null);
   const open = (core: Core) => setCat(CATALOG.find((c) => c.key === core.cat) ?? null);
 
@@ -145,7 +150,7 @@ const ArchitectureGraphic = () => {
         </motion.div>
       </div>
 
-      <p className="mt-6 text-center text-xs text-muted-foreground">Нажмите на ядро — описание и провайдеры</p>
+      <p className="mt-6 text-center text-xs text-muted-foreground">{t("Нажмите на ядро — описание и провайдеры", "Click a core for its description and providers")}</p>
 
       <InfoModal category={cat} onClose={() => setCat(null)} />
     </div>

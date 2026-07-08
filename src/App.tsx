@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useLang } from "@/i18n";
 import Header from "@/components/Header";
 import SmoothScroll from "@/components/SmoothScroll";
 import Hero from "@/components/Hero";
@@ -8,6 +9,25 @@ import { BlueprintCta, IntegrationsBar, Stats, Problem, ClientShowcase, Features
 import { Pricing, Faq, FinalCta, Footer } from "@/components/Closing";
 
 function App() {
+  const { t } = useLang();
+
+  // title/description следуют за языком (дефолт в index.html — RU)
+  useEffect(() => {
+    document.title = t(
+      "ASystem Core — платформа лицензированных криптообменников",
+      "ASystem Core — the licensed crypto exchange platform",
+    );
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute(
+        "content",
+        t(
+          "Запустите лицензированный крипто-обменник под ключ: лицензия оператора обмена ВА, KYC/AML, отчётность и деплой в один клик.",
+          "Launch a licensed turnkey crypto exchange: VA exchange operator licence, KYC/AML, reporting and one-click deployment.",
+        ),
+      );
+  }, [t]);
+
   // Заход с внутренних страниц (например /blueprint → «/#demo»): после маунта
   // докручиваем к якорю из hash — SPA-навигация сама этого не делает. Два
   // прогона: первый может проиграть гонку инициализации Lenis/лейаута.

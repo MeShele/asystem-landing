@@ -3,9 +3,13 @@ import { ArrowRight, Check, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import ExchangeWidget from "@/components/ExchangeWidget";
-import { DEMO_URL, HERO } from "@/content";
+import { DEMO_URL } from "@/content";
+import { useContent, useLang } from "@/i18n";
 
-const checks = ["Лицензия оператора обмена ВА", "Деплой в 1 клик", "KYC/AML внутри"];
+const CHECKS = {
+  ru: ["Лицензия оператора обмена ВА", "Деплой в 1 клик", "KYC/AML внутри"],
+  en: ["VA exchange operator licence", "1-click deploy", "KYC/AML inside"],
+};
 
 const BrowserFrame = ({
   children,
@@ -40,7 +44,11 @@ const rise = {
   show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { type: "spring", stiffness: 120, damping: 20 } },
 } as const;
 
-const Hero = () => (
+const Hero = () => {
+  const { HERO } = useContent();
+  const { lang } = useLang();
+  const checks = CHECKS[lang];
+  return (
   <section id="top" className="relative overflow-hidden border-b border-border">
     {/* сетка с радиальным растворением к краям */}
     <div
@@ -126,7 +134,8 @@ const Hero = () => (
       </motion.div>
     </div>
   </section>
-);
+  );
+};
 
 export default Hero;
 export { BrowserFrame };

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { X, ArrowRight, Check, ShieldCheck, Clock, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLang } from "@/i18n";
 
 type Mode = "buy" | "sell";
 
@@ -40,6 +41,7 @@ const Row = ({ k, v }: { k: string; v: string }) => (
 );
 
 const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, getCur, rate, fmt }: Props) => {
+  const { t } = useLang();
   const [step, setStep] = useState<"form" | "done">("form");
   const [network, setNetwork] = useState(NETWORKS[0]);
   const [wallet, setWallet] = useState("");
@@ -74,11 +76,11 @@ const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, ge
   const validate = () => {
     const e: Record<string, string> = {};
     if (mode === "buy") {
-      if (wallet.trim().length < 8) e.wallet = "Укажите адрес кошелька получателя";
+      if (wallet.trim().length < 8) e.wallet = t("Укажите адрес кошелька получателя", "Enter the recipient wallet address");
     } else {
-      if (requisites.trim().length < 6) e.requisites = "Укажите реквизиты для получения";
+      if (requisites.trim().length < 6) e.requisites = t("Укажите реквизиты для получения", "Enter your payout details");
     }
-    if (contact.trim().length < 3) e.contact = "Укажите контакт для связи";
+    if (contact.trim().length < 3) e.contact = t("Укажите контакт для связи", "Enter a contact");
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -97,7 +99,7 @@ const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, ge
       onMouseDown={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label={mode === "buy" ? "Покупка USDT" : "Продажа USDT"}
+      aria-label={mode === "buy" ? t("Покупка USDT", "Buy USDT") : t("Продажа USDT", "Sell USDT")}
     >
       <div
         className="relative w-full max-w-md animate-scale-in rounded-t-2xl bg-card p-6 shadow-[0_30px_80px_-20px_hsl(240_10%_6%/0.5)] sm:rounded-2xl"
@@ -105,7 +107,7 @@ const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, ge
       >
         <button
           onClick={onClose}
-          aria-label="Закрыть"
+          aria-label={t("Закрыть", "Close")}
           className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
         >
           <X className="h-4 w-4" />
@@ -114,21 +116,21 @@ const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, ge
         {step === "form" ? (
           <form onSubmit={submit} noValidate>
             <h3 className="font-display text-xl font-extrabold tracking-tight">
-              {mode === "buy" ? "Покупка USDT" : "Продажа USDT"}
+              {mode === "buy" ? t("Покупка USDT", "Buy USDT") : t("Продажа USDT", "Sell USDT")}
             </h3>
-            <p className="mt-1 text-sm text-muted-foreground">Оформление заявки — оператор подтвердит детали.</p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("Оформление заявки — оператор подтвердит детали.", "Place an order — the operator will confirm the details.")}</p>
 
             <div className="mt-4 rounded-xl border border-border bg-secondary/40 p-4">
-              <Row k="Вы отдаёте" v={`${fmt(giveAmount)} ${giveCur}`} />
+              <Row k={t("Вы отдаёте", "You send")} v={`${fmt(giveAmount)} ${giveCur}`} />
               <div className="my-1 h-px bg-border" />
-              <Row k="Вы получаете" v={`${fmt(getAmount)} ${getCur}`} />
+              <Row k={t("Вы получаете", "You receive")} v={`${fmt(getAmount)} ${getCur}`} />
               <div className="mt-2 text-xs text-muted-foreground">
-                Курс: 1 USDT = {rate.toFixed(2)} KGS · комиссия 0%
+                {t("Курс", "Rate")}: 1 USDT = {rate.toFixed(2)} KGS · {t("комиссия известна до подтверждения", "fee shown before you confirm")}
               </div>
             </div>
 
             <div className="mt-4 space-y-3">
-              <Field label={mode === "buy" ? "Сеть получения" : "Сеть отправки"}>
+              <Field label={mode === "buy" ? t("Сеть получения", "Receiving network") : t("Сеть отправки", "Sending network")}>
                 <div className="relative">
                   <select
                     value={network}
@@ -144,7 +146,7 @@ const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, ge
               </Field>
 
               {mode === "buy" ? (
-                <Field label={`Адрес кошелька ${getCur}`} error={errors.wallet}>
+                <Field label={t(`Адрес кошелька ${getCur}`, `${getCur} wallet address`)} error={errors.wallet}>
                   <input
                     ref={firstRef}
                     value={wallet}
@@ -154,33 +156,33 @@ const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, ge
                   />
                 </Field>
               ) : (
-                <Field label="Реквизиты для получения KGS" error={errors.requisites}>
+                <Field label={t("Реквизиты для получения KGS", "KGS payout details")} error={errors.requisites}>
                   <input
                     ref={firstRef}
                     value={requisites}
                     onChange={(e) => setRequisites(e.target.value)}
-                    placeholder="Номер карты или счёта"
+                    placeholder={t("Номер карты или счёта", "Card or account number")}
                     className={inputCls(errors.requisites)}
                   />
                 </Field>
               )}
 
-              <Field label="Контакт для связи" error={errors.contact}>
+              <Field label={t("Контакт для связи", "Contact")} error={errors.contact}>
                 <input
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="Telegram / email / телефон"
+                  placeholder={t("Telegram / email / телефон", "Telegram / email / phone")}
                   className={inputCls(errors.contact)}
                 />
               </Field>
             </div>
 
             <Button type="submit" variant="signal" size="lg" className="mt-5 w-full">
-              Создать заявку <ArrowRight className="h-4 w-4" />
+              {t("Создать заявку", "Create order")} <ArrowRight className="h-4 w-4" />
             </Button>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
               <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-foreground" />
-              Демонстрация интерфейса — без реального обмена
+              {t("Демонстрация интерфейса — без реального обмена", "Interface demo — no real exchange happens")}
             </p>
           </form>
         ) : (
@@ -188,24 +190,27 @@ const ExchangeModal = ({ open, onClose, mode, giveAmount, giveCur, getAmount, ge
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent">
               <Check className="h-7 w-7 text-accent-foreground" />
             </div>
-            <h3 className="mt-4 font-display text-xl font-extrabold tracking-tight">Заявка создана</h3>
+            <h3 className="mt-4 font-display text-xl font-extrabold tracking-tight">{t("Заявка создана", "Order created")}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Номер заявки <span className="font-mono font-semibold text-foreground">{orderId}</span>
+              {t("Номер заявки", "Order number")} <span className="font-mono font-semibold text-foreground">{orderId}</span>
             </p>
 
             <div className="mt-4 rounded-xl border border-border bg-secondary/40 p-4 text-left">
-              <Row k="Операция" v={mode === "buy" ? "Покупка USDT" : "Продажа USDT"} />
-              <Row k="Отдаёте" v={`${fmt(giveAmount)} ${giveCur}`} />
-              <Row k="Получаете" v={`${fmt(getAmount)} ${getCur}`} />
+              <Row k={t("Операция", "Operation")} v={mode === "buy" ? t("Покупка USDT", "Buy USDT") : t("Продажа USDT", "Sell USDT")} />
+              <Row k={t("Отдаёте", "You send")} v={`${fmt(giveAmount)} ${giveCur}`} />
+              <Row k={t("Получаете", "You receive")} v={`${fmt(getAmount)} ${getCur}`} />
             </div>
 
             <div className="mt-4 flex items-start gap-2 rounded-xl bg-accent/10 p-3 text-left text-xs leading-relaxed text-muted-foreground">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
-              <span>В реальном обменнике клиент получает инструкции по оплате и статус заявки онлайн. Это демонстрация платформы — реальный обмен здесь недоступен.</span>
+              <span>{t(
+                "В реальном обменнике клиент получает инструкции по оплате и статус заявки онлайн. Это демонстрация платформы — реальный обмен здесь недоступен.",
+                "In a real exchange the client gets payment instructions and live order status. This is a platform demo — no real exchange is available here.",
+              )}</span>
             </div>
 
             <Button variant="signal" size="lg" className="mt-5 w-full" onClick={onClose}>
-              Готово
+              {t("Готово", "Done")}
             </Button>
           </div>
         )}
