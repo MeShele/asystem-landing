@@ -5,7 +5,8 @@ import { useLang } from "@/i18n";
 // Продуктовый шоурил (30 сек, Remotion: ../asystem-promo). Автоплей только в зоне
 // видимости — экономим батарею/трафик и гарантируем старт с начала при показе.
 const Showreel = () => {
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  const sfx = lang === "en" ? "-en" : "";
   const ref = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -20,7 +21,8 @@ const Showreel = () => {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+    // sfx меняет key видео-элемента — observer должен перецепиться к новому DOM-узлу
+  }, [sfx]);
 
   return (
     <section id="showreel" className="border-b border-border bg-background">
@@ -35,15 +37,16 @@ const Showreel = () => {
             </div>
             <div className="mt-6 overflow-hidden rounded-xl border border-border shadow-[0_40px_120px_-40px_hsl(240_10%_6%/0.45)] dark:border-white/10 dark:shadow-[0_40px_120px_-30px_rgba(0,0,0,0.8)]">
               <video
+                key={sfx}
                 ref={ref}
                 muted
                 loop
                 playsInline
                 preload="metadata"
-                poster="/video/showreel-poster.jpg"
+                poster={`/video/showreel-poster${sfx}.jpg`}
                 className="block w-full"
               >
-                <source src="/video/showreel.mp4" type="video/mp4" />
+                <source src={`/video/showreel${sfx}.mp4`} type="video/mp4" />
               </video>
             </div>
           </div>

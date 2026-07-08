@@ -51,10 +51,11 @@ const useIsDark = () => {
 };
 
 // Браузер-фрейм с автоплей-видео демо (poster в /shots, видео в /demos).
-// Клипы отрендерены в двух темах — светлая сцена для светлой темы.
+// Клипы отрендерены в двух темах и двух локалях — суффиксы -en / -light.
 const VideoDemo = ({ demo, url, plain }: { demo: string; url?: string; plain?: boolean }) => {
   const dark = useIsDark();
-  const sfx = dark ? "" : "-light";
+  const { lang } = useLang();
+  const sfx = `${lang === "en" ? "-en" : ""}${dark ? "" : "-light"}`;
   const video = (
     <video key={sfx} className="block w-full" poster={`/shots/${demo}${sfx}.png`} autoPlay muted loop playsInline preload="metadata">
       {/* только h264/mp4: vp9-webm с рендера ловил MEDIA_ERR_DECODE */}

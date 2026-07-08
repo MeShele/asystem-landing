@@ -22,7 +22,7 @@ const STAGES: Record<Lang, Stage[]> = {
     {
       title: "Этап 1. Юридическая база",
       items: [
-        "Юрлицо в КР (обычно ОсОО): устав, учредители, бенефициары раскрыты — база бенефициарных владельцев (ПКМ 739, прил. 8).",
+        "Юрлицо в КР (ОсОО, ООО или АО/ЗАО): устав, учредители, бенефициары раскрыты — база бенефициарных владельцев (ПКМ 739, прил. 8).",
         "Лицензия оператора обмена виртуальных активов КР — не «регистрация», а полноценная лицензия с требованиями к капиталу, помещению и персоналу. Порядок и пакет документов обновляются — сверяйтесь с актуальной редакцией НПА или берите сопровождение.",
         "Комплаенс-офицер — назначенное ответственное лицо по ПОД/ФТ (обучение в профильном учебном центре — плюс при проверке).",
         "Правила внутреннего контроля (ПВК) по прил. 11 ПКМ 739: риск-ориентированный подход, процедуры проверки клиентов, порядок выявления подозрительных операций, обучение сотрудников.",
@@ -104,7 +104,7 @@ const STAGES: Record<Lang, Stage[]> = {
     {
       title: "Stage 1. Legal foundation",
       items: [
-        "A legal entity in the KR (usually an LLC): charter, founders, beneficial owners disclosed — beneficial ownership register (decree 739, annex 8).",
+        "A legal entity in the KR (an LLC or a JSC): charter, founders, beneficial owners disclosed — beneficial ownership register (decree 739, annex 8).",
         "The KR virtual asset exchange operator licence — not a mere “registration” but a full licence with capital, premises and staffing requirements. Procedures and document packages get updated — check the current regulations or get professional support.",
         "A compliance officer — a designated AML/CFT responsible person (training at a specialized center is a plus during inspections).",
         "Internal control rules per annex 11 of decree 739: a risk-based approach, customer due diligence procedures, suspicious transaction detection, staff training.",
