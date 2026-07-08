@@ -26,7 +26,7 @@ export const HERO = {
 export const DEMO_URL = "https://demo.asystem.ai";
 
 export const STATS = [
-  { value: "28", label: "модулей в маркетплейсе" },
+  { value: "25+", label: "модулей в маркетплейсе" },
   { value: "4", label: "живых обменника уже в проде" },
   { value: "1 клик", label: "развёртывание обменника" },
   { value: "ГСФР", label: "встроенный комплайнс КР" },

@@ -328,7 +328,7 @@ export const Modules = () => {
       <div className="container">
         <SectionHead
           eyebrow={t("Маркетплейс модулей", "Module marketplace")}
-          title={t("28 модулей в маркетплейсе", "28 modules in the marketplace")}
+          title={t("25+ модулей в маркетплейсе", "25+ modules in the marketplace")}
           lead={t(
             "Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке.",
             "Pick a category to see what's inside. Modules are enabled with a toggle in the admin panel.",
