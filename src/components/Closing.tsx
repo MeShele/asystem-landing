@@ -136,6 +136,8 @@ export const FinalCta = () => {
   const { FINAL_CTA } = useContent();
   const { lang, t } = useLang();
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState(false);
   const [topic, setTopic] = useState<(typeof CTA_TOPICS)[number]["key"]>("turnkey");
   const input =
     "h-11 w-full rounded-[var(--radius)] border border-input bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
@@ -177,7 +179,36 @@ export const FinalCta = () => {
                 <p className="mt-1 text-sm text-muted-foreground">{t("Свяжемся с вами в ближайшее время.", "We'll get back to you shortly.")}</p>
               </motion.div>
             ) : (
-              <form className="space-y-3" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              <form
+                className="space-y-3"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (sending) return;
+                  const fd = new FormData(e.currentTarget);
+                  if (((fd.get("website") as string) || "").trim()) { setSent(true); return; }
+                  setErr(false);
+                  setSending(true);
+                  try {
+                    const res = await fetch("https://api.asystem.ai/functions/v1/submit-lead", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: fd.get("name"),
+                        company: fd.get("company"),
+                        contact: fd.get("contact"),
+                        topic,
+                        source: "get.asystem.ai",
+                      }),
+                    });
+                    if (!res.ok) throw new Error("failed");
+                    setSent(true);
+                  } catch {
+                    setErr(true);
+                  } finally {
+                    setSending(false);
+                  }
+                }}
+              >
                 {/* чат-гид: сценарий обращения — сегментация до разговора */}
                 <div className="flex flex-wrap gap-1.5 pb-1">
                   {CTA_TOPICS.map((tp) => {
@@ -203,12 +234,19 @@ export const FinalCta = () => {
                     );
                   })}
                 </div>
-                <input required placeholder={t("Имя", "Name")} className={input} />
-                <input required placeholder={t("Компания", "Company")} className={input} />
-                <input required type="text" placeholder={t("Telegram / email / телефон", "Telegram / email / phone")} className={input} />
-                <Button type="submit" variant="signal" className="group w-full">
-                  {FINAL_CTA.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                <input required name="name" placeholder={t("Имя", "Name")} className={input} />
+                <input required name="company" placeholder={t("Компания", "Company")} className={input} />
+                <input required name="contact" type="text" placeholder={t("Telegram / email / телефон", "Telegram / email / phone")} className={input} />
+                {/* honeypot: скрыто от людей, ловит ботов */}
+                <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
+                <Button type="submit" variant="signal" disabled={sending} className="group w-full">
+                  {sending ? t("Отправляем…", "Sending…") : FINAL_CTA.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </Button>
+                {err && (
+                  <p className="text-center text-xs text-destructive">
+                    {t("Не удалось отправить. Напишите нам в Telegram или на почту.", "Could not send. Please reach us on Telegram or email.")}
+                  </p>
+                )}
                 <p className="text-center text-xs text-muted-foreground/80">{t("Нажимая, вы соглашаетесь на обработку контактных данных", "By submitting you agree to the processing of your contact details")}</p>
               </form>
             )}
