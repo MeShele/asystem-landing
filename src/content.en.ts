@@ -40,7 +40,6 @@ export const INTEGRATIONS = [
   { name: "Didit", domain: "didit.me" },
   { name: "BiometricVision" },
   { name: "Finik", domain: "finik.kg" },
-  { name: "CoreX" },
   { name: "DFNS", domain: "dfns.co" },
   { name: "ORGON" },
   { name: "Comply Core", own: true },
@@ -131,7 +130,6 @@ export const PRICING: typeof RU.PRICING = {
       includes: [
         "Everything in Start",
         "Extended KYC: Didit · BiometricVision · SumSub",
-        "CoreX Acquiring — card payments",
         "FinSupervision reports + compliance data",
         "Client quiz / questionnaire",
         "Multi-domain + white-label · priority support",

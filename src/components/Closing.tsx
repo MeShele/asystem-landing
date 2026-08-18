@@ -247,6 +247,30 @@ export const Footer = () => {
           ),
         )}
       </nav>
+      <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+        <a
+          href="https://t.me/Ruslyandi"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          Telegram
+        </a>
+        <a
+          href="https://wa.me/996500115133"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          WhatsApp
+        </a>
+        <a
+          href="mailto:asystem.teamwork@gmail.com"
+          className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          asystem.teamwork@gmail.com
+        </a>
+      </div>
       <p className="text-xs text-muted-foreground">© 2026 ASystem Core. {t("Все права защищены.", "All rights reserved.")}</p>
     </div>
   </footer>

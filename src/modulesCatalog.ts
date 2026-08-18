@@ -57,7 +57,6 @@ export const CATALOG: CatalogCategory[] = [
     },
     modules: [
       { name: "Finik QR", status: "available", domain: "finik.kg" },
-      { name: "CoreX Acquiring", status: "available" },
       { name: "ElQR", status: "soon" },
       { name: "FreedomPay", status: "soon", domain: "freedompay.kg" },
     ],
@@ -105,8 +104,6 @@ export const CATALOG: CatalogCategory[] = [
     modules: [
       { name: "ORGON Custody", status: "available" },
       { name: "DFNS Custody", status: "soon", domain: "dfns.co" },
-      { name: "Argon", status: "soon" },
-      { name: "SofinaPro", status: "soon" },
     ],
   },
   {

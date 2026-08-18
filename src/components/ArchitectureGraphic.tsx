@@ -11,10 +11,10 @@ type Core = { key: string; label: string; icon: string; cat: string; modules: st
 
 const CORES: Core[] = [
   { key: "kyc", label: "KYC Core", icon: "UserCheck", cat: "kyc", modules: ["ASystem KYC", "SumSub", "Didit", "BiometricVision"] },
-  { key: "pay", label: "Payment Core", icon: "CreditCard", cat: "payments", modules: ["Finik QR", "CoreX", "ElQR"] },
+  { key: "pay", label: "Payment Core", icon: "CreditCard", cat: "payments", modules: ["Finik QR", "ElQR"] },
   { key: "aml", label: "AML Core", icon: "ShieldAlert", cat: "aml", modules: ["Comply Core", "ComplyAdvantage"] },
   { key: "rep", label: "Reporting Core", icon: "FileSpreadsheet", cat: "reporting", modules: ["FinSupervision", "Compliance Data"] },
-  { key: "cust", label: "Custody Core", icon: "Wallet", cat: "wallets", modules: ["ORGON", "DFNS", "Argon"] },
+  { key: "cust", label: "Custody Core", icon: "Wallet", cat: "wallets", modules: ["ORGON", "DFNS"] },
   { key: "liq", label: "Liquidity Core", icon: "Repeat", cat: "exchanges", modules: ["Binance", "Kraken", "ByBit"] },
 ];
 
