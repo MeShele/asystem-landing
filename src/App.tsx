@@ -6,7 +6,8 @@ import SmoothScroll from "@/components/SmoothScroll";
 import Hero from "@/components/Hero";
 import Showreel from "@/components/Showreel";
 import { BlueprintCta, IntegrationsBar, Stats, Problem, ClientShowcase, Features, HowItWorks, OperatorShowcase, Architecture, Modules, ApiCores, Compliance } from "@/components/Sections";
-import { Pricing, Faq, FinalCta, Footer } from "@/components/Closing";
+import { Faq, FinalCta, Footer } from "@/components/Closing";
+import { Calculator } from "@/components/Calculator";
 
 function App() {
   const { t } = useLang();
@@ -65,7 +66,7 @@ function App() {
         <ApiCores />
         <Compliance />
         <BlueprintCta />
-        <Pricing />
+        <Calculator />
         <Faq />
         <FinalCta />
       </main>

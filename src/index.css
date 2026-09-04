@@ -155,3 +155,10 @@
     box-shadow: 0 12px 34px rgb(0 0 0 / 0.5);
   }
 }
+
+/* Печать спецификации из калькулятора: скрыть всё, кроме #spec-doc */
+@media print {
+  body * { visibility: hidden; }
+  #spec-doc, #spec-doc * { visibility: visible; }
+  #spec-doc { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
+}
