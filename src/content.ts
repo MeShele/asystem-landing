@@ -39,7 +39,6 @@ export const INTEGRATIONS = [
   { name: "BiometricVision" },
   { name: "Finik", domain: "finik.kg" },
   { name: "DFNS", domain: "dfns.co" },
-  { name: "ORGON" },
   { name: "Comply Core", own: true },
 ] as { name: string; domain?: string; own?: boolean }[];
 
@@ -144,7 +143,7 @@ export const PRICING = {
       featured: false,
       includes: [
         "Всё из «Комфорт»",
-        "Custody: ORGON · DFNS",
+        "Custody: DFNS",
         "Биржи-ликвидность (Binance, Kraken…)",
         "Модульные API-ядра (KYC/Payment/AML/Custody)",
         "Self-hosted · индивидуальный SLA",

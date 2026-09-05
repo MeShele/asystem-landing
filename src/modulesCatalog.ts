@@ -42,7 +42,7 @@ export const CATALOG: CatalogCategory[] = [
       { name: "ASystem KYC", status: "available", own: true },
       { name: "Didit", status: "available", domain: "didit.me" },
       { name: "BiometricVision", status: "available" },
-      { name: "SumSub", status: "available", domain: "sumsub.com" },
+      { name: "SumSub", status: "soon", domain: "sumsub.com" },
       { name: "Persona", status: "soon", domain: "withpersona.com" },
     ],
   },
@@ -72,6 +72,7 @@ export const CATALOG: CatalogCategory[] = [
     },
     modules: [
       { name: "Comply Core (ГСФР)", nameEn: "Comply Core (SFIS)", status: "available", own: true },
+      { name: "Ranex KYT", nameEn: "Ranex KYT", status: "available", domain: "ranex.kg" },
       { name: "ComplyAdvantage", status: "soon", domain: "complyadvantage.com" },
     ],
   },
@@ -85,8 +86,8 @@ export const CATALOG: CatalogCategory[] = [
       en: "Automated mandatory reporting for FinSupervision in the required formats plus compliance data exports — no manual Excel work.",
     },
     modules: [
-      { name: "Отчёты Финнадзор", nameEn: "FinSupervision reports", status: "soon", own: true },
-      { name: "Данные комплайнс", nameEn: "Compliance data", status: "soon", own: true },
+      { name: "Отчёты Финнадзор", nameEn: "FinSupervision reports", status: "available", own: true },
+      { name: "Данные комплайнс", nameEn: "Compliance data", status: "available", own: true },
     ],
   },
   {
@@ -102,8 +103,7 @@ export const CATALOG: CatalogCategory[] = [
       en: "Crypto storage and payouts via licensed custody providers: deposit addresses, multi-network support, order-driven payouts — with role separation and audit.",
     },
     modules: [
-      { name: "ORGON Custody", status: "available" },
-      { name: "DFNS Custody", status: "soon", domain: "dfns.co" },
+      { name: "DFNS Custody", status: "available", domain: "dfns.co" },
     ],
   },
   {
@@ -135,7 +135,7 @@ export const CATALOG: CatalogCategory[] = [
       en: "Helper modules for onboarding and operations: client quizzes/questionnaires and document generation.",
     },
     modules: [
-      { name: "Квиз / Анкета", nameEn: "Quiz / Questionnaire", status: "soon", own: true },
+      { name: "Квиз / Анкета", nameEn: "Quiz / Questionnaire", status: "available", own: true },
       { name: "Генерация документов", nameEn: "Document generation", status: "soon", own: true },
     ],
   },
