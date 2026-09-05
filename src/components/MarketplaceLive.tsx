@@ -12,7 +12,7 @@ const ITEMS = {
     { name: "Didit", desc: "KYC-провайдер" },
     { name: "Finik QR", desc: "приём оплат" },
     { name: "Comply Core", desc: "комплайнс ГСФР" },
-    { name: "ORGON Custody", desc: "кошельки и выплаты" },
+    { name: "DFNS Custody", desc: "кошельки и выплаты" },
     { name: "Отчёты Финнадзор", desc: "автоотчётность" },
   ],
   en: [
@@ -20,7 +20,7 @@ const ITEMS = {
     { name: "Didit", desc: "KYC provider" },
     { name: "Finik QR", desc: "payment acceptance" },
     { name: "Comply Core", desc: "SFIS compliance" },
-    { name: "ORGON Custody", desc: "wallets and payouts" },
+    { name: "DFNS Custody", desc: "wallets and payouts" },
     { name: "FinSupervision reports", desc: "auto-reporting" },
   ],
 };

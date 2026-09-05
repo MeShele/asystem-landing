@@ -14,7 +14,7 @@ const CORES: Core[] = [
   { key: "pay", label: "Payment Core", icon: "CreditCard", cat: "payments", modules: ["Finik QR", "ElQR"] },
   { key: "aml", label: "AML Core", icon: "ShieldAlert", cat: "aml", modules: ["Comply Core", "ComplyAdvantage"] },
   { key: "rep", label: "Reporting Core", icon: "FileSpreadsheet", cat: "reporting", modules: ["FinSupervision", "Compliance Data"] },
-  { key: "cust", label: "Custody Core", icon: "Wallet", cat: "wallets", modules: ["ORGON", "DFNS"] },
+  { key: "cust", label: "Custody Core", icon: "Wallet", cat: "wallets", modules: ["DFNS"] },
   { key: "liq", label: "Liquidity Core", icon: "Repeat", cat: "exchanges", modules: ["Binance", "Kraken", "ByBit"] },
 ];
 
