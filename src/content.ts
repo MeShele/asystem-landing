@@ -128,8 +128,8 @@ export const PRICING = {
       featured: true,
       includes: [
         "Всё из «Старт»",
-        "Расширенный KYC: Didit · BiometricVision · SumSub",
-        "Отчёты Финнадзор + Данные комплайнс",
+        "Расширенный KYC: Didit · BiometricVision",
+        "Отчёты Финнадзору",
         "Квиз / Анкета клиента",
         "Мульти-домен + white-label · приоритет",
       ],
