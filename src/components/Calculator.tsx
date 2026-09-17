@@ -6,7 +6,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 import { useLang, type L } from "@/i18n";
 
 const RATE = 89; // ориентировочный курс сом/USD для показа
-const SETUP = 300;
+// Первым 5 клиентам подключение бесплатно, далее 500 $ разово.
+const SETUP = 0;
 
 interface Mod {
   id: string;
@@ -14,30 +15,49 @@ interface Mod {
   ds: L;
   price: number;
   req?: boolean;
+  once?: boolean;   // разовая покупка, а не ежемесячная
+  free?: L;         // подпись вместо цены, когда модуль без доплаты
 }
 
+/**
+ * Цены — из прайса платформы (platform_pricing). Не выдумывать: клиент считает
+ * здесь и приходит с этой цифрой.
+ *
+ * Кастоди в калькуляторе НЕТ намеренно: DFNS в тестировании, цена не выведена —
+ * ждём партнёрскую программу. Показывать за него сумму значит обещать то,
+ * о чём ещё не договорились.
+ */
 const MODULES: Mod[] = [
   { id: "base", price: 300, req: true,
     name: { ru: "Базовый обменник", en: "Base exchange" },
     ds: { ru: "Витрина «купить / продать / обмен», заявки, админ-панель, курсы, комиссии, брендинг, размещение", en: "Buy / sell / exchange storefront, orders, admin panel, rates, fees, branding, hosting" } },
-  { id: "kyc", price: 200,
+  { id: "kyc", price: 0, free: { ru: "без доплаты", en: "included" },
     name: { ru: "KYC-верификация", en: "KYC verification" },
-    ds: { ru: "Проверка личности клиентов: документы, селфи, очередь проверок", en: "Client identity checks: documents, selfie, review queue" } },
-  { id: "compliance", price: 200,
-    name: { ru: "Комплаенс", en: "Compliance" },
-    ds: { ru: "Скрининг по санкц-спискам и ПДЛ, мониторинг, рабочее место офицера", en: "Sanctions/PEP screening, monitoring, officer workspace" } },
-  { id: "reports", price: 300,
-    name: { ru: "Отчётность ГСФР", en: "SFIS reporting" },
-    ds: { ru: "Отчёты STR / CTR, генерация регуляторных документов", en: "STR / CTR reports, regulatory document generation" } },
-  { id: "custody", price: 300,
-    name: { ru: "Кастоди-кошельки", en: "Custody wallets" },
-    ds: { ru: "Приём и вывод криптовалюты, кошельки, автовыплаты", en: "Crypto deposits/withdrawals, wallets, auto-payouts" } },
-  { id: "payments", price: 150,
-    name: { ru: "Платёжные интеграции", en: "Payment integrations" },
-    ds: { ru: "Подключение СБП / Finik / эквайринга", en: "Instant pay / Finik / acquiring" } },
-  { id: "api", price: 100,
-    name: { ru: "API-ядра и кастомизация", en: "API cores & customization" },
-    ds: { ru: "Отдельные ядра и доработки под задачи", en: "Standalone cores and custom work" } },
+    ds: { ru: "Проверка личности: паспорт, селфи, риск-скоринг. Свой модуль или внешний провайдер на выбор — берём только за настройку", en: "Identity checks: passport, selfie, risk scoring. Own module or an external provider — we only charge for setup" } },
+  { id: "compliance", price: 300,
+    name: { ru: "Comply Core (ГСФР)", en: "Comply Core (SFIS)" },
+    ds: { ru: "Рабочее место офицера: санкционные перечни, разбор подозрительных операций, хранение документов под ГСФР", en: "Officer workspace: sanctions lists, suspicious activity review, document retention for the regulator" } },
+  { id: "kyt", price: 0, free: { ru: "без доплаты", en: "included" },
+    name: { ru: "Скрининг крипто-адресов", en: "Crypto address screening" },
+    ds: { ru: "Проверка адреса на связь с преступными деньгами до того, как обменник их принял", en: "Address screening against criminal funds before the exchange accepts them" } },
+  { id: "reports", price: 150,
+    name: { ru: "Отчёты Финнадзор", en: "FinSupervision reports" },
+    ds: { ru: "Готовый Excel регулятору: реестры считаются сами, показатели вводятся раз в месяц", en: "Ready Excel for the regulator: registries are computed automatically, figures entered monthly" } },
+  { id: "payments", price: 0, free: { ru: "без доплаты", en: "included" },
+    name: { ru: "Приём и выплаты (Finik)", en: "Payments & payouts (Finik)" },
+    ds: { ru: "Оплата по QR и автоматическая выплата сомов после сделки. Комиссия эквайера — напрямую провайдеру", en: "QR payments and automatic KGS payouts after the deal. Acquirer fee goes directly to the provider" } },
+  { id: "notify", price: 150, once: true,
+    name: { ru: "Уведомления клиенту", en: "Client notifications" },
+    ds: { ru: "Письма и SMS о статусе заявки, оповещения сотрудникам. Разовая покупка", en: "Email and SMS about order status, staff alerts. One-time purchase" } },
+  { id: "pwa", price: 200, once: true,
+    name: { ru: "Мобильное приложение (PWA)", en: "Mobile app (PWA)" },
+    ds: { ru: "Сайт ставится на телефон как приложение — своя иконка и имя. Разработка под сторы не нужна", en: "The site installs on a phone as an app — own icon and name. No store development needed" } },
+  { id: "twofa", price: 100, once: true,
+    name: { ru: "Двухфакторный вход", en: "Two-factor login" },
+    ds: { ru: "Второй фактор для сотрудников и клиентов: украденного пароля мало, чтобы войти. Разовая покупка", en: "Second factor for staff and clients: a stolen password is not enough. One-time purchase" } },
+  { id: "server", price: 120,
+    name: { ru: "Отдельный сервер", en: "Dedicated server" },
+    ds: { ru: "Свой изолированный сервер и база вместо общей площадки — когда важна изоляция данных", en: "Dedicated server and database instead of shared hosting — when data isolation matters" } },
 ];
 
 const fmt = (n: number) => n.toLocaleString("ru-RU");
@@ -49,8 +69,13 @@ export const Calculator = () => {
   );
   const [docOpen, setDocOpen] = useState(false);
 
+  // Ежемесячный платёж и разовые покупки — разные деньги, складывать их нельзя.
   const total = useMemo(
-    () => MODULES.reduce((s, m) => (sel[m.id] ? s + m.price : s), 0),
+    () => MODULES.reduce((s, m) => (sel[m.id] && !m.once ? s + m.price : s), 0),
+    [sel],
+  );
+  const oneTime = useMemo(
+    () => MODULES.reduce((s, m) => (sel[m.id] && m.once ? s + m.price : s), 0),
     [sel],
   );
   const chosen = MODULES.filter((m) => sel[m.id]);
@@ -125,15 +150,36 @@ export const Calculator = () => {
               <div className="mt-1 text-sm text-muted-foreground tabular-nums">≈ {fmt(total * RATE)} {t("сом", "KGS")}</div>
 
               <div className="mt-4 space-y-1.5 border-t border-border pt-4 text-sm">
-                {chosen.map((m) => (
+                {chosen.filter((m) => !m.once).map((m) => (
                   <div key={m.id} className="flex justify-between gap-2 text-muted-foreground">
                     <span className="truncate">{l(m.name)}</span>
-                    <span className="tabular-nums">${m.price}</span>
+                    <span className="tabular-nums">
+                      {m.price === 0 && m.free ? l(m.free) : `$${m.price}`}
+                    </span>
                   </div>
                 ))}
+                {oneTime > 0 && (
+                  <div className="mt-2 space-y-1.5 border-t border-border pt-2">
+                    <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      {t("Разово", "One-time")}
+                    </div>
+                    {chosen.filter((m) => m.once).map((m) => (
+                      <div key={m.id} className="flex justify-between gap-2 text-muted-foreground">
+                        <span className="truncate">{l(m.name)}</span>
+                        <span className="tabular-nums">${m.price}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between gap-2 font-semibold">
+                      <span>{t("Итого разово", "One-time total")}</span>
+                      <span className="tabular-nums">${fmt(oneTime)}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between gap-2 pt-1.5 text-xs text-muted-foreground">
-                  <span>{t("Подключение (разово)", "Setup (one-time)")}</span>
-                  <span className="tabular-nums">${SETUP}</span>
+                  <span>{t("Запуск и настройка", "Setup")}</span>
+                  <span className="tabular-nums">
+                    {SETUP === 0 ? t("первым 5 клиентам — 0 $", "free for first 5 clients") : `$${SETUP}`}
+                  </span>
                 </div>
               </div>
 
@@ -240,7 +286,7 @@ function DocModal({ chosen, total, onClose }: { chosen: Mod[]; total: number; on
               </tr>
             </thead>
             <tbody>
-              {chosen.map((m) => (
+              {chosen.filter((m) => !m.once).map((m) => (
                 <tr key={m.id} className="border-b border-border/60">
                   <td className="py-1.5 pr-2">{l(m.name)}</td>
                   <td className="py-1.5 text-right tabular-nums">${m.price}</td>

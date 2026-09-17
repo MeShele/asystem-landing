@@ -82,12 +82,11 @@ export const CATALOG: CatalogCategory[] = [
     icon: "FileSpreadsheet",
     blurb: { ru: "Отчёты регулятору и выгрузки данных.", en: "Regulator reports and data exports." },
     desc: {
-      ru: "Автоматическое формирование обязательной отчётности для Финнадзора в нужных форматах и выгрузка данных комплайнс — без ручной сборки в Excel.",
-      en: "Automated mandatory reporting for FinSupervision in the required formats plus compliance data exports — no manual Excel work.",
+      ru: "Автоматическое формирование обязательной отчётности для Финнадзора в нужных форматах: реестры сделок и клиентов считаются сами, финансовые показатели офицер вводит раз в месяц. Форма «Данные комплайнс» входит сюда же — отдельным модулем не продаётся.",
+      en: "Automated mandatory reporting for FinSupervision in the required formats: deal and client registries are computed automatically, financial figures are entered monthly by the officer. The compliance data form is included — not sold separately.",
     },
     modules: [
       { name: "Отчёты Финнадзор", nameEn: "FinSupervision reports", status: "available", own: true },
-      { name: "Данные комплайнс", nameEn: "Compliance data", status: "available", own: true },
     ],
   },
   {
@@ -103,7 +102,7 @@ export const CATALOG: CatalogCategory[] = [
       en: "Crypto storage and payouts via licensed custody providers: deposit addresses, multi-network support, order-driven payouts — with role separation and audit.",
     },
     modules: [
-      { name: "DFNS Custody", status: "available", domain: "dfns.co" },
+      { name: "DFNS Custody", status: "soon", domain: "dfns.co" },
     ],
   },
   {
@@ -129,14 +128,34 @@ export const CATALOG: CatalogCategory[] = [
     key: "tools",
     label: { ru: "Инструменты", en: "Tools" },
     icon: "Wrench",
-    blurb: { ru: "Анкеты, документы и вспомогательные модули.", en: "Questionnaires, documents and helper modules." },
+    blurb: { ru: "Анкеты, документы, вход и витрина.", en: "Questionnaires, documents, login and storefront." },
     desc: {
-      ru: "Вспомогательные модули для онбординга и операций: анкеты/квизы клиента и генерация документов.",
-      en: "Helper modules for onboarding and operations: client quizzes/questionnaires and document generation.",
+      ru: "Вспомогательные модули для онбординга и операций: анкеты и квизы клиента, серверная генерация документов с подписью и печатью, двухфакторный вход для сотрудников и клиентов.",
+      en: "Helper modules for onboarding and operations: client quizzes and questionnaires, server-side document generation with signature and stamp, two-factor login for staff and clients.",
     },
     modules: [
       { name: "Квиз / Анкета", nameEn: "Quiz / Questionnaire", status: "available", own: true },
-      { name: "Генерация документов", nameEn: "Document generation", status: "soon", own: true },
+      { name: "Генерация документов", nameEn: "Document generation", status: "available", own: true },
+      { name: "Двухфакторный вход", nameEn: "Two-factor login", status: "available", own: true },
+    ],
+  },
+  {
+    key: "client",
+    label: { ru: "Связь с клиентом и витрина", en: "Client communication & storefront" },
+    icon: "Bell",
+    blurb: {
+      ru: "Уведомления, блог и установка сайта как приложения.",
+      en: "Notifications, blog and installable app.",
+    },
+    desc: {
+      ru: "Всё, что обменник показывает клиенту и чем с ним связывается: письма и SMS о статусе заявки, блог для поисковиков и установка сайта на телефон как приложения — без отдельной разработки под сторы.",
+      en: "Everything the exchange shows and sends to its clients: email and SMS about order status, a blog for search engines, and installing the site on a phone as an app — no separate store development needed.",
+    },
+    modules: [
+      { name: "Email-уведомления", nameEn: "Email notifications", status: "available", own: true },
+      { name: "SMS-уведомления", nameEn: "SMS notifications", status: "available", own: true },
+      { name: "Блог", nameEn: "Blog", status: "available", own: true },
+      { name: "Мобильное приложение (PWA)", nameEn: "Mobile app (PWA)", status: "available", own: true },
     ],
   },
 ];
