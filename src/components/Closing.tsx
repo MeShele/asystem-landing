@@ -2,84 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {Check, Plus} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { Button } from "@/components/ui/button";
 import { LeadForm } from "@/components/LeadForm";
-import { useLeadDialog } from "@/components/LeadDialog";
 import ScrollReveal from "@/components/ScrollReveal";
 import Logo from "@/components/Logo";
 import { useContent, useLang } from "@/i18n";
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.11 } } };
-const rise = {
-  hidden: { opacity: 0, y: 22 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 20 } },
-} as const;
-
-export const Pricing = () => {
-  const { PRICING } = useContent();
-  const openLead = useLeadDialog();
-  const { t } = useLang();
-  return (
-  <section id="pricing" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
-    <div className="container">
-      <ScrollReveal className="mx-auto max-w-2xl text-center">
-        <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">{t("Тарифы", "Pricing")}</span>
-        <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">{t("Выберите модель запуска", "Choose your launch model")}</h2>
-        <p className="mt-4 text-lg text-muted-foreground">{PRICING.note}</p>
-      </ScrollReveal>
-
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-80px" }}
-        className="mx-auto mt-12 grid max-w-md items-start gap-6 lg:max-w-5xl lg:grid-cols-3"
-      >
-        {PRICING.plans.map((p) => (
-          <motion.div
-            key={p.name}
-            variants={rise}
-            className={`flex h-full flex-col rounded-2xl border bg-card p-7 transition-all duration-300 hover:-translate-y-1 ${
-              p.featured
-                ? "border-accent ring-1 ring-accent/40 shadow-[0_28px_80px_-28px_hsl(79_100%_45%/0.45)] hover:shadow-[0_34px_90px_-26px_hsl(79_100%_45%/0.55)]"
-                : "border-border hover:border-accent/40 hover:shadow-[0_18px_50px_-24px_hsl(240_10%_6%/0.25)]"
-            }`}
-          >
-            {p.featured && (
-              <span className="mb-4 inline-flex w-fit rounded-full bg-accent px-3 py-1 text-xs font-bold text-accent-foreground">{t("Популярный", "Popular")}</span>
-            )}
-            <h3 className="font-display text-xl font-extrabold">{p.name}</h3>
-            <p className="mt-1 text-sm font-semibold text-foreground">{p.tagline}</p>
-            <p className="mt-0.5 text-xs text-muted-foreground">{p.forWho}</p>
-
-            <div className="mt-5 border-t border-border pt-5">
-              <div className="font-display text-lg font-bold">{p.priceLabel}</div>
-              <div className="text-sm text-muted-foreground">{t("условия — на демо", "terms discussed on a demo")}</div>
-            </div>
-
-            <ul className="mt-5 flex-1 space-y-2.5">
-              {p.includes.map((it) => (
-                <li key={it} className="flex items-start gap-2 text-sm">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
-                  <span className="text-muted-foreground">{it}</span>
-                </li>
-              ))}
-            </ul>
-
-            <Button
-              variant={p.featured ? "signal" : "outline"}
-              className="mt-6 w-full"
-              onClick={() => openLead({ source: `get.asystem.ai/tariff-${p.name}`, message: `Интересует план «${p.name}»` })}
-            >
-              {p.cta}
-            </Button>
-          </motion.div>
-        ))}
-      </motion.div>
-    </div>
-  </section>
-  );
-};
 
 export const Faq = () => {
   const { FAQ } = useContent();
