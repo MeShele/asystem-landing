@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Check, Plus, FileText, Printer, X, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useLeadDialog } from "@/components/LeadDialog";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useLang, type L } from "@/i18n";
 
@@ -64,6 +65,7 @@ const fmt = (n: number) => n.toLocaleString("ru-RU");
 
 export const Calculator = () => {
   const { t, l } = useLang();
+  const openLead = useLeadDialog();
   const [sel, setSel] = useState<Record<string, boolean>>(
     () => Object.fromEntries(MODULES.map((m) => [m.id, !!m.req])),
   );
@@ -187,8 +189,25 @@ export const Calculator = () => {
                 <Button variant="signal" className="w-full" onClick={() => setDocOpen(true)}>
                   <FileText className="h-4 w-4" /> {t("Подготовить документы", "Prepare documents")}
                 </Button>
-                <Button variant="outline" className="w-full" asChild>
-                  <a href="#demo">{t("Обсудить на демо", "Discuss on a demo")} <ArrowRight className="h-4 w-4" /></a>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() =>
+                    openLead({
+                      source: "get.asystem.ai/calculator",
+                      title: t("Обсудить этот расчёт", "Discuss this estimate"),
+                      // Человек уже собрал конфигурацию — пересказывать её в переписке незачем.
+                      message: [
+                        `${t("Ежемесячно", "Monthly")}: $${fmt(total)}`,
+                        oneTime > 0 ? `${t("Разово", "One-time")}: $${fmt(oneTime)}` : null,
+                        `${t("Модули", "Modules")}: ${chosen.map((m) => l(m.name)).join(", ") || "—"}`,
+                      ]
+                        .filter(Boolean)
+                        .join("\n"),
+                    })
+                  }
+                >
+                  {t("Обсудить расчёт", "Discuss the estimate")} <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
               <p className="mt-3 text-center text-xs text-muted-foreground">

@@ -8,6 +8,7 @@ import Showreel from "@/components/Showreel";
 import { BlueprintCta, IntegrationsBar, Stats, Problem, ClientShowcase, Features, HowItWorks, OperatorShowcase, Architecture, Modules, ApiCores, Compliance } from "@/components/Sections";
 import { Faq, FinalCta, Footer } from "@/components/Closing";
 import { Calculator } from "@/components/Calculator";
+import { LeadDialogProvider } from "@/components/LeadDialog";
 
 function App() {
   const { t } = useLang();
@@ -48,6 +49,7 @@ function App() {
   }, [hash]);
 
   return (
+    <LeadDialogProvider>
     <div className="min-h-screen bg-background">
       <SmoothScroll />
       <Header />
@@ -72,6 +74,7 @@ function App() {
       </main>
       <Footer />
     </div>
+    </LeadDialogProvider>
   );
 }
 

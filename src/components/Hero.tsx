@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ArrowRight, Check, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useLeadDialog } from "@/components/LeadDialog";
 import ExchangeWidget from "@/components/ExchangeWidget";
 import { DEMO_URL } from "@/content";
 import { useContent, useLang } from "@/i18n";
@@ -47,6 +48,7 @@ const rise = {
 const Hero = () => {
   const { HERO } = useContent();
   const { lang } = useLang();
+  const openLead = useLeadDialog();
   const checks = CHECKS[lang];
   return (
   <section id="top" className="relative overflow-hidden border-b border-border">
@@ -99,10 +101,13 @@ const Hero = () => {
         </motion.p>
 
         <motion.div variants={rise} className="mt-7 flex flex-col gap-3 sm:flex-row">
-          <Button variant="signal" size="lg" className="group w-full sm:w-auto" asChild>
-            <a href="#demo">
-              {HERO.ctaPrimary} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </a>
+          <Button
+            variant="signal"
+            size="lg"
+            className="group w-full sm:w-auto"
+            onClick={() => openLead({ source: "get.asystem.ai/hero" })}
+          >
+            {HERO.ctaPrimary} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Button>
           <Button variant="outline" size="lg" className="group w-full sm:w-auto" asChild>
             <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">

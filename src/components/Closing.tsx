@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, Plus, ArrowRight } from "lucide-react";
+import {Check, Plus} from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { LeadForm } from "@/components/LeadForm";
+import { useLeadDialog } from "@/components/LeadDialog";
 import ScrollReveal from "@/components/ScrollReveal";
 import Logo from "@/components/Logo";
 import { useContent, useLang } from "@/i18n";
@@ -15,6 +17,7 @@ const rise = {
 
 export const Pricing = () => {
   const { PRICING } = useContent();
+  const openLead = useLeadDialog();
   const { t } = useLang();
   return (
   <section id="pricing" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
@@ -63,8 +66,12 @@ export const Pricing = () => {
               ))}
             </ul>
 
-            <Button variant={p.featured ? "signal" : "outline"} className="mt-6 w-full" asChild>
-              <a href="#demo">{p.cta}</a>
+            <Button
+              variant={p.featured ? "signal" : "outline"}
+              className="mt-6 w-full"
+              onClick={() => openLead({ source: `get.asystem.ai/tariff-${p.name}`, message: `Интересует план «${p.name}»` })}
+            >
+              {p.cta}
             </Button>
           </motion.div>
         ))}
@@ -126,21 +133,10 @@ export const Faq = () => {
   );
 };
 
-const CTA_TOPICS = [
-  { key: "turnkey", ru: "Обменник под ключ", en: "Turnkey exchange" },
-  { key: "api", ru: "Только API-ядра", en: "API cores only" },
-  { key: "license", ru: "Вопрос по лицензии", en: "Licence question" },
-] as const;
 
 export const FinalCta = () => {
   const { FINAL_CTA } = useContent();
-  const { lang, t } = useLang();
-  const [sent, setSent] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [err, setErr] = useState(false);
-  const [topic, setTopic] = useState<(typeof CTA_TOPICS)[number]["key"]>("turnkey");
-  const input =
-    "h-11 w-full rounded-[var(--radius)] border border-input bg-background px-4 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40";
+  const { t } = useLang();
   return (
     <section id="demo" className="relative overflow-hidden border-t border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
       {/* лаймовое дыхание за формой */}
@@ -160,96 +156,8 @@ export const FinalCta = () => {
 
         <ScrollReveal variant="left" delay={120}>
           <div className="rounded-2xl border border-border bg-card p-7 shadow-[0_24px_70px_-28px_hsl(240_10%_6%/0.3)] dark:shadow-none">
-            {sent ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.94 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className="py-10 text-center"
-              >
-                <motion.div
-                  initial={{ scale: 0.4 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 260, damping: 16, delay: 0.08 }}
-                  className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-accent"
-                >
-                  <Check className="h-6 w-6 text-accent-foreground" />
-                </motion.div>
-                <p className="mt-4 font-display text-lg font-bold">{t("Заявка отправлена", "Request sent")}</p>
-                <p className="mt-1 text-sm text-muted-foreground">{t("Свяжемся с вами в ближайшее время.", "We'll get back to you shortly.")}</p>
-              </motion.div>
-            ) : (
-              <form
-                className="space-y-3"
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  if (sending) return;
-                  const fd = new FormData(e.currentTarget);
-                  if (((fd.get("website") as string) || "").trim()) { setSent(true); return; }
-                  setErr(false);
-                  setSending(true);
-                  try {
-                    const res = await fetch("https://api.asystem.ai/functions/v1/submit-lead", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({
-                        name: fd.get("name"),
-                        company: fd.get("company"),
-                        contact: fd.get("contact"),
-                        topic,
-                        source: "get.asystem.ai",
-                      }),
-                    });
-                    if (!res.ok) throw new Error("failed");
-                    setSent(true);
-                  } catch {
-                    setErr(true);
-                  } finally {
-                    setSending(false);
-                  }
-                }}
-              >
-                {/* чат-гид: сценарий обращения — сегментация до разговора */}
-                <div className="flex flex-wrap gap-1.5 pb-1">
-                  {CTA_TOPICS.map((tp) => {
-                    const on = topic === tp.key;
-                    return (
-                      <button
-                        key={tp.key}
-                        type="button"
-                        onClick={() => setTopic(tp.key)}
-                        className={`relative rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
-                          on ? "border-transparent text-foreground" : "border-border bg-background text-muted-foreground hover:text-foreground"
-                        }`}
-                      >
-                        {on && (
-                          <motion.span
-                            layoutId="cta-topic-pill"
-                            className="absolute inset-0 rounded-full border border-accent bg-accent/15"
-                            transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                          />
-                        )}
-                        <span className="relative z-10">{tp[lang]}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-                <input required name="name" placeholder={t("Имя", "Name")} className={input} />
-                <input required name="company" placeholder={t("Компания", "Company")} className={input} />
-                <input required name="contact" type="text" placeholder={t("Telegram / email / телефон", "Telegram / email / phone")} className={input} />
-                {/* honeypot: скрыто от людей, ловит ботов */}
-                <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
-                <Button type="submit" variant="signal" disabled={sending} className="group w-full">
-                  {sending ? t("Отправляем…", "Sending…") : FINAL_CTA.cta} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </Button>
-                {err && (
-                  <p className="text-center text-xs text-destructive">
-                    {t("Не удалось отправить. Напишите нам в Telegram или на почту.", "Could not send. Please reach us on Telegram or email.")}
-                  </p>
-                )}
-                <p className="text-center text-xs text-muted-foreground/80">{t("Нажимая, вы соглашаетесь на обработку контактных данных", "By submitting you agree to the processing of your contact details")}</p>
-              </form>
-            )}
+            {/* Та же форма, что в модалке: одна реализация, одна точка правки. */}
+            <LeadForm submitLabel={FINAL_CTA.cta} prefill={{ source: "get.asystem.ai/section" }} />
           </div>
         </ScrollReveal>
       </div>

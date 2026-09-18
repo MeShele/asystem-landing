@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { Button } from "@/components/ui/button";
+import { useLeadDialog } from "@/components/LeadDialog";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import LangToggle from "@/components/LangToggle";
@@ -10,6 +11,7 @@ import { useContent, useLang } from "@/i18n";
 const Header = () => {
   const { NAV } = useContent();
   const { t } = useLang();
+  const openLead = useLeadDialog();
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState("");
 
@@ -60,8 +62,8 @@ const Header = () => {
         <div className="hidden items-center gap-3 md:flex">
           <LangToggle />
           <ThemeToggle />
-          <Button variant="signal" size="sm" asChild>
-            <a href="#demo">{t("Запросить демо", "Request a demo")}</a>
+          <Button variant="signal" size="sm" onClick={() => openLead({ source: "get.asystem.ai/header" })}>
+            {t("Запросить демо", "Request a demo")}
           </Button>
         </div>
 
@@ -105,8 +107,15 @@ const Header = () => {
                   </motion.a>
                 );
               })}
-              <Button variant="signal" className="mt-2" asChild>
-                <a href="#demo" onClick={() => setOpen(false)}>{t("Запросить демо", "Request a demo")}</a>
+              <Button
+                variant="signal"
+                className="mt-2"
+                onClick={() => {
+                  setOpen(false);
+                  openLead({ source: "get.asystem.ai/header-mobile" });
+                }}
+              >
+                {t("Запросить демо", "Request a demo")}
               </Button>
             </nav>
           </motion.div>
