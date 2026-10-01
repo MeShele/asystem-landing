@@ -10,12 +10,11 @@ import { CATALOG, type CatalogCategory } from "@/modulesCatalog";
 type Core = { key: string; label: string; icon: string; cat: string; modules: string[] };
 
 const CORES: Core[] = [
-  { key: "kyc", label: "KYC Core", icon: "UserCheck", cat: "kyc", modules: ["ASystem KYC", "SumSub", "Didit", "BiometricVision"] },
-  { key: "pay", label: "Payment Core", icon: "CreditCard", cat: "payments", modules: ["Finik QR", "ElQR"] },
-  { key: "aml", label: "AML Core", icon: "ShieldAlert", cat: "aml", modules: ["Comply Core", "ComplyAdvantage"] },
-  { key: "rep", label: "Reporting Core", icon: "FileSpreadsheet", cat: "reporting", modules: ["FinSupervision", "Compliance Data"] },
+  { key: "kyc", label: "KYC Core", icon: "UserCheck", cat: "kyc", modules: ["ASystem KYC", "Didit", "BiometricVision"] },
+  { key: "pay", label: "Payment Core", icon: "CreditCard", cat: "payments", modules: ["Finik QR"] },
+  { key: "aml", label: "AML Core", icon: "ShieldAlert", cat: "aml", modules: ["Comply Core", "Ranex KYT"] },
+  { key: "rep", label: "Reporting Core", icon: "FileSpreadsheet", cat: "reporting", modules: ["Отчёты Финнадзор"] },
   { key: "cust", label: "Custody Core", icon: "Wallet", cat: "wallets", modules: ["DFNS"] },
-  { key: "liq", label: "Liquidity Core", icon: "Repeat", cat: "exchanges", modules: ["Binance", "Kraken", "ByBit"] },
 ];
 
 const R = 34; // % radius of the core ring from center

@@ -31,34 +31,30 @@ export const CATALOG: CatalogCategory[] = [
     label: { ru: "KYC / Верификация", en: "KYC / Verification" },
     icon: "UserCheck",
     blurb: {
-      ru: "Автоматическая верификация личности — выбираете одного провайдера.",
-      en: "Automated identity verification — pick a single provider.",
+      ru: "Проверка личности клиента — один провайдер на выбор.",
+      en: "Client identity verification — one provider of your choice.",
     },
     desc: {
-      ru: "Верификация личности клиентов: распознавание документов (OCR), сравнение лица и liveness, скоринг и проверка по санкционным спискам. Мульти-провайдер — выбираете одного, переключается тумблером без правки кода.",
-      en: "Client identity verification: document OCR, face match and liveness, scoring and sanctions screening. Multi-provider — choose one and switch with a toggle, no code changes.",
+      ru: "Проверка личности клиента по паспорту и селфи. ASystem KYC — проверку проводит ваш офицер в админке. Didit и BiometricVision — автоматическая проверка документа и лица. Обменнику включается один провайдер; после проверки клиент сверяется с перечнями ГСФР.",
+      en: "Client identity verification by passport and selfie. ASystem KYC — your officer reviews it in the admin panel. Didit and BiometricVision — automated document and face checks. One provider per exchange; after verification the client is screened against the SFIS lists.",
     },
     modules: [
       { name: "ASystem KYC", status: "available", own: true },
       { name: "Didit", status: "available", domain: "didit.me" },
       { name: "BiometricVision", status: "available" },
-      { name: "SumSub", status: "soon", domain: "sumsub.com" },
-      { name: "Persona", status: "soon", domain: "withpersona.com" },
     ],
   },
   {
     key: "payments",
     label: { ru: "Платежи / Эквайринг", en: "Payments / Acquiring" },
     icon: "CreditCard",
-    blurb: { ru: "Приём фиата, QR и эквайринг.", en: "Fiat acceptance, QR and card acquiring." },
+    blurb: { ru: "Приём оплаты по QR и выплаты сомов.", en: "QR payments and KGS payouts." },
     desc: {
-      ru: "Приём фиатных платежей: QR (СБП и локальные системы), эквайринг карт и выплаты. Маршрутизация между провайдерами под вашу юрисдикцию и лимиты.",
-      en: "Fiat payment acceptance: QR (instant payment systems), card acquiring and payouts. Provider routing tailored to your jurisdiction and limits.",
+      ru: "Приём оплаты по QR через лицензированного эквайера Finik и автоматическая выплата сомов после сделки — без ручных переводов. Комиссию эквайера обменник платит провайдеру напрямую.",
+      en: "QR payments via the licensed acquirer Finik and automatic KGS payouts after the deal — no manual transfers. The acquirer fee is paid to the provider directly.",
     },
     modules: [
       { name: "Finik QR", status: "available", domain: "finik.kg" },
-      { name: "ElQR", status: "soon" },
-      { name: "FreedomPay", status: "soon", domain: "freedompay.kg" },
     ],
   },
   {
@@ -73,7 +69,6 @@ export const CATALOG: CatalogCategory[] = [
     modules: [
       { name: "Comply Core (ГСФР)", nameEn: "Comply Core (SFIS)", status: "available", own: true },
       { name: "Ranex KYT", nameEn: "Ranex KYT", status: "available", domain: "ranex.kg" },
-      { name: "ComplyAdvantage", status: "soon", domain: "complyadvantage.com" },
     ],
   },
   {
@@ -94,34 +89,15 @@ export const CATALOG: CatalogCategory[] = [
     label: { ru: "Кошельки / Custody", en: "Wallets / Custody" },
     icon: "Wallet",
     blurb: {
-      ru: "Хранение и выплаты через лицензированных провайдеров.",
-      en: "Storage and payouts via licensed providers.",
+      ru: "Кошельки клиентов внутри платформы — по договорённости.",
+      en: "Client wallets inside the platform — by arrangement.",
     },
     desc: {
-      ru: "Хранение и выплаты крипты через лицензированных custody-провайдеров: депозитные адреса, мульти-сеть, выплаты по заявкам — с разделением прав и аудитом.",
-      en: "Crypto storage and payouts via licensed custody providers: deposit addresses, multi-network support, order-driven payouts — with role separation and audit.",
+      ru: "Кошельки клиентов на DFNS внутри платформы: клиент хранит крипту у обменника, пополняет и выводит её по заявке. Подключаем по договорённости.",
+      en: "Client wallets on DFNS inside the platform: clients keep crypto with the exchange, deposit and withdraw it by request. Connected by arrangement.",
     },
     modules: [
       { name: "DFNS Custody", status: "soon", domain: "dfns.co" },
-    ],
-  },
-  {
-    key: "exchanges",
-    label: { ru: "Биржи / Ликвидность", en: "Exchanges / Liquidity" },
-    icon: "Repeat",
-    blurb: { ru: "Подключение ликвидности с внешних бирж.", en: "Liquidity from external exchanges." },
-    desc: {
-      ru: "Подключение ликвидности с внешних бирж для покрытия объёмов и лучшего курса — по мере роста оборота обменника.",
-      en: "Connect liquidity from external exchanges to cover volume and improve pricing — as your exchange turnover grows.",
-    },
-    modules: [
-      { name: "Binance", status: "soon", domain: "binance.com" },
-      { name: "ByBit", status: "soon", domain: "bybit.com" },
-      { name: "Kraken", status: "soon", domain: "kraken.com" },
-      { name: "WhiteBIT", status: "soon", domain: "whitebit.com" },
-      { name: "Huobi (HTX)", status: "soon", domain: "htx.com" },
-      { name: "Kagan Exchange", status: "soon" },
-      { name: "TokenSpot", status: "soon" },
     ],
   },
   {
@@ -148,7 +124,7 @@ export const CATALOG: CatalogCategory[] = [
       en: "Notifications, blog and installable app.",
     },
     desc: {
-      ru: "Всё, что обменник показывает клиенту и чем с ним связывается: письма и SMS о статусе заявки, блог для поисковиков и установка сайта на телефон как приложения — без отдельной разработки под сторы.",
+      ru: "Всё, что обменник показывает клиенту и чем с ним связывается: письма и SMS о статусе заявки, блог со статьями, которые видят поисковики, и установка сайта на телефон как приложения — без отдельной разработки под сторы.",
       en: "Everything the exchange shows and sends to its clients: email and SMS about order status, a blog for search engines, and installing the site on a phone as an app — no separate store development needed.",
     },
     modules: [
@@ -159,6 +135,9 @@ export const CATALOG: CatalogCategory[] = [
     ],
   },
 ];
+
+/** Сколько модулей в каталоге — для заголовков, чтобы число не расходилось со списком. */
+export const MODULE_COUNT = CATALOG.reduce((n, c) => n + c.modules.length, 0);
 
 /** Название модуля на активном языке */
 export const moduleName = (m: CatalogModule, lang: "ru" | "en") =>

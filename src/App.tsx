@@ -7,7 +7,7 @@ import Hero from "@/components/Hero";
 import Showreel from "@/components/Showreel";
 import { BlueprintCta, IntegrationsBar, Stats, Problem, ClientShowcase, Features, HowItWorks, OperatorShowcase, Architecture, Modules, ApiCores, Compliance } from "@/components/Sections";
 import { Faq, FinalCta, Footer } from "@/components/Closing";
-import { Calculator } from "@/components/Calculator";
+import { Tariffs } from "@/components/Tariffs";
 import { LeadDialogProvider } from "@/components/LeadDialog";
 
 function App() {
@@ -24,8 +24,8 @@ function App() {
       ?.setAttribute(
         "content",
         t(
-          "Запустите лицензированный крипто-обменник под ключ: лицензия оператора обмена ВА, KYC/AML, отчётность и деплой в один клик.",
-          "Launch a licensed turnkey crypto exchange: VA exchange operator licence, KYC/AML, reporting and one-click deployment.",
+          "Платформа для лицензированного криптообменника в Кыргызстане: сайт и кабинет клиента, KYC/AML, комплаенс под ГСФР и отчёты в Финнадзор. Сервер в КР, ваш домен и бренд.",
+          "A platform for licensed crypto exchanges in Kyrgyzstan: website and client account, KYC/AML, SFIS compliance and FinSupervision reports. Servers in the KR, your domain and brand.",
         ),
       );
   }, [t]);
@@ -68,7 +68,7 @@ function App() {
         <ApiCores />
         <Compliance />
         <BlueprintCta />
-        <Calculator />
+        <Tariffs />
         <Faq />
         <FinalCta />
       </main>

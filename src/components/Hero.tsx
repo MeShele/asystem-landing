@@ -8,8 +8,8 @@ import { DEMO_URL } from "@/content";
 import { useContent, useLang } from "@/i18n";
 
 const CHECKS = {
-  ru: ["Лицензия оператора обмена ВА", "Деплой в 1 клик", "KYC/AML внутри"],
-  en: ["VA exchange operator licence", "1-click deploy", "KYC/AML inside"],
+  ru: ["Под лицензию оператора обмена ВА", "Сервер в Кыргызстане", "KYC/AML внутри"],
+  en: ["Built for licensed VA exchanges", "Servers in Kyrgyzstan", "KYC/AML inside"],
 };
 
 const BrowserFrame = ({

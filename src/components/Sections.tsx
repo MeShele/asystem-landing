@@ -14,7 +14,8 @@ import ProviderLogo from "@/components/ProviderLogo";
 import { ICONS } from "@/lib/icons";
 import { DEMO_URL, INTEGRATIONS } from "@/content";
 import { useContent, useLang } from "@/i18n";
-import { CATALOG, moduleName, type CatalogCategory } from "@/modulesCatalog";
+import { CATALOG, MODULE_COUNT, moduleName, type CatalogCategory } from "@/modulesCatalog";
+import { usePlatformStats } from "@/lib/platformStats";
 
 const SectionHead = ({ eyebrow, title, lead }: { eyebrow?: string; title: string; lead?: string }) => (
   <ScrollReveal className="mx-auto max-w-2xl text-center">
@@ -157,17 +158,21 @@ export const IntegrationsBar = () => {
 
 export const Stats = () => {
   const { STATS } = useContent();
+  const live = usePlatformStats();
   return (
   <section className="border-b border-border bg-secondary/40">
     <div className="container grid grid-cols-2 gap-px overflow-hidden md:grid-cols-4">
-      {STATS.map((s, i) => (
+      {STATS.map((s, i) => {
+        const value = s.live && live?.[s.live] != null ? String(live[s.live]) : s.value;
+        return (
         <ScrollReveal key={s.label} delay={i * 80} className="px-6 py-8 text-center transition-colors duration-300 hover:bg-secondary/70">
           <div className="font-mono text-3xl font-bold sm:text-4xl">
-            {/^\d+$/.test(s.value) ? <CountUp to={Number(s.value)} /> : s.value}
+            {/^\d+$/.test(value) ? <CountUp key={value} to={Number(value)} /> : value}
           </div>
           <div className="mt-1 text-sm text-muted-foreground">{s.label}</div>
         </ScrollReveal>
-      ))}
+        );
+      })}
     </div>
   </section>
   );
@@ -235,7 +240,7 @@ export const HowItWorks = () => {
   const { t } = useLang();
   return (
   <section id="how" className="container py-16 sm:py-20 lg:py-24">
-    <SectionHead eyebrow={t("Как это работает", "How it works")} title={t("От лицензии до запуска — четыре шага", "From licence to launch — four steps")} />
+    <SectionHead eyebrow={t("Как это работает", "How it works")} title={t("От брифа до запуска — четыре шага", "From brief to launch — four steps")} />
     <motion.div
       initial="hidden"
       whileInView="show"
@@ -328,10 +333,10 @@ export const Modules = () => {
       <div className="container">
         <SectionHead
           eyebrow={t("Маркетплейс модулей", "Module marketplace")}
-          title={t("25+ модулей в маркетплейсе", "25+ modules in the marketplace")}
+          title={t(`${MODULE_COUNT} модулей в каталоге`, `${MODULE_COUNT} modules in the catalog`)}
           lead={t(
-            "Выберите категорию — посмотрите, что входит. Модули включаются тумблером в админке.",
-            "Pick a category to see what's inside. Modules are enabled with a toggle in the admin panel.",
+            "Выберите категорию — посмотрите, что входит. Бесплатные модули обменник включает сам, платные мы включаем по заявке.",
+            "Pick a category to see what's inside. Free modules are switched on by the exchange itself; we enable paid ones on request.",
           )}
         />
 
@@ -345,7 +350,7 @@ export const Modules = () => {
         <ScrollReveal variant="scale" className="mx-auto mt-10 max-w-3xl">
           <MarketplaceLive />
           <p className="mt-3 text-center text-sm text-muted-foreground">
-            {t("Активация модуля — в один клик, прямо из админки.", "Module activation takes one click, right from the admin panel.")}
+            {t("Бесплатные модули включаются в админке, платные — по вашей заявке.", "Free modules are enabled in the admin panel, paid ones on your request.")}
           </p>
         </ScrollReveal>
 
@@ -456,15 +461,15 @@ export const OperatorShowcase = () => {
   <section className="border-y border-border bg-background py-16 sm:py-20 lg:py-24">
     <Showcase
       eyebrow={t("Вам как оператору", "For you as an operator")}
-      title={t("Заявки, выплаты и аудит — в одной админке", "Orders, payouts and audit — in one admin panel")}
+      title={t("Заявки, выплаты и комплаенс — в одной админке", "Orders, payouts and compliance — in one admin panel")}
       url="admin.your-exchange.kg"
       demo="orders"
       plain
       reverse
       points={[
         t("Канбан заявок: статусы, подтверждение выплат, фильтры", "Order kanban: statuses, payout confirmation, filters"),
-        t("Полный аудит-трейл по каждой транзакции", "A full audit trail for every transaction"),
-        t("Роли и права: администратор, оператор, комплайнс-офицер", "Roles and permissions: admin, operator, compliance officer"),
+        t("История статусов по каждой заявке", "Status history for every order"),
+        t("Роли и права: администратор, оператор, комплаенс-офицер, аудитор", "Roles and permissions: admin, operator, compliance officer, auditor"),
       ]}
       demoLink={{ label: t("Открыть демо-админку", "Open the demo admin panel"), href: `${DEMO_URL}/admin/login` }}
     />

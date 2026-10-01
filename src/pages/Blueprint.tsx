@@ -403,8 +403,8 @@ const Blueprint = () => {
               <p className="leading-relaxed text-foreground">
                 <span className="font-display font-extrabold">ASystem Core</span>
                 {t(
-                  " — платформа, на которой уже работают криптообменники КР, выстроенные под эти требования: обменник под ключ, KYC/AML, автоотчётность ГСФР, хранение в КР, self-hosted.",
-                  " is the platform already running KR crypto exchanges built to these requirements: a turnkey exchange, KYC/AML, automated SFIS reporting, KR data residency, self-hosted.",
+                  " — платформа, на которой уже работают криптообменники КР, выстроенные под эти требования: обменник под ключ, KYC/AML, отчётность ГСФР, сервер и данные в КР.",
+                  " is the platform already running KR crypto exchanges built to these requirements: a turnkey exchange, KYC/AML, SFIS reporting, servers and data in the KR.",
                 )}
               </p>
               <div className="mt-4 flex flex-wrap gap-3 print:hidden">

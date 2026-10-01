@@ -1,4 +1,5 @@
 import type * as RU from "@/content";
+import { MODULE_COUNT } from "@/modulesCatalog";
 
 /**
  * English mirror of the landing copy (structure = content.ts, RU is canonical).
@@ -21,7 +22,7 @@ export const HERO: typeof RU.HERO = {
   h1a: "Launch a licensed crypto exchange",
   h1accent: "turnkey",
   h1b: "— in weeks, not months",
-  sub: "ASystem Core covers the VA exchange operator licence, deployment, KYC/AML and regulatory reporting. You launch a ready-made exchange under your own brand and add modules as you grow.",
+  sub: "Exchange website, client account, KYC/AML and regulatory reporting — a ready platform on your domain and under your brand. You hold the operator licence; we run the software, servers and updates.",
   ctaPrimary: "Request a demo",
   ctaSecondary: "Live demo",
 };
@@ -29,18 +30,17 @@ export const HERO: typeof RU.HERO = {
 export const DEMO_URL = "https://demo.asystem.ai";
 
 export const STATS: typeof RU.STATS = [
-  { value: "25+", label: "modules in the marketplace" },
-  { value: "4", label: "exchanges live in production" },
-  { value: "1 click", label: "to deploy an exchange" },
+  { value: String(MODULE_COUNT), label: "modules in the catalog" },
+  { value: "8", label: "exchanges already run on the platform", live: "exchangers" },
+  { value: "KG", label: "servers and data in Kyrgyzstan" },
   { value: "SFIS", label: "KG compliance built in" },
 ];
 
 export const INTEGRATIONS = [
-  { name: "SumSub", domain: "sumsub.com" },
   { name: "Didit", domain: "didit.me" },
   { name: "BiometricVision" },
   { name: "Finik", domain: "finik.kg" },
-  { name: "DFNS", domain: "dfns.co" },
+  { name: "Ranex KYT", domain: "ranex.kg" },
   { name: "Comply Core", own: true },
 ] as { name: string; domain?: string; own?: boolean }[];
 
@@ -56,30 +56,30 @@ export const PROBLEM: typeof RU.PROBLEM = {
 
 export const FEATURES: typeof RU.FEATURES = [
   { icon: "Rocket", title: "Turnkey exchange", text: "A ready crypto-to-fiat exchange platform — billing, orders, admin panel and security out of the box." },
-  { icon: "MousePointerClick", title: "One-click deployment", text: "Your domain, DNS and SSL come up automatically. A new exchange in minutes, not weeks." },
-  { icon: "Palette", title: "Your brand", text: "Logo, colors, content, domain — every exchange looks like your product. Multi-domain from a single panel." },
-  { icon: "ShieldCheck", title: "KYC / AML inside", text: "Multi-provider identity verification (SumSub, Biometric Vision, ASystem KYC) and AML screening — switched with a toggle." },
-  { icon: "FileSpreadsheet", title: "SFIS reporting", text: "Automated FinSupervision reporting, 156 suspicious-activity codes, high-risk jurisdiction screening." },
-  { icon: "RefreshCw", title: "OTA updates", text: "The platform updates over the air — new modules and features with zero downtime and no manual deploys." },
-  { icon: "Server", title: "SaaS or self-hosted", text: "Host with us or deploy on your own infrastructure with a single command." },
-  { icon: "Lock", title: "Secure by default", text: "Per-tenant data isolation at the database level (RLS), encrypted keys, full audit trail." },
+  { icon: "Server", title: "Your own server in Kyrgyzstan", text: "Every exchange gets a separate server and its own database: client data is never mixed with anyone else's." },
+  { icon: "Palette", title: "Your brand", text: "Logo, colors, texts, bank details and domain — the exchange looks like your product. Everything is edited in the admin panel." },
+  { icon: "ShieldCheck", title: "KYC / AML inside", text: "Identity verification (ASystem KYC, Didit or BiometricVision), SFIS list screening and Ranex KYT crypto address checks." },
+  { icon: "FileSpreadsheet", title: "SFIS reporting", text: "FinSupervision reports: deal and client registries are compiled automatically. A reference of 156 suspicious-activity codes, high-risk jurisdictions." },
+  { icon: "RefreshCw", title: "Updates are on us", text: "We roll out new modules and fixes. Your team doesn't need to install anything." },
+  { icon: "Wallet", title: "Rent or buy out", text: "Rent the platform monthly or buy a perpetual licence to it." },
+  { icon: "Lock", title: "Secure by default", text: "A separate database per exchange, encrypted provider keys, two-factor login for staff and clients." },
 ];
 
 export const STEPS: typeof RU.STEPS = [
-  { n: "01", title: "VA exchange operator licence", text: "We help you obtain the VASP licence under KR regulator requirements." },
-  { n: "02", title: "One-click deploy", text: "We roll out your exchange: domain, SSL, infrastructure — automatically." },
-  { n: "03", title: "Branding", text: "Set up your logo, colors and content under your own brand." },
-  { n: "04", title: "Plug in modules", text: "Enable KYC, payments, custody and reporting from the marketplace as you grow." },
+  { n: "01", title: "Brief", text: "You send us company details, bank details, the currency list and the domain." },
+  { n: "02", title: "Server and database", text: "We set up a dedicated server and database for you and connect the domain and email." },
+  { n: "03", title: "Setup", text: "Branding, currencies, rates and fees, modules, identity checks and payment acceptance." },
+  { n: "04", title: "Training and launch", text: "We walk your staff through orders and compliance, then open the exchange to clients." },
 ];
 
 export const API_CORES: typeof RU.API_CORES = {
   title: "Need individual cores rather than an exchange?",
-  lead: "ASystem Core is a platform of modular fintech cores. Plug them into your own infrastructure one by one via a public API — no exchange on top required.",
+  lead: "Some platform cores are available via a keyed API: you can embed them into your own system without our exchange. Connected by arrangement.",
   cores: [
-    { title: "KYC Core", text: "Verification and scoring through a single multi-provider API." },
-    { title: "Payment Core", text: "Payment acceptance and routing." },
-    { title: "AML Core", text: "Transaction screening and risk scoring." },
-    { title: "Custody Core", text: "Wallet management and payouts." },
+    { title: "KYC Core", text: "Identity verification and risk scoring through one API." },
+    { title: "Payment Core", text: "QR payment acceptance via Finik." },
+    { title: "Reporting Core", text: "Data for regulatory reporting." },
+    { title: "Custody Core", text: "Wallets and payouts on DFNS." },
   ],
   snippet: `POST /kyc-core/verify
 Authorization: Bearer ask_••••
@@ -90,81 +90,28 @@ Authorization: Bearer ask_••••
 
 export const COMPLIANCE: typeof RU.COMPLIANCE = {
   title: "Compliance and security are the foundation, not an option",
-  lead: "The platform is built around regulator requirements and vetted by professional buyers.",
+  lead: "Checks run automatically along the order; your compliance officer decides on borderline cases.",
   points: [
     { title: "KR regulation", text: "Compliant with SFIS requirements: law 87/2018, decree 739/2025." },
-    { title: "Automated reporting", text: "FinSupervision reports are generated automatically, 156 suspicious-activity codes." },
-    { title: "Data isolation", text: "RLS isolation of every tenant at the database level." },
-    { title: "Key encryption", text: "Provider API keys are stored encrypted (pgcrypto / vault)." },
-    { title: "Risk screening", text: "Sanctions lists, high-risk jurisdictions, limit accumulators." },
-    { title: "Audit trail", text: "Every action is recorded — full transparency for the regulator." },
-  ],
-};
-
-export const PRICING: typeof RU.PRICING = {
-  note: "Pricing depends on the plan and volume — we scope it for your case on a demo call.",
-  plans: [
-    {
-      name: "Start",
-      tagline: "A minimal working exchange",
-      forWho: "Your first licensed exchange, one brand",
-      priceLabel: "Scoped for your launch",
-      featured: false,
-      includes: [
-        "Turnkey exchange",
-        "ASystem KYC (verification)",
-        "Comply Core (SFIS) — compliance",
-        "Finik QR — payment acceptance",
-        "Document generation",
-        "1 domain + SSL · OTA updates",
-      ],
-      cta: "Scope my launch",
-    },
-    {
-      name: "Comfort",
-      tagline: "Everything an exchange needs",
-      forWho: "A growing operator, multiple brands",
-      priceLabel: "Scoped for your launch",
-      featured: true,
-      includes: [
-        "Everything in Start",
-        "Extended KYC: Didit · BiometricVision · SumSub",
-        "FinSupervision reports + compliance data",
-        "Client quiz / questionnaire",
-        "Multi-domain + white-label · priority support",
-      ],
-      cta: "Request a demo",
-    },
-    {
-      name: "Enterprise / API cores",
-      tagline: "For banks, fintechs, large VASPs",
-      forWho: "Your own infrastructure and integrations",
-      priceLabel: "On request",
-      featured: false,
-      includes: [
-        "Everything in Comfort",
-        "Custody: DFNS",
-        "Exchange liquidity (Binance, Kraken…)",
-        "Modular API cores (KYC/Payment/AML/Custody)",
-        "Self-hosted · custom SLA",
-        "Dedicated support · release control",
-      ],
-      cta: "Discuss integration",
-    },
+    { title: "FinSupervision reports", text: "Deal and client registries are compiled automatically; the officer enters financial figures monthly." },
+    { title: "Data isolation", text: "A separate server and database for every exchange." },
+    { title: "Key encryption", text: "Provider keys are stored encrypted in the database." },
+    { title: "Risk screening", text: "SFIS lists, high-risk jurisdictions, limit accumulators, crypto address checks." },
+    { title: "History and retention", text: "Every order's history and compliance decisions; data is kept for at least 5 years." },
   ],
 };
 
 export const FAQ: typeof RU.FAQ = [
-  { q: "How long does a launch take?", a: "Technically the exchange deploys in one click within minutes. A full launch with branding and modules takes weeks — not the months required to build from scratch." },
-  { q: "Do you help with the VA exchange operator licence?", a: "Yes. We support VASP licensing under KR regulator requirements — from a checklist to full guidance depending on the plan." },
-  { q: "Who owns the data?", a: "Each operator's data is isolated at the database level (RLS). In the self-hosted option everything stays on your infrastructure." },
-  { q: "SaaS or self-hosted?", a: "Both. You can start on our hosting and later move to your own infrastructure — the platform deploys with a single command." },
-  { q: "What do support and updates include?", a: "The platform updates over the air (OTA): new modules and features with zero downtime. Support level depends on the plan — from tickets to a dedicated team." },
-  { q: "Can I use only KYC or payments, without the exchange?", a: "Yes. The cores (KYC, Payment, AML, Custody) are available as standalone APIs to integrate into your own infrastructure." },
+  { q: "How long does a launch take?", a: "We set up the server and database ourselves. The rest depends on how quickly bank details, the domain and setup data are ready. It takes weeks, not the months of building from scratch." },
+  { q: "Do you help with the VA exchange operator licence?", a: "The exchange obtains the licence itself; we are responsible for the software. There is a free checklist of launch requirements in the KR, and the platform already meets SFIS requirements for client handling and reporting." },
+  { q: "Who owns the data?", a: "Client data belongs to the exchange. Every exchange has a separate server and its own database — data is never mixed with anyone else's." },
+  { q: "Can I buy the platform out?", a: "Yes. Besides renting, you can buy a perpetual licence to the platform. Terms are agreed individually." },
+  { q: "What do support and updates include?", a: "We roll out platform updates and fixes; your team doesn't need to install anything. We answer your staff's questions." },
+  { q: "Can I use only KYC or payments, without the exchange?", a: "Some cores — KYC, payment acceptance, wallets, reporting data — are available via a keyed API. We discuss the connection for your case." },
 ];
 
 export const FINAL_CTA: typeof RU.FINAL_CTA = {
   title: "Launch a licensed exchange in weeks, not months",
-  sub: "We'll show you the platform live and scope the launch for your case.",
+  sub: "We'll show you the platform live and send you a commercial proposal.",
   cta: "Request a demo",
 };
