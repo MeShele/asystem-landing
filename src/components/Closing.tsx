@@ -121,6 +121,12 @@ export const Footer = () => {
         )}
       </nav>
       <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+        <Link
+          to="/status"
+          className="text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+        >
+          {t("Статус платформы", "Platform status")}
+        </Link>
         <a
           href="https://t.me/Ruslyandi"
           target="_blank"
