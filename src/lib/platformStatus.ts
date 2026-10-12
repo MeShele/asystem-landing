@@ -13,7 +13,7 @@ export interface PlatformStatus {
   checked_at: string | null;
   platform: { status: StackState; uptime: number | null } | null;
   exchanges: { n: number; status: StackState; uptime: number | null; down_for_min: number | null }[];
-  totals: { total: number; ok: number; degraded: number; down: number };
+  totals: { total: number; ok: number; degraded: number; down: number; unknown: number };
   uptime: number | null;
   history_days: number;
   window_days: number;

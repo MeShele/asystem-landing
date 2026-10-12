@@ -42,7 +42,13 @@ const Status = () => {
     if (loading) return t("Проверяем…", "Checking…");
     if (error || !data) return t("Данные о статусе сейчас недоступны", "Status data is unavailable right now");
     const { totals, platform } = data;
-    if (platform && platform.status !== "ok") return t("Перебои в работе ядра платформы", "Platform core is experiencing issues");
+    // Снимки старше 10 минут: встал сам опрос, а не обменники — «всё хорошо» по ним не говорим.
+    if ((platform?.status ?? "unknown") === "unknown" && totals.unknown === totals.total) {
+      return t("Данные проверок устарели — обновляем", "Check data is stale — refreshing");
+    }
+    if (platform && platform.status !== "ok" && platform.status !== "unknown") {
+      return t("Перебои в работе ядра платформы", "Platform core is experiencing issues");
+    }
     if (totals.down + totals.degraded === 0) return t("Все обменники работают", "All exchanges are operational");
     return t(
       `Перебои у ${totals.down + totals.degraded} из ${totals.total} обменников`,
@@ -53,6 +59,7 @@ const Status = () => {
   const headlineTone = (() => {
     if (loading || error || !data) return "border-border";
     const bad = data.totals.down + data.totals.degraded + (data.platform && data.platform.status !== "ok" ? 1 : 0);
+    if (data.totals.unknown === data.totals.total) return "border-border";
     return bad === 0 ? "border-emerald-500/60" : "border-amber-500/60";
   })();
 
