@@ -46,7 +46,11 @@ export const Tariffs = () => {
   const openLead = useLeadDialog();
   const stats = usePlatformStats();
   const prepay = stats?.prepayMonths ?? 3;
-  const priceOf = (id: PlatformTier["id"]) => stats?.tiers?.find((x) => x.id === id) ?? null;
+  // Только сомы: долларовые поля ответа на витрину не идут (закон № 91 о расчётах
+  // в национальной валюте). Нет курса — нет цены, а не цена в долларах.
+  const kgs = stats?.kgs ?? null;
+  const som = t("сом", "KGS");
+  const priceOf = (id: PlatformTier["id"]) => kgs?.tiers.find((x) => x.id === id) ?? null;
 
   const cta = (plan: string) =>
     openLead({
@@ -62,9 +66,9 @@ export const Tariffs = () => {
         key: p.id,
         title: l(p.title),
         tagline: l(p.tagline),
-        big: price ? `$${fmt(price.monthly)}` : null,
+        big: price ? `${fmt(price.monthly)} ${som}` : null,
         unit: t("в месяц", "per month"),
-        extra: price ? t(`+ $${fmt(price.setup)} подключение, разово`, `+ $${fmt(price.setup)} one-time setup`) : null,
+        extra: price ? t(`+ ${fmt(price.setup)} ${som} подключение, разово`, `+ ${fmt(price.setup)} ${som} one-time setup`) : null,
         points: p.points.map(l),
         popular: !!p.popular,
       };
@@ -73,11 +77,11 @@ export const Tariffs = () => {
       key: "buyout",
       title: t("Выкуп", "Buyout"),
       tagline: t("Платформа остаётся у вас насовсем", "The platform is yours for good"),
-      big: stats?.buyout ? `${stats.buyout.from ? t("от ", "from ") : ""}$${fmt(stats.buyout.price)}` : null,
-      unit: t("разово, вместо аренды", "one-time, instead of rent"),
+      big: kgs?.buyout ? `${kgs.buyout.from ? t("от ", "from ") : ""}${fmt(kgs.buyout.price)} ${som}` : null,
+      unit: t("разово, вместо подписки", "one-time, instead of a subscription"),
       extra: t("условия — в договоре", "terms set in the contract"),
       points: [
-        t("Без ежемесячной аренды", "No monthly rent"),
+        t("Без ежемесячной платы", "No monthly fee"),
         t("Модули — как в тарифах", "Modules as in the plans"),
         t("Сервер в Кыргызстане", "Server in Kyrgyzstan"),
       ],
@@ -162,6 +166,15 @@ export const Tariffs = () => {
           {t(
             "Приложение на телефон, блог, кошельки клиентов и доработки под задачу — отдельно. KYC-провайдер, эквайринг и SMS оплачиваются провайдерам напрямую, без нашей наценки.",
             "A phone app, blog, client wallets and custom work are extra. The KYC provider, acquiring and SMS are paid to the providers directly, with no markup from us.",
+          )}
+          {kgs && (
+            <>
+              {" "}
+              {t(
+                `Цены в сомах по курсу НБ КР на ${kgs.date}; точная сумма фиксируется в договоре.`,
+                `Prices in KGS at the NBKR rate as of ${kgs.date}; the exact amount is fixed in the contract.`,
+              )}
+            </>
           )}
         </p>
       </div>

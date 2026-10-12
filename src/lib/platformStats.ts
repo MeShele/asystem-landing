@@ -17,12 +17,25 @@ export interface PlatformTier {
   setup: number;
 }
 
+/** Те же цены в сомах по курсу НБ КР на день запроса — единственное, что
+ *  показываем публично: закон № 91 запрещает рекламу с ценами в валюте. */
+export interface PlatformKgs {
+  /** Сомов за доллар. */
+  rate: number;
+  /** Дата курса, ДД.ММ.ГГГГ. */
+  date: string;
+  tiers: { id: PlatformTier["id"]; monthly: number; setup: number }[];
+  buyout?: { price: number; from: boolean };
+}
+
 export interface PlatformStats {
   currency: "USD";
   prepayMonths: number;
   exchangers?: number;
+  /** Внутренние цены в долларах — для КП и админки, на витрину не выводятся. */
   tiers?: PlatformTier[];
   buyout?: { price: number; from: boolean };
+  kgs?: PlatformKgs;
 }
 
 let cache: Promise<PlatformStats | null> | null = null;
