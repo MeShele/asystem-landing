@@ -44,7 +44,7 @@ const Hero = () => {
   });
 
   return (
-    <section id="top" ref={ref} className="relative overflow-hidden pt-32 sm:pt-40">
+    <section id="top" ref={ref} className="relative isolate overflow-hidden pt-32 sm:pt-40">
       <ShaderBackground className="absolute inset-0 -z-10 h-[120%]" />
 
       <div className="wrap">

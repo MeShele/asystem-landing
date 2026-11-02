@@ -41,17 +41,20 @@ const FRAG = /* glsl */ `
     float n = fbm(p * 2.2 + vec2(-t * 0.6, t * 0.35) + warp * 1.1);
 
     vec3 base = vec3(0.043, 0.047, 0.039);
-    vec3 fold = vec3(0.16, 0.175, 0.14);
-    float ridge = smoothstep(0.42, 0.78, n);
+    vec3 fold = vec3(0.21, 0.23, 0.18);
+    float ridge = smoothstep(0.38, 0.8, n);
     vec3 col = mix(base, fold, ridge);
 
     /* лаймовый отблеск: только на самых высоких гребнях и сильнее к верху кадра */
-    float glint = smoothstep(0.74, 0.96, n) * (0.25 + 0.75 * smoothstep(0.15, 0.95, uv.y));
-    col += uAccent * glint * 0.55;
+    float glint = smoothstep(0.7, 0.95, n) * (0.3 + 0.7 * smoothstep(0.1, 0.95, uv.y));
+    col += uAccent * glint * 0.9;
+    /* второй, широкий отблеск на складках справа сверху */
+    float wide = smoothstep(0.55, 0.9, warp) * smoothstep(0.35, 1.0, uv.x) * smoothstep(0.3, 1.0, uv.y);
+    col += uAccent * wide * 0.12;
 
     /* виньетка к краям, чтобы текст слева читался */
     float v = smoothstep(1.25, 0.35, length((uv - vec2(0.62, 0.5)) * vec2(1.15, 1.0)));
-    col *= 0.5 + 0.5 * v;
+    col *= 0.45 + 0.55 * v;
 
     gl_FragColor = vec4(col, 1.0);
   }
