@@ -89,6 +89,12 @@ export const CATALOG: CatalogCategory[] = [
         desc: { ru: "Автоматическая выплата сомов после сделки", en: "Automatic KGS payout after the deal" },
       },
       {
+        name: "Автообмен",
+        nameEn: "Auto-exchange",
+        billing: "soon",
+        desc: { ru: "Покупка и продажа без сотрудника: горячий кошелёк, распознавание прихода, авто-выплата", en: "Buy and sell with no staff: hot wallet, deposit recognition, automatic payout" },
+      },
+      {
         name: "Кошельки DFNS",
         nameEn: "DFNS wallets",
         billing: "deal",

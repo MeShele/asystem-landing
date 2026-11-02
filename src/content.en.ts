@@ -51,6 +51,49 @@ export const SHOWREEL: typeof RU.SHOWREEL = {
   lead: "Storefront, client account, admin panel and reports in one clip.",
 };
 
+export const AUTOMATION: typeof RU.AUTOMATION = {
+  eyebrow: "Auto-exchange module",
+  title: "A deal with no staff involved",
+  lead: "The client pays by QR and the crypto leaves by itself. The client sends crypto and the som leaves by itself. Each direction has its own switch, limits and a kill switch are at hand, and a checklist shows what is still missing.",
+  note: "Without the module the exchange works as before: staff verify payment and pay out by hand. The automation takes orders below the compliance threshold; large ones are still decided by the officer.",
+  legend: ["client", "platform", "network / provider"],
+  flows: [
+    {
+      key: "buy",
+      title: "Buying USDT",
+      steps: [
+        "The client pays by Finik QR, the webhook confirms the payment.",
+        "The platform signs a transfer from the exchange's hot wallet.",
+        "The network confirms the transaction and the order closes with a hash.",
+      ],
+      order: { title: "No. 7", id: "#f097e928", summary: "Buy 57.47 USDT · 5,000 KGS · TRC20", live: "in progress", done: "completed" },
+      log: [
+        { time: "14:02", actor: "client", text: "Client paid by Finik QR", meta: "5,000 KGS · confirmed by webhook" },
+        { time: "14:02", actor: "system", text: "Order paid, queued for payout", meta: "below compliance threshold · KYT clear" },
+        { time: "14:03", actor: "system", text: "Transfer of 57.47 USDT signed and broadcast", meta: "tx 3f9a1c…e04b · hot wallet TRC20" },
+        { time: "14:04", actor: "network", text: "Network confirmed the transfer — order completed", meta: "no staff involved" },
+      ],
+    },
+    {
+      key: "sell",
+      title: "Selling USDT",
+      steps: [
+        "The order gets a unique amount to send, so the deposit is recognised without questions.",
+        "The chain watcher sees the transfer to the exchange wallet and confirms payment.",
+        "Som is paid to the client via Finik and the order closes.",
+      ],
+      order: { title: "No. 8", id: "#a21c77d0", summary: "Sell 100.004213 USDT · 8,700 KGS", live: "awaiting transfer", done: "completed" },
+      log: [
+        { time: "15:10", actor: "system", text: "Client given the exact amount to send", meta: "exactly 100.004213 USDT to the exchange address" },
+        { time: "15:12", actor: "network", text: "Deposit recognised by amount", meta: "tx 9b7e42…11fa · 100.004213 USDT" },
+        { time: "15:12", actor: "system", text: "Payment confirmed, som sent via Finik", meta: "8,700 KGS to the client's wallet" },
+        { time: "15:13", actor: "network", text: "Finik confirmed the payout — order completed", meta: "no staff involved" },
+      ],
+    },
+  ],
+};
+
+
 export const STEPS: typeof RU.STEPS = {
   title: "How the launch goes",
   note: "We deploy the server and database. Timing depends on how quickly bank details, domain and setup data are ready: weeks, not months of development from scratch.",

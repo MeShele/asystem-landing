@@ -6,6 +6,7 @@ import Hero from "@/components/Hero";
 import Proof from "@/components/Proof";
 import Features from "@/components/Features";
 import Showreel from "@/components/Showreel";
+import Automation from "@/components/Automation";
 import HowItWorks from "@/components/HowItWorks";
 import Modules from "@/components/Modules";
 import Tariffs from "@/components/Tariffs";
@@ -53,6 +54,7 @@ function App() {
           <Proof />
           <Features />
           <Showreel />
+          <Automation />
           <HowItWorks />
           <Modules />
           <Tariffs />
