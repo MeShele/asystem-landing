@@ -8,7 +8,8 @@ import { MODULE_COUNT } from "@/modulesCatalog";
  */
 
 export const NAV: typeof RU.NAV = [
-  { label: "What's inside", href: "#features" },
+  { label: "Features", href: "#features" },
+  { label: "How the launch goes", href: "#how" },
   { label: "Modules", href: "#modules" },
   { label: "Pricing", href: "#pricing" },
   { label: "Checklist", href: "/blueprint" },
@@ -17,95 +18,14 @@ export const NAV: typeof RU.NAV = [
 export const DEMO_URL = "https://demo.asystem.ai";
 
 export const HERO: typeof RU.HERO = {
-  h1: "Crypto exchange under the KR licence",
+  h1Lines: ["Crypto exchange", "under the KR licence"],
   sub: "Website, client account, admin panel, KYC/AML and regulator reports on your domain and server in Kyrgyzstan. You hold the licence, we run the software.",
   cta: "Request a demo",
-  links: [
-    { label: "Demo stand", href: DEMO_URL, external: true },
-    { label: "Launch checklist", href: "/blueprint" },
-    { label: "Platform status", href: "/status" },
-  ],
-  fact: (n: number | null) => (n ? `${n} exchanges already run on the platform` : "Exchanges already run on the platform"),
-};
-
-export const FEATURES: typeof RU.FEATURES = {
-  title: "What the platform includes",
-  items: [
-    {
-      stage: "kyc",
-      title: "Client verification inside",
-      text: [
-        "Passport, selfie, age and residency. Reviewed by your officer or an automated provider, Didit or BiometricVision.",
-        "After verification the client is screened against the SFIS lists. A match stops the order until the officer decides.",
-      ],
-    },
-    {
-      stage: "compliance",
-      title: "Compliance by SFIS rules",
-      text: [
-        "A directory of 156 suspicious-activity codes, limits and accumulators, a threshold above which an order waits for the officer.",
-        "Every decision stays in the order history together with who made it.",
-      ],
-    },
-    {
-      stage: "reports",
-      title: "FinSupervision reports",
-      text: [
-        "Deal and client registries build themselves from orders in the required format. Financial figures are entered monthly by the officer.",
-        "Data is kept for at least five years, as the regulator requires.",
-      ],
-    },
-    {
-      stage: "server",
-      title: "Your own server in Kyrgyzstan",
-      text: [
-        "Each exchange has a separate server and database in a Bishkek data centre. Client data never mixes with anyone else's.",
-        "Daily backups, provider keys stored encrypted, updates shipped by us.",
-      ],
-    },
-    {
-      stage: "brand",
-      title: "Your domain and brand",
-      text: [
-        "Logo, colours, texts, bank details and domain are changed in the admin panel. The client sees your exchange, not our platform.",
-        "Two storefront templates, dark theme, emails and a Telegram bot in the exchange's name.",
-      ],
-    },
-    {
-      stage: "api",
-      title: "Standalone cores via API",
-      text: [
-        "Identity verification, payment acceptance and reporting data can be built into your own system without our exchange.",
-        "Access by key, connection by arrangement.",
-      ],
-    },
-  ],
-};
-
-export const SHOWCASE: typeof RU.SHOWCASE = {
-  left: "The client creates",
-  right: "you process",
-  inputTitle: "Client order on the site",
-  amountLabel: "Amount, KGS",
-  walletLabel: "USDT wallet, TRC20",
-  hint: "Change the amount: the card on the right recalculates",
-};
-
-export const STEPS: typeof RU.STEPS = {
-  title: "How the launch goes",
-  stages: [
-    { short: "Brief", clause: "First the brief and domain", text: "Company data, bank details, currency list and domain." },
-    { short: "Server", clause: "Then a server in Bishkek", text: "Separate server and database, domain, certificate, email." },
-    { short: "Setup", clause: "Then setup and modules", text: "Brand, rates and fees, identity checks, payments." },
-    { short: "Launch", clause: "And the first clients", text: "We walk staff through orders and compliance, then open the doors." },
-  ],
-  note: "We deploy the server and database. Timing depends on how quickly bank details, domain and setup data are ready: weeks, not months of development from scratch.",
-};
-
-export const MODULES: typeof RU.MODULES = {
-  title: "Module catalog",
-  note: `${MODULE_COUNT} modules. What's in a plan, what's an add-on. Enabled with a toggle in the admin panel, paid ones on request.`,
-  foot: ["External providers are paid directly,", "with no markup from us."],
+  ctaSecondary: "Open the demo stand",
+  demoUrl: DEMO_URL,
+  fact: (n: number | null) => (n ? `${n} exchanges already live` : "Exchanges already live"),
+  facts: ["Server in Bishkek", "Comply Core for SFIS", "Launch in weeks"],
+  videoLabel: "Orders in the operator admin panel: kanban, statuses, payouts",
 };
 
 export const PROOF: typeof RU.PROOF = {
@@ -113,35 +33,74 @@ export const PROOF: typeof RU.PROOF = {
   names: ["Didit", "BiometricVision", "Finik", "Ranex KYT", "Jivo", "Telegram"],
 };
 
+export const FEATURES: typeof RU.FEATURES = {
+  title: "What's inside the platform",
+  lead: "Not mock-ups: below are the real admin and storefront screens every exchange gets.",
+  items: [
+    { stage: "kyc", title: "Client verification", text: ["Passport, selfie, age and residency. Reviewed by your officer or an automated provider, Didit or BiometricVision.", "After verification the client is screened against the SFIS lists. A match stops the order until the officer decides."] },
+    { stage: "compliance", title: "Compliance by SFIS rules", text: ["A directory of 156 suspicious-activity codes, limits and accumulators, a threshold above which an order waits for the officer.", "Every decision stays in the order history together with who made it."] },
+    { stage: "reports", title: "FinSupervision reports", text: ["Deal and client registries build themselves from orders in the required format. Financial figures are entered monthly by the officer.", "Data is kept for at least five years, as the regulator requires."] },
+    { stage: "server", title: "Your own server in Kyrgyzstan", text: ["Each exchange has a separate server and database in a Bishkek data centre. Client data never mixes with anyone else's.", "Daily backups, provider keys stored encrypted, updates shipped by us."] },
+    { stage: "brand", title: "Storefront under your brand", text: ["Logo, colours, texts, bank details and domain are changed in the admin panel. The client sees your exchange, not our platform.", "Two storefront templates, dark theme, emails and a Telegram bot in the exchange's name."] },
+    { stage: "api", title: "Standalone cores via API", text: ["Identity verification, payment acceptance and reporting data can be built into your own system without our exchange.", "Access by key, connection by arrangement."] },
+  ],
+};
+
+export const SHOWREEL: typeof RU.SHOWREEL = {
+  title: "The platform in 30 seconds",
+  lead: "Storefront, client account, admin panel and reports in one clip.",
+};
+
+export const STEPS: typeof RU.STEPS = {
+  title: "How the launch goes",
+  note: "We deploy the server and database. Timing depends on how quickly bank details, domain and setup data are ready: weeks, not months of development from scratch.",
+  stages: [
+    { short: "Brief", clause: "Brief and domain", text: "Company data, bank details, currency list and domain. One call and a form." },
+    { short: "Server", clause: "Server in Bishkek", text: "Separate server and database, domain, certificate, email from your domain." },
+    { short: "Setup", clause: "Setup and modules", text: "Brand, rates and fees, identity checks, payments, notifications." },
+    { short: "Launch", clause: "First clients", text: "We walk staff through orders and compliance, then open the doors." },
+  ],
+};
+
+export const MODULES: typeof RU.MODULES = {
+  title: "Module catalog",
+  note: `${MODULE_COUNT} modules. What's in a plan, what's an add-on. Enabled in the admin panel, paid ones on request.`,
+  videoLabel: "Module marketplace in the exchange admin panel",
+  foot: "External providers are paid directly, with no markup from us.",
+};
+
 export const PRICING: typeof RU.PRICING = {
   title: "Pricing",
   lead: (prepay: number) => `A server in Kyrgyzstan and Comply Core come with every plan. The subscription is paid ${prepay} months in advance.`,
-  rateNote: (date: string) => `Prices in KGS at the NBKR rate as of ${date}. The exact amount is fixed in the contract.`,
+  rateNote: (date: string) => `Prices in KGS at the NBKR rate as of ${date}; the exact amount is fixed in the contract.`,
+  providersNote: "The KYC provider, acquiring and SMS are paid to the providers directly.",
   noRate: "We'll send prices in the proposal.",
   perMonth: "per month",
   setup: "one-time setup",
+  popular: "popular",
   groups: {
-    start: { title: "Start", desc: "Exchange on your domain, own server, Comply Core, ASystem KYC and Ranex KYT, email, two-factor login, knowledge check." },
-    business: { title: "Business", desc: "Everything in Start, plus Finik, FinSupervision reports, Didit or BiometricVision and SMS." },
-    buyout: { title: "Buyout", desc: "The platform is yours for good, no monthly fee. Modules as in the plans.", from: "from", unit: "one-time" },
+    start: { title: "Start", desc: "Everything to operate under a licence.", points: ["Exchange on your domain", "Your own server in Kyrgyzstan", "Comply Core for SFIS", "ASystem KYC and Ranex KYT", "Email, two-factor login, knowledge check"] },
+    business: { title: "Business", desc: "Payments, reports and external KYC.", points: ["Everything in Start", "Finik: QR payments", "FinSupervision reports", "Didit or BiometricVision", "SMS notifications"] },
+    buyout: { title: "Buyout", desc: "The platform is yours for good.", points: ["No monthly fee", "Modules as in the plans", "Server in Kyrgyzstan"], from: "from", unit: "one-time, instead of a subscription" },
     addons: {
       title: "Add-ons for any plan",
-      price: "in the proposal",
+      price: "Prices in the commercial proposal.",
       items: [
         { name: "Telegram", desc: "the exchange's bot for clients and staff" },
         { name: "Jivo live chat", desc: "chat window on the storefront" },
-        { name: "Rates export", desc: "for BestChange and other monitors" },
+        { name: "Rates export for monitors", desc: "BestChange and others" },
         { name: "Auto rates", desc: "market pair with your margin" },
         { name: "Blog", desc: "articles for search engines" },
         { name: "Phone app", desc: "the site as an app" },
       ],
     },
   },
-  cta: "Get a commercial proposal",
+  cta: "Get a proposal",
 };
 
 export const FAQ: typeof RU.FAQ = {
   title: "Questions",
+  lead: "Briefly, what people ask before the first call.",
   items: [
     { q: "How long does the launch take?", a: "We deploy the server and database. The rest depends on how quickly bank details, domain and setup data are ready. It is a matter of weeks." },
     { q: "Do you help with the virtual asset exchange operator licence?", a: "The exchange obtains the licence itself; we are responsible for the software. There is a free checklist of launch requirements in the KR, and the platform already meets SFIS requirements for client work and reporting." },
@@ -156,14 +115,16 @@ export const FAQ: typeof RU.FAQ = {
 };
 
 export const CTA: typeof RU.CTA = {
-  sentence: "We'll show the platform live, answer licence questions and send a commercial proposal.",
-  button: "Request a demo",
-  link: "Open the demo stand",
+  title: "See it live",
+  sentence: "We'll answer licence questions and send a commercial proposal within one business day.",
+  link: "Or open the demo stand yourself",
 };
 
 export const FOOTER: typeof RU.FOOTER = {
+  about: "A platform for licensed crypto exchanges in Kyrgyzstan. Turnkey exchange, compliance and regulator reporting.",
+  menuTitle: "Sections",
   menu: [
-    { label: "What's inside", href: "#features" },
+    { label: "Features", href: "#features" },
     { label: "How the launch goes", href: "#how" },
     { label: "Modules", href: "#modules" },
     { label: "Pricing", href: "#pricing" },
@@ -172,8 +133,8 @@ export const FOOTER: typeof RU.FOOTER = {
     { label: "Platform status", href: "/status" },
   ],
   contactTitle: "Contact",
-  socialTitle: "Messengers",
   legal: "© 2026 ASystem Core, ASystem LLC, Bishkek",
+  disclaimer: "The virtual asset exchange operator licence is obtained by the exchange. We supply the software.",
 };
 
 export const LEAD: typeof RU.LEAD = {

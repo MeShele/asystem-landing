@@ -1,19 +1,22 @@
-import { useLeadDialog } from "@/components/LeadDialog";
+import Reveal from "@/components/Reveal";
+import { LeadForm } from "@/components/LeadForm";
 import { useContent } from "@/i18n";
 
-/** «A plain sentence, one action»: почти пустой экран, одна фраза, одна кнопка, ссылка. */
+/** Финал: панель с фразой слева и формой справа. */
 const Cta = () => {
   const { CTA, DEMO_URL } = useContent();
-  const openLead = useLeadDialog();
   return (
-    <section id="demo" className="page-x pb-[10svh] pt-[14svh]" aria-label={CTA.button}>
-      <p className="t-lead max-w-[34ch]">{CTA.sentence}</p>
-      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <button type="button" className="btn btn-signal btn-sm !h-11" onClick={() => openLead({ source: "get.asystem.ai/cta" })}>
-          {CTA.button}
-        </button>
-        <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="link t-body">{CTA.link}</a>
-      </div>
+    <section id="demo" className="wrap py-20 sm:py-28">
+      <Reveal className="panel grid grid-cols-1 gap-10 p-7 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-14">
+        <div>
+          <h2 className="t-h2 max-w-[16ch]">{CTA.title}</h2>
+          <p className="t-lead muted mt-5 max-w-[40ch]">{CTA.sentence}</p>
+          <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="link mt-6 inline-block font-medium underline underline-offset-4">{CTA.link}</a>
+        </div>
+        <div className="panel-2 p-5 sm:p-6">
+          <LeadForm prefill={{ source: "get.asystem.ai/section" }} />
+        </div>
+      </Reveal>
     </section>
   );
 };

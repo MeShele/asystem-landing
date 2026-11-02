@@ -3,34 +3,16 @@ import { useLocation } from "react-router-dom";
 import { useLang } from "@/i18n";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import Stage from "@/components/Stage";
-import Features from "@/components/Features";
-import Showcase from "@/components/Showcase";
-import HowItWorks from "@/components/HowItWorks";
-import ModulesSheet from "@/components/ModulesSheet";
 import Proof from "@/components/Proof";
+import Features from "@/components/Features";
+import Showreel from "@/components/Showreel";
+import HowItWorks from "@/components/HowItWorks";
+import Modules from "@/components/Modules";
 import Tariffs from "@/components/Tariffs";
 import Faq from "@/components/Faq";
 import Cta from "@/components/Cta";
 import Footer from "@/components/Footer";
 import { LeadDialogProvider } from "@/components/LeadDialog";
-import { StageProvider, useStageObserver } from "@/lib/stage";
-
-/** Колонка чтения слева, закреплённая сцена справа; дальше секции на всю ширину. */
-const SplitStage = () => {
-  const ref = useStageObserver();
-  return (
-    <div ref={ref} className="page-x grid grid-cols-1 gap-4 lg:grid-cols-2">
-      <div className="min-w-0">
-        <Hero />
-        <Features />
-      </div>
-      <div className="order-first lg:order-none">
-        <Stage className="h-[56svh] lg:sticky lg:top-4 lg:h-[calc(100svh-2rem)]" />
-      </div>
-    </div>
-  );
-};
 
 function App() {
   const { t } = useLang();
@@ -55,7 +37,7 @@ function App() {
     if (!hash) return;
     const jump = () => {
       const el = document.querySelector(hash);
-      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 16 });
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 72 });
     };
     const t1 = setTimeout(jump, 150);
     const t2 = setTimeout(jump, 700);
@@ -64,24 +46,21 @@ function App() {
 
   return (
     <LeadDialogProvider>
-      <StageProvider>
-        <div className="bg-page min-h-full">
-          <Header />
-          <main>
-            <SplitStage />
-            <div className="mt-20 lg:mt-28">
-              <Showcase />
-            </div>
-            <HowItWorks />
-            <ModulesSheet />
-            <Proof />
-            <Tariffs />
-            <Faq />
-            <Cta />
-          </main>
-          <Footer />
-        </div>
-      </StageProvider>
+      <div className="min-h-full bg-bg">
+        <Header />
+        <main>
+          <Hero />
+          <Proof />
+          <Features />
+          <Showreel />
+          <HowItWorks />
+          <Modules />
+          <Tariffs />
+          <Faq />
+          <Cta />
+        </main>
+        <Footer />
+      </div>
     </LeadDialogProvider>
   );
 }

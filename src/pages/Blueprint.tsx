@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, CheckSquare, Download, TriangleAlert } from "luc
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
-import ThemeToggle from "@/components/ThemeToggle";
 import LangToggle from "@/components/LangToggle";
 import { DEMO_URL } from "@/content";
 import { useLang, type Lang } from "@/i18n";
@@ -267,7 +266,6 @@ const Blueprint = () => {
           </div>
           <div className="flex items-center gap-3">
             <LangToggle />
-            <ThemeToggle />
             <Button variant="signal" size="sm" asChild>
               <Link to="/#demo">{t("Запросить демо", "Request a demo")}</Link>
             </Button>
@@ -312,10 +310,10 @@ const Blueprint = () => {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3 print:hidden">
-            <Button variant="quiet" size="sm" onClick={() => window.print()}>
+            <Button variant="ghost" size="sm" onClick={() => window.print()}>
               <Download className="h-4 w-4" /> {t("Сохранить в PDF", "Save as PDF")}
             </Button>
-            <Button variant="quiet" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild>
               <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">
                 {t("Живое демо платформы", "Live platform demo")}
               </a>
@@ -411,7 +409,7 @@ const Blueprint = () => {
                     {t("Запросить демо", "Request a demo")} <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="quiet" asChild>
+                <Button variant="ghost" asChild>
                   <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">
                     {t("Потрогать живое демо", "Try the live demo")}
                   </a>

@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 export default {
-  darkMode: ["class"],
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
@@ -10,20 +9,23 @@ export default {
         display: ["var(--font-heading)", "Manrope", "Inter", "sans-serif"],
       },
       colors: {
-        border: "hsl(var(--border))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        bg: "hsl(var(--bg))",
         surface: { DEFAULT: "hsl(var(--surface))", 2: "hsl(var(--surface-2))" },
-        muted: { DEFAULT: "hsl(var(--surface))", foreground: "hsl(var(--muted-foreground))" },
-        accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
-        destructive: { DEFAULT: "hsl(var(--destructive))" },
+        fg: "hsl(var(--fg))",
+        muted: { DEFAULT: "hsl(var(--surface-2))", foreground: "hsl(var(--muted))" },
+        accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-fg))" },
+        line: "hsl(var(--line) / 0.08)",
         // совместимость внутренних страниц (/blueprint, /status) со старыми именами
-        card: { DEFAULT: "hsl(var(--background))", foreground: "hsl(var(--foreground))" },
-        secondary: { DEFAULT: "hsl(var(--surface))", foreground: "hsl(var(--foreground))" },
-        primary: { DEFAULT: "hsl(var(--foreground))", foreground: "hsl(var(--background))" },
+        border: "hsl(var(--border))",
+        background: "hsl(var(--bg))",
+        foreground: "hsl(var(--fg))",
+        card: { DEFAULT: "hsl(var(--surface))", foreground: "hsl(var(--fg))" },
+        secondary: { DEFAULT: "hsl(var(--surface-2))", foreground: "hsl(var(--fg))" },
+        primary: { DEFAULT: "hsl(var(--fg))", foreground: "hsl(var(--bg))" },
+        destructive: { DEFAULT: "hsl(var(--danger))" },
         ring: "hsl(var(--ring))",
       },
-      borderRadius: { lg: "0", md: "0", sm: "0" },
+      borderRadius: { lg: "14px", md: "10px", sm: "8px" },
     },
   },
   plugins: [],

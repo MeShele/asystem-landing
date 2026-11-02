@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/Logo";
-import ThemeToggle from "@/components/ThemeToggle";
 import LangToggle from "@/components/LangToggle";
 import { useLang } from "@/i18n";
 import { usePlatformStatus, type StackState } from "@/lib/platformStatus";
@@ -75,7 +74,6 @@ const Status = () => {
           </div>
           <div className="flex items-center gap-3">
             <LangToggle />
-            <ThemeToggle />
             <Button variant="signal" size="sm" asChild>
               <Link to="/#demo">{t("Запросить демо", "Request a demo")}</Link>
             </Button>

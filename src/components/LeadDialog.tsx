@@ -63,9 +63,9 @@ export const LeadDialogProvider = ({ children }: { children: ReactNode }) => {
             role="dialog"
             aria-modal="true"
             aria-label={state.title ?? LEAD.title}
-            className="relative z-10 max-h-[92dvh] w-full max-w-lg overflow-y-auto bg-page p-6 sm:p-8"
+            className="panel relative z-10 max-h-[92dvh] w-full max-w-lg overflow-y-auto p-6 sm:p-8"
             style={{
-              boxShadow: "0 30px 80px -20px hsl(240 10% 6% / 0.45)", /* taste-skill-ignore: окно плавает */
+              boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6)",
               transform: shown ? "none" : "translateY(16px) scale(0.98)",
               transition: `transform ${shown ? 320 : 160}ms var(--ease-out)`,
             }}
@@ -74,11 +74,11 @@ export const LeadDialogProvider = ({ children }: { children: ReactNode }) => {
               type="button"
               onClick={close}
               aria-label={t("Закрыть", "Close")}
-              className="btn btn-quiet absolute right-4 top-4 h-10 w-10 !px-0"
+              className="btn btn-ghost absolute right-4 top-4 h-10 w-10 !px-0"
             >
               <X className="h-4 w-4" />
             </button>
-            <h2 className="t-head pr-12">{state.title ?? LEAD.title}</h2>
+            <h2 className="t-h2 pr-12">{state.title ?? LEAD.title}</h2>
             <p className="mt-3 muted">{LEAD.sub}</p>
             <div className="mt-6">
               <LeadForm prefill={state} autoFocus />

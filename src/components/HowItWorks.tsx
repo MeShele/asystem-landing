@@ -1,63 +1,85 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { SetupFragment } from "@/components/fragments/Panels";
 import { useContent } from "@/i18n";
 
+const EASE = [0.23, 1, 0.32, 1] as const;
+
 /**
- * «Drag through the stages»: два поля и один ползунок с четырьмя стопами,
- * который двигает и фразу слева, и фрагмент продукта справа. Работает с
- * клавиатуры (стрелки у range). От прокрутки ничего не зависит.
+ * Запуск за четыре стадии: слева закреплённый фрагмент продукта в состоянии
+ * стадии, справа стадии идут друг за другом; активная определяется по
+ * положению в экране. На телефоне фрагмент показывается под каждой стадией.
  */
+const StageView = ({ i, reduced }: { i: 0 | 1 | 2 | 3; reduced: boolean }) => (
+  <AnimatePresence mode="wait" initial={false}>
+    <motion.div
+      key={i}
+      initial={{ opacity: 0, y: reduced ? 0 : 10, scale: reduced ? 1 : 0.985 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.16 } }}
+      transition={{ duration: 0.28, ease: EASE }}
+      className="w-full"
+    >
+      <SetupFragment stage={i} />
+    </motion.div>
+  </AnimatePresence>
+);
+
 const HowItWorks = () => {
   const { STEPS } = useContent();
-  const [i, setI] = useState(0);
-  const n = STEPS.stages.length;
-  const filled = `${(i / (n - 1)) * 100}%`;
+  const reduced = !!useReducedMotion();
+  const [active, setActive] = useState<0 | 1 | 2 | 3>(0);
+  const refs = useRef<(HTMLLIElement | null)[]>([]);
+
+  useEffect(() => {
+    const els = refs.current.filter(Boolean) as HTMLLIElement[];
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.i) as 0 | 1 | 2 | 3);
+      },
+      { rootMargin: "-45% 0px -45% 0px" },
+    );
+    els.forEach((el) => obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
 
   return (
-    <section id="how" aria-label={STEPS.title} className="relative">
-      <div className="grid grid-cols-1 lg:grid-cols-2 lg:min-h-[88svh]">
-        <div className="bg-surface flex min-h-[46svh] flex-col px-6 pb-28 pt-16 sm:px-10 lg:order-1 lg:px-[8%] lg:pt-[10svh]">
-          <h2 id="how-title" key={i} className="t-display max-w-[14ch]" style={{ animation: "fadeSwap 200ms ease-out" }}>
-            {STEPS.stages[i].clause}
-          </h2>
-          <p className="t-body mt-6 max-w-[40ch]">{STEPS.stages[i].text}</p>
-          <p className="t-body muted mt-auto max-w-[44ch] pt-10">{STEPS.note}</p>
-        </div>
-        <div className="bg-page flex min-h-[46svh] items-center justify-center px-6 pb-28 pt-12 lg:order-2 lg:pb-32">
-          <div key={`f${i}`} className="w-full max-w-[440px]" style={{ animation: "fadeSwap 200ms ease-out" }}>
-            <SetupFragment stage={i as 0 | 1 | 2 | 3} />
+    <section id="how" className="wrap py-20 sm:py-28">
+      <div className="max-w-[640px]">
+        <h2 className="t-h2">{STEPS.title}</h2>
+        <p className="t-lead muted mt-5">{STEPS.note}</p>
+      </div>
+
+      <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
+        <div className="hidden lg:block">
+          <div className="panel sticky top-24 flex min-h-[520px] items-center p-8">
+            <StageView i={active} reduced={reduced} />
           </div>
         </div>
-      </div>
 
-      <div className="absolute inset-x-0 bottom-0 px-7 pb-7">
-        <input
-          type="range"
-          min={0}
-          max={n - 1}
-          step={1}
-          value={i}
-          onChange={(e) => setI(Number(e.target.value))}
-          aria-label={STEPS.title}
-          aria-valuetext={STEPS.stages[i].short}
-          className="stages-range"
-          style={{ "--filled": filled } as React.CSSProperties}
-        />
-        <div className="mt-3 grid grid-cols-4 t-small sm:t-body">
-          {STEPS.stages.map((s, k) => (
-            <button
-              key={s.short}
-              type="button"
-              onClick={() => setI(k)}
-              className={`text-left transition-colors duration-200 ${k === i ? "font-semibold" : "muted"} ${k === n - 1 ? "text-right" : k === 0 ? "" : "text-center"}`}
-            >
-              {s.short}
-            </button>
-          ))}
-        </div>
+        <ol className="flex flex-col gap-6 lg:gap-0">
+          {STEPS.stages.map((s, k) => {
+            const on = k === active;
+            return (
+              <li
+                key={s.short}
+                ref={(el) => { refs.current[k] = el; }}
+                data-i={k}
+                className="lg:flex lg:min-h-[60vh] lg:flex-col lg:justify-center"
+              >
+                <div className={`transition-opacity duration-300 ${on ? "opacity-100" : "lg:opacity-40"}`}>
+                  <p className="t-small font-semibold text-accent">{s.short}</p>
+                  <h3 className="t-h2 mt-2 max-w-[14ch]">{s.clause}</h3>
+                  <p className="muted mt-4 max-w-[44ch]">{s.text}</p>
+                </div>
+                <div className="panel mt-6 p-5 lg:hidden">
+                  <SetupFragment stage={k as 0 | 1 | 2 | 3} />
+                </div>
+              </li>
+            );
+          })}
+        </ol>
       </div>
-
-      <style>{`@keyframes fadeSwap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }`}</style>
     </section>
   );
 };

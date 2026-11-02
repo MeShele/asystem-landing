@@ -26,7 +26,7 @@ export const LeadForm = ({ prefill, autoFocus = false }: { prefill?: LeadPrefill
   if (sent) {
     return (
       <div className="py-8 text-center" role="status">
-        <span className="mx-auto grid h-12 w-12 place-items-center bg-accent-fill">
+        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-accent text-accent-foreground">
           <Check className="h-6 w-6" />
         </span>
         <p className="t-lead mt-4 font-semibold">{LEAD.sentTitle}</p>
@@ -77,7 +77,7 @@ export const LeadForm = ({ prefill, autoFocus = false }: { prefill?: LeadPrefill
               type="button"
               onClick={() => setTopic(tp.key as LeadTopic)}
               aria-pressed={on}
-              className={`btn btn-sm ${on ? "btn-ink" : "btn-quiet"}`}
+              className={`btn btn-sm ${on ? "btn-signal" : "btn-ghost"}`}
             >
               {tp.label}
             </button>
@@ -86,7 +86,7 @@ export const LeadForm = ({ prefill, autoFocus = false }: { prefill?: LeadPrefill
       </div>
 
       {prefill?.message && (
-        <div className="bg-surface px-4 py-3 t-small">
+        <div className="panel-2 px-4 py-3 t-small">
           <div className="font-semibold">{LEAD.attached}</div>
           <div className="mt-0.5 whitespace-pre-line">{prefill.message}</div>
         </div>

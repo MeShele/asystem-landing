@@ -1,0 +1,132 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
+
+/**
+ * Фон героя: один полноэкранный треугольник с фрагментным шейдером. Медленно
+ * текущие слои шума в тонах страницы, лаймовый отблеск на гребнях. Дёшево:
+ * dpr ≤ 1.5, без antialias, кадры только пока герой на экране; под
+ * prefers-reduced-motion рисуется один кадр и останавливается.
+ */
+const VERT = /* glsl */ `
+  void main() { gl_Position = vec4(position, 1.0); }
+`;
+
+const FRAG = /* glsl */ `
+  precision highp float;
+  uniform float uTime;
+  uniform vec2 uRes;
+  uniform vec3 uAccent;
+
+  float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+  float noise(vec2 p) {
+    vec2 i = floor(p), f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+  }
+  float fbm(vec2 p) {
+    float v = 0.0, a = 0.5;
+    mat2 r = mat2(0.8, 0.6, -0.6, 0.8);
+    for (int i = 0; i < 5; i++) { v += a * noise(p); p = r * p * 2.03; a *= 0.5; }
+    return v;
+  }
+
+  void main() {
+    vec2 uv = gl_FragCoord.xy / uRes;
+    vec2 p = vec2(uv.x * uRes.x / uRes.y, uv.y);
+    float t = uTime * 0.045;
+
+    float warp = fbm(p * 1.4 + vec2(t, -t * 0.5));
+    float n = fbm(p * 2.2 + vec2(-t * 0.6, t * 0.35) + warp * 1.1);
+
+    vec3 base = vec3(0.043, 0.047, 0.039);
+    vec3 fold = vec3(0.16, 0.175, 0.14);
+    float ridge = smoothstep(0.42, 0.78, n);
+    vec3 col = mix(base, fold, ridge);
+
+    /* лаймовый отблеск: только на самых высоких гребнях и сильнее к верху кадра */
+    float glint = smoothstep(0.74, 0.96, n) * (0.25 + 0.75 * smoothstep(0.15, 0.95, uv.y));
+    col += uAccent * glint * 0.55;
+
+    /* виньетка к краям, чтобы текст слева читался */
+    float v = smoothstep(1.25, 0.35, length((uv - vec2(0.62, 0.5)) * vec2(1.15, 1.0)));
+    col *= 0.5 + 0.5 * v;
+
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;
+
+const Plane = ({ animate }: { animate: boolean }) => {
+  const mat = useRef<THREE.ShaderMaterial>(null);
+  const { size, gl, invalidate } = useThree();
+  const uniforms = useMemo(
+    () => ({
+      uTime: { value: 0 },
+      uRes: { value: new THREE.Vector2(1, 1) },
+      uAccent: { value: new THREE.Color("#B6FF1A") },
+    }),
+    [],
+  );
+  const geom = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute([-1, -1, 0, 3, -1, 0, -1, 3, 0], 3));
+    return g;
+  }, []);
+  useEffect(() => {
+    const dpr = gl.getPixelRatio();
+    uniforms.uRes.value.set(size.width * dpr, size.height * dpr);
+    invalidate();
+  }, [size, gl, uniforms, invalidate]);
+  useFrame((_, dt) => {
+    if (!animate || !mat.current) return;
+    mat.current.uniforms.uTime.value += Math.min(dt, 0.05);
+  });
+  return (
+    <mesh geometry={geom} frustumCulled={false}>
+      <shaderMaterial ref={mat} vertexShader={VERT} fragmentShader={FRAG} uniforms={uniforms} depthTest={false} depthWrite={false} />
+    </mesh>
+  );
+};
+
+const ShaderBackground = ({ className = "" }: { className?: string }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
+  const [ready, setReady] = useState(false);
+  const reduced = useMemo(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.05 });
+    io.observe(el);
+    const onVis = () => setVisible(!document.hidden && (el.getBoundingClientRect().bottom > 0));
+    document.addEventListener("visibilitychange", onVis);
+    return () => { io.disconnect(); document.removeEventListener("visibilitychange", onVis); };
+  }, []);
+
+  const animate = visible && !reduced;
+
+  return (
+    <div
+      ref={ref}
+      className={`pointer-events-none ${className}`}
+      style={{ opacity: ready ? 1 : 0, transition: "opacity 1200ms ease" }}
+      aria-hidden="true"
+    >
+      <Canvas
+        dpr={[1, 1.5]}
+        frameloop={animate ? "always" : "demand"}
+        gl={{ antialias: false, alpha: false, powerPreference: "high-performance", depth: false, stencil: false }}
+        orthographic
+        camera={{ position: [0, 0, 1], near: 0, far: 2 }}
+        onCreated={() => setReady(true)}
+        style={{ width: "100%", height: "100%" }}
+      >
+        <Plane animate={animate} />
+      </Canvas>
+    </div>
+  );
+};
+
+export default ShaderBackground;
