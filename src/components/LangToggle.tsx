@@ -1,37 +1,26 @@
-import { motion } from "motion/react";
 import { useLang, type Lang } from "@/i18n";
 
-// Переключатель языка RU|EN — сегмент-пилюля в паре с ThemeToggle.
-const OPTIONS: Lang[] = ["ru", "en"];
+// Язык: две кнопки на одной заливке, активная в чернилах.
+const OPTIONS: { k: Lang; label: string }[] = [
+  { k: "ru", label: "Ру" },
+  { k: "en", label: "En" },
+];
 
-const LangToggle = ({ className = "" }: { className?: string }) => {
+const LangToggle = () => {
   const { lang, setLang } = useLang();
   return (
-    <div
-      role="group"
-      aria-label={lang === "ru" ? "Язык" : "Language"}
-      className={`flex h-9 items-center rounded-full border border-border bg-card p-0.5 ${className}`}
-    >
+    <div role="group" aria-label={lang === "ru" ? "Язык" : "Language"} className="flex h-10 bg-surface p-1">
       {OPTIONS.map((o) => {
-        const on = o === lang;
+        const on = o.k === lang;
         return (
           <button
-            key={o}
+            key={o.k}
             type="button"
-            onClick={() => setLang(o)}
+            onClick={() => setLang(o.k)}
             aria-pressed={on}
-            className={`relative rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${
-              on ? "text-accent-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
+            className={`t-small px-3 font-semibold transition-colors duration-200 ${on ? "bg-ink" : "muted hover:text-[hsl(var(--foreground))]"}`}
           >
-            {on && (
-              <motion.span
-                layoutId="lang-pill"
-                className="absolute inset-0 rounded-full bg-accent"
-                transition={{ type: "spring", stiffness: 380, damping: 32 }}
-              />
-            )}
-            <span className="relative z-10">{o}</span>
+            {o.label}
           </button>
         );
       })}

@@ -250,9 +250,9 @@ const Blueprint = () => {
   }, [t]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-[100svh] bg-background">
       {/* топ-бар */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl print:hidden">
+      <header className="bg-page print:hidden">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link
@@ -261,7 +261,6 @@ const Blueprint = () => {
             >
               <ArrowLeft className="h-4 w-4" /> {t("На главную", "Back to home")}
             </Link>
-            <span className="hidden h-4 w-px bg-border sm:block" />
             <Link to="/" className="hidden sm:block">
               <Logo />
             </Link>
@@ -281,7 +280,7 @@ const Blueprint = () => {
         <motion.div variants={rise} initial="hidden" animate="show">
           <div className="flex items-center gap-3">
             <span className="h-2 w-10 rounded-sm bg-accent" />
-            <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <span className="t-small font-medium muted">
               {t("Blueprint · Кыргызстан · 2026", "Blueprint · Kyrgyzstan · 2026")}
             </span>
           </div>
@@ -313,10 +312,10 @@ const Blueprint = () => {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3 print:hidden">
-            <Button variant="outline" size="sm" onClick={() => window.print()}>
+            <Button variant="quiet" size="sm" onClick={() => window.print()}>
               <Download className="h-4 w-4" /> {t("Сохранить в PDF", "Save as PDF")}
             </Button>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="quiet" size="sm" asChild>
               <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">
                 {t("Живое демо платформы", "Live platform demo")}
               </a>
@@ -361,8 +360,8 @@ const Blueprint = () => {
             <div className="mt-4 space-y-3">
               {DISCLAIMERS.map((d) => (
                 <div key={d.label.ru} className="rounded-xl border border-border bg-card p-4">
-                  <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{l(d.label)}</div>
-                  <p className="mt-2 rounded-lg bg-secondary/50 p-3 font-mono text-[13px] leading-relaxed text-foreground" lang="ru">
+                  <div className="t-small font-semibold">{l(d.label)}</div>
+                  <p className="mt-2 rounded-lg bg-secondary/50 p-3 text-[15px] leading-relaxed text-foreground" lang="ru">
                     {d.text}
                   </p>
                 </div>
@@ -376,10 +375,9 @@ const Blueprint = () => {
               {t("Типичные грабли (из практики запусков)", "Common pitfalls (from real launches)")}
             </h2>
             <div className="mt-4 space-y-3">
-              {PITFALLS[lang].map((p, i) => (
+              {PITFALLS[lang].map((p) => (
                 <div key={p.t} className="rounded-xl border border-border bg-card p-4">
                   <div className="flex items-baseline gap-2.5">
-                    <span className="font-mono text-xs font-bold text-muted-foreground/70">0{i + 1}</span>
                     <div>
                       <span className="font-semibold text-foreground">{p.t}</span>{" "}
                       <span className="text-muted-foreground">— {p.d}</span>
@@ -413,7 +411,7 @@ const Blueprint = () => {
                     {t("Запросить демо", "Request a demo")} <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="outline" asChild>
+                <Button variant="quiet" asChild>
                   <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">
                     {t("Потрогать живое демо", "Try the live demo")}
                   </a>

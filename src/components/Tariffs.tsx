@@ -1,183 +1,106 @@
-import { ArrowRight, Check } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import Reveal from "@/components/Reveal";
 import { useLeadDialog } from "@/components/LeadDialog";
-import ScrollReveal from "@/components/ScrollReveal";
-import { useLang, type L } from "@/i18n";
-import { usePlatformStats, type PlatformTier } from "@/lib/platformStats";
-
-/**
- * Тарифы на лендинге. Цены НЕ задаются здесь: их считает core из прайса
- * (edge platform-stats, тот же расчёт, что в КП и «Тарифах» из админки).
- * Состав — копия supabase/functions/_shared/pricingTiers.ts в репо core:
- * меняете там — поменяйте и здесь.
- */
-const PLANS: { id: PlatformTier["id"]; title: L; tagline: L; points: L[]; popular?: boolean }[] = [
-  {
-    id: "start",
-    title: { ru: "Старт", en: "Start" },
-    tagline: { ru: "Всё, чтобы работать по лицензии", en: "Everything to operate under a licence" },
-    points: [
-      { ru: "Обменник на вашем домене", en: "Exchange on your domain" },
-      { ru: "Свой сервер в Кыргызстане", en: "Your own server in Kyrgyzstan" },
-      { ru: "Comply Core под ГСФР", en: "Comply Core for SFIS" },
-      { ru: "ASystem KYC и Ranex KYT", en: "ASystem KYC and Ranex KYT" },
-      { ru: "Запуск и настройка", en: "Launch and setup" },
-    ],
-  },
-  {
-    id: "business",
-    title: { ru: "Бизнес", en: "Business" },
-    tagline: { ru: "Приём денег, отчёты и внешний KYC", en: "Payments, reports and external KYC" },
-    popular: true,
-    points: [
-      { ru: "Всё, что в «Старте»", en: "Everything in Start" },
-      { ru: "Finik: приём по QR и выплаты", en: "Finik: QR payments and payouts" },
-      { ru: "Отчёты Финнадзор", en: "FinSupervision reports" },
-      { ru: "Didit или BiometricVision", en: "Didit or BiometricVision" },
-      { ru: "SMS-уведомления", en: "SMS notifications" },
-    ],
-  },
-];
+import { useContent } from "@/i18n";
+import { usePlatformStats } from "@/lib/platformStats";
 
 const fmt = (n: number) => n.toLocaleString("ru-RU");
 
-export const Tariffs = () => {
-  const { t, l } = useLang();
+type Row = { name: string; desc?: string; price: string };
+
+/* Группа меню цен: название, что входит, строки «название — цена», валюта один раз в шапке */
+const Group = ({ title, desc, rows, som }: { title: string; desc: string; rows: Row[]; som: string }) => (
+  <div className="min-w-0">
+    <div className="flex items-baseline justify-between gap-4">
+      <h3 className="t-lead font-semibold">{title}</h3>
+      <span className="t-small muted">{som}</span>
+    </div>
+    {desc && <p className="t-body muted mt-2 max-w-[38ch] [overflow-wrap:anywhere]">{desc}</p>}
+    <ul className="mt-5 space-y-4">
+      {rows.map((r) => (
+        <li key={r.name} className="flex items-baseline justify-between gap-6">
+          <span className="min-w-0">
+            <span className="t-body block font-medium">{r.name}</span>
+            {r.desc && <span className="t-small muted block">{r.desc}</span>}
+          </span>
+          <span className="t-body shrink-0 tabular font-medium">{r.price}</span>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
+
+
+/**
+ * «Prices like a menu»: заголовок в колонках 1–3, цены в 5–12 двумя текстовыми
+ * колонками. Цены НЕ заданы здесь: их считает core из прайса (edge platform-stats),
+ * только в сомах по курсу НБ КР (закон № 91). Нет курса — нет цены.
+ * Состав тарифов — копия supabase/functions/_shared/pricingTiers.ts в репо core.
+ */
+const Tariffs = () => {
+  const { PRICING } = useContent();
   const openLead = useLeadDialog();
   const stats = usePlatformStats();
   const prepay = stats?.prepayMonths ?? 3;
-  // Только сомы: долларовые поля ответа на витрину не идут (закон № 91 о расчётах
-  // в национальной валюте). Нет курса — нет цены, а не цена в долларах.
   const kgs = stats?.kgs ?? null;
-  const som = t("сом", "KGS");
-  const priceOf = (id: PlatformTier["id"]) => kgs?.tiers.find((x) => x.id === id) ?? null;
+  const tier = (id: "start" | "business") => kgs?.tiers.find((x) => x.id === id) ?? null;
+  const som = "сом";
 
-  const cta = (plan: string) =>
-    openLead({
-      source: "get.asystem.ai/tariffs",
-      title: t("Получить коммерческое предложение", "Get a commercial proposal"),
-      message: `${t("Тариф", "Plan")}: ${plan}`,
-    });
-
-  const cards = [
-    ...PLANS.map((p) => {
-      const price = priceOf(p.id);
-      return {
-        key: p.id,
-        title: l(p.title),
-        tagline: l(p.tagline),
-        big: price ? `${fmt(price.monthly)} ${som}` : null,
-        unit: t("в месяц", "per month"),
-        extra: price ? t(`+ ${fmt(price.setup)} ${som} подключение, разово`, `+ ${fmt(price.setup)} ${som} one-time setup`) : null,
-        points: p.points.map(l),
-        popular: !!p.popular,
-      };
-    }),
-    {
-      key: "buyout",
-      title: t("Выкуп", "Buyout"),
-      tagline: t("Платформа остаётся у вас насовсем", "The platform is yours for good"),
-      big: kgs?.buyout ? `${kgs.buyout.from ? t("от ", "from ") : ""}${fmt(kgs.buyout.price)} ${som}` : null,
-      unit: t("разово, вместо подписки", "one-time, instead of a subscription"),
-      extra: t("условия — в договоре", "terms set in the contract"),
-      points: [
-        t("Без ежемесячной платы", "No monthly fee"),
-        t("Модули — как в тарифах", "Modules as in the plans"),
-        t("Сервер в Кыргызстане", "Server in Kyrgyzstan"),
-      ],
-      popular: false,
-    },
-  ];
+  const price = (n: number | undefined) => (n == null ? PRICING.groups.addons.price : fmt(n));
+  const start = tier("start");
+  const business = tier("business");
 
   return (
-    <section id="pricing" className="border-y border-border bg-secondary/30 py-16 sm:py-20 lg:py-24">
-      <div className="container">
-        <ScrollReveal className="mx-auto max-w-2xl text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {t("Тарифы", "Pricing")}
-          </span>
-          <h2 className="mt-2 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-            {t("Два тарифа или выкуп", "Two plans or a buyout")}
-          </h2>
-          <p className="mt-4 text-lg text-muted-foreground">
-            {t(
-              `Сервер в Кыргызстане и комплаенс под ГСФР входят в каждый тариф. Подписка оплачивается сразу за ${prepay} месяца вперёд.`,
-              `A server in Kyrgyzstan and SFIS compliance come with every plan. The subscription is paid ${prepay} months in advance.`,
-            )}
-          </p>
-        </ScrollReveal>
+    <section id="pricing" className="page-x py-24 lg:py-32">
+      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
+        <Reveal className="lg:col-span-3">
+          <h2 className="t-head">{PRICING.title}</h2>
+          <p className="t-body mt-5 max-w-[30ch]">{PRICING.lead(prepay)}</p>
+          <p className="t-small muted mt-4 max-w-[30ch]">{kgs ? PRICING.rateNote(kgs.date) : PRICING.noRate}</p>
+          <button type="button" className="btn btn-signal mt-8" onClick={() => openLead({ source: "get.asystem.ai/pricing", title: PRICING.cta })}>
+            {PRICING.cta}
+          </button>
+        </Reveal>
 
-        <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-3">
-          {cards.map((c, i) => (
-            <ScrollReveal
-              key={c.key}
-              delay={i * 90}
-              className={`flex flex-col rounded-2xl border p-6 ${
-                c.popular
-                  ? "border-accent bg-card shadow-[0_28px_80px_-28px_hsl(79_100%_45%/0.45)] ring-1 ring-accent/40"
-                  : "border-border bg-card"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-3">
-                <h3 className="font-display text-2xl font-extrabold">{c.title}</h3>
-                {c.popular && (
-                  <span className="rounded-full bg-accent px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-accent-foreground">
-                    {t("популярный", "popular")}
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">{c.tagline}</p>
-
-              <div className="mt-6 min-h-[5.5rem]">
-                {c.big ? (
-                  <>
-                    <div className="font-display text-4xl font-extrabold tabular-nums">{c.big}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{c.unit}</div>
-                    <div className="mt-1 text-sm font-semibold">{c.extra}</div>
-                  </>
-                ) : (
-                  <div className="text-base font-semibold text-muted-foreground">
-                    {t("Цену пришлём в коммерческом предложении", "We'll send the price in our proposal")}
-                  </div>
-                )}
-              </div>
-
-              <ul className="mt-5 flex-1 space-y-2.5 border-t border-border pt-5">
-                {c.points.map((p) => (
-                  <li key={p} className="flex items-start gap-2.5 text-sm">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-                    <span>{p}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                variant={c.popular ? "signal" : "outline"}
-                className="mt-6 w-full"
-                onClick={() => cta(c.title)}
-              >
-                {t("Получить КП", "Get a proposal")} <ArrowRight className="h-4 w-4" />
-              </Button>
-            </ScrollReveal>
-          ))}
-        </div>
-
-        <p className="mx-auto mt-6 max-w-5xl text-center text-sm text-muted-foreground">
-          {t(
-            "Приложение на телефон, блог, кошельки клиентов и доработки под задачу — отдельно. KYC-провайдер, эквайринг и SMS оплачиваются провайдерам напрямую, без нашей наценки.",
-            "A phone app, blog, client wallets and custom work are extra. The KYC provider, acquiring and SMS are paid to the providers directly, with no markup from us.",
-          )}
-          {kgs && (
-            <>
-              {" "}
-              {t(
-                `Цены в сомах по курсу НБ КР на ${kgs.date}; точная сумма фиксируется в договоре.`,
-                `Prices in KGS at the NBKR rate as of ${kgs.date}; the exact amount is fixed in the contract.`,
-              )}
-            </>
-          )}
-        </p>
+        <Reveal className="grid gap-12 md:grid-cols-2 md:gap-x-16 lg:col-span-8 lg:col-start-5 [&>*]:min-w-0">
+          <Group
+            som={som}
+            title={PRICING.groups.start.title}
+            desc={PRICING.groups.start.desc}
+            rows={[
+              { name: PRICING.perMonth, price: price(start?.monthly) },
+              { name: PRICING.setup, price: price(start?.setup) },
+            ]}
+          />
+          <Group
+            som={som}
+            title={PRICING.groups.business.title}
+            desc={PRICING.groups.business.desc}
+            rows={[
+              { name: PRICING.perMonth, price: price(business?.monthly) },
+              { name: PRICING.setup, price: price(business?.setup) },
+            ]}
+          />
+          <Group
+            som={som}
+            title={PRICING.groups.buyout.title}
+            desc={PRICING.groups.buyout.desc}
+            rows={[
+              {
+                name: PRICING.groups.buyout.unit,
+                price: kgs?.buyout ? `${kgs.buyout.from ? `${PRICING.groups.buyout.from} ` : ""}${fmt(kgs.buyout.price)}` : PRICING.groups.addons.price,
+              },
+            ]}
+          />
+          <Group
+            som={som}
+            title={PRICING.groups.addons.title}
+            desc=""
+            rows={PRICING.groups.addons.items.map((a) => ({ name: a.name, desc: a.desc, price: PRICING.groups.addons.price }))}
+          />
+        </Reveal>
       </div>
     </section>
   );
 };
+
+export default Tariffs;

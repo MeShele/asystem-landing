@@ -1,3 +1,8 @@
 node_modules
 dist
 .DS_Store
+
+# tasteskill: отчёты и скриншоты раундов локальные, в git только заметки и направление
+.taste-skill/*
+!.taste-skill/notes.md
+!.taste-skill/direction.json

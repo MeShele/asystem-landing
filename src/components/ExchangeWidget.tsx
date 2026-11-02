@@ -1,44 +1,28 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, ArrowDownUp, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import ExchangeModal from "@/components/ExchangeModal";
 import { useLang } from "@/i18n";
 
 type Mode = "buy" | "sell";
 
-const BASE_RATE = 89.5; // 1 USDT = 89.50 KGS
+export const BASE_RATE = 88.3; // 1 USDT = 88.30 KGS, стартовое значение живого курса
 
-const CurrencyPill = ({ code }: { code: string }) => (
-  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm font-semibold">
-    <span className="grid h-5 w-5 place-items-center rounded-full bg-accent/20 text-[10px] font-bold text-foreground">
-      {code[0]}
-    </span>
-    {code}
-  </span>
-);
-
-/** Live, self-contained exchange field for the hero banner — buy/sell toggle,
- *  give/receive amounts, a real-time ticking rate. Presentational only. */
+/** Виджет обмена с витрины обменника: покупка и продажа, живой курс. Фрагмент продукта (data-ui). */
 const ExchangeWidget = () => {
   const { t } = useLang();
   const [mode, setMode] = useState<Mode>("buy");
-  const [give, setGive] = useState("1000");
+  const [give, setGive] = useState("25 000");
   const [rate, setRate] = useState(BASE_RATE);
   const [trend, setTrend] = useState<"up" | "down">("up");
-  const [flash, setFlash] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const id = setInterval(() => {
       setRate((r) => {
-        const next = Math.max(88.9, Math.min(90.4, r + (Math.random() - 0.45) * 0.12));
+        const next = Math.max(87.6, Math.min(89.1, r + (Math.random() - 0.45) * 0.1));
         setTrend(next >= r ? "up" : "down");
         return Number(next.toFixed(2));
       });
-      setFlash(true);
-      const t = setTimeout(() => setFlash(false), 450);
-      return () => clearTimeout(t);
-    }, 2200);
+    }, 2600);
     return () => clearInterval(id);
   }, []);
 
@@ -50,92 +34,59 @@ const ExchangeWidget = () => {
 
   return (
     <>
-    <div className="bg-gradient-to-b from-secondary/50 to-background p-5 sm:p-7">
-      <div className="mx-auto max-w-sm rounded-2xl border border-border bg-card p-5 shadow-[0_20px_50px_-24px_hsl(240_10%_6%/0.35)]">
-        {/* mode toggle */}
-        <div className="flex gap-1.5 rounded-full bg-secondary p-1">
+      <div data-ui className="ui-card w-full max-w-[400px] p-5">
+        <div className="flex gap-1 rounded-full bg-[hsl(var(--surface))] p-1">
           {(["buy", "sell"] as Mode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 ${
-                mode === m ? "bg-accent text-accent-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
+            <button key={m} type="button" onClick={() => setMode(m)} className={`ui-tab flex-1 ${mode === m ? "on" : ""}`}>
               {m === "buy" ? t("Купить", "Buy") : t("Продать", "Sell")}
             </button>
           ))}
         </div>
 
-        {/* give */}
-        <div className="mt-4 rounded-xl border border-border bg-secondary/40 px-4 py-3">
-          <div className="text-xs font-medium text-muted-foreground">{t("Вы отдаёте", "You send")}</div>
-          <div className="mt-1 flex items-center justify-between gap-3">
+        <label className="ui-field mt-4 block">
+          <span className="ui-k">{t("Вы отдаёте", "You send")}</span>
+          <span className="ui-row mt-1">
             <input
               value={give}
               onChange={(e) => setGive(e.target.value)}
               inputMode="decimal"
               aria-label={t("Сумма к обмену", "Amount to exchange")}
-              className="w-full min-w-0 bg-transparent font-mono text-2xl font-semibold sm:text-[1.7rem] text-foreground outline-none"
+              className="ui-num w-full min-w-0 bg-transparent text-[26px] font-semibold outline-none"
             />
-            <CurrencyPill code={giveCur} />
-          </div>
-        </div>
-
-        {/* swap */}
-        <div className="relative flex justify-center">
-          <button
-            onClick={() => setMode((m) => (m === "buy" ? "sell" : "buy"))}
-            aria-label={t("Поменять направление", "Swap direction")}
-            className="-my-3 z-10 grid h-9 w-9 place-items-center rounded-full border border-border bg-card text-foreground shadow-sm transition-transform duration-300 hover:rotate-180 hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
-          >
-            <ArrowDownUp className="h-4 w-4" />
-          </button>
-        </div>
-
-        {/* get */}
-        <div className="rounded-xl border border-border bg-secondary/40 px-4 py-3">
-          <div className="text-xs font-medium text-muted-foreground">{t("Вы получаете", "You receive")}</div>
-          <div className="mt-1 flex items-center justify-between gap-3">
-            <span className={`font-mono text-2xl font-semibold sm:text-[1.7rem] tabular-nums transition-colors duration-300 ${flash ? "text-accent" : "text-foreground"}`}>
-              {fmt(get)}
-            </span>
-            <CurrencyPill code={getCur} />
-          </div>
-        </div>
-
-        {/* live rate */}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-1 text-xs">
-          <span className="flex items-center gap-1.5 text-muted-foreground">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
-            {t("Курс в реальном времени", "Real-time rate")}
+            <span className="ui-chip">{giveCur}</span>
           </span>
-          <span className="flex items-center gap-1 font-mono text-foreground">
+        </label>
+
+        <div className="ui-field mt-2">
+          <span className="ui-k">{t("Вы получаете", "You receive")}</span>
+          <span className="ui-row mt-1">
+            <span className="ui-num text-[26px] font-semibold">{fmt(get)}</span>
+            <span className="ui-chip">{getCur}</span>
+          </span>
+        </div>
+
+        <div className="ui-row mt-3">
+          <span className="ui-k inline-flex items-center gap-2"><i className="ui-dot" />{t("Курс обновляется", "Live rate")}</span>
+          <span className="ui-num text-[13px] font-semibold" style={{ color: trend === "up" ? "hsl(var(--ok))" : "hsl(var(--destructive))", transition: "color 400ms ease" }}>
             1 USDT = {rate.toFixed(2)} KGS
-            <TrendingUp className={`h-3.5 w-3.5 ${trend === "up" ? "text-emerald-500" : "rotate-180 text-rose-500"}`} />
           </span>
         </div>
 
-        <Button type="button" variant="signal" size="lg" className="mt-4 w-full" onClick={() => setModalOpen(true)}>
+        <button type="button" className="ui-btn ui-btn-accent mt-4 w-full" onClick={() => setModalOpen(true)}>
           {mode === "buy" ? t("Купить USDT", "Buy USDT") : t("Продать USDT", "Sell USDT")}
-          <ArrowRight className="h-4 w-4" />
-        </Button>
+        </button>
       </div>
-    </div>
-    <ExchangeModal
-      open={modalOpen}
-      onClose={() => setModalOpen(false)}
-      mode={mode}
-      giveAmount={giveNum}
-      giveCur={giveCur}
-      getAmount={get}
-      getCur={getCur}
-      rate={rate}
-      fmt={fmt}
-    />
+      <ExchangeModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        mode={mode}
+        giveAmount={giveNum}
+        giveCur={giveCur}
+        getAmount={get}
+        getCur={getCur}
+        rate={rate}
+        fmt={fmt}
+      />
     </>
   );
 };

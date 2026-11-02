@@ -7,6 +7,9 @@ import App from './App.tsx'
 import Blueprint from './pages/Blueprint.tsx'
 import Status from './pages/Status.tsx'
 
+// Входы секций анимируются только при живом JS: без него всё видно сразу.
+document.documentElement.classList.add('js')
+
 // SPA на GitHub Pages: dist/404.html = копия index.html (см. build script),
 // поэтому прямые заходы на /blueprint работают.
 createRoot(document.getElementById('root')!).render(

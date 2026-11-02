@@ -64,14 +64,13 @@ const Status = () => {
   })();
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+    <div className="min-h-[100svh] bg-background">
+      <header className="bg-page">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               <ArrowLeft className="h-4 w-4" /> {t("На главную", "Back to home")}
             </Link>
-            <span className="hidden h-4 w-px bg-border sm:block" />
             <Link to="/" className="hidden sm:block"><Logo /></Link>
           </div>
           <div className="flex items-center gap-3">
@@ -87,7 +86,7 @@ const Status = () => {
       <main className="container max-w-3xl py-12 sm:py-16">
         <div className="flex items-center gap-3">
           <span className="h-2 w-10 rounded-sm bg-accent" />
-          <span className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="t-small font-medium muted">
             {t("Статус · проверка раз в минуту", "Status · checked every minute")}
           </span>
         </div>
@@ -114,19 +113,19 @@ const Status = () => {
           {data && (
             <dl className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div>
-                <dt className="text-xs uppercase tracking-wide text-muted-foreground">{t("Обменников", "Exchanges")}</dt>
+                <dt className="t-small muted">{t("Обменников", "Exchanges")}</dt>
                 <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums">{data.totals.total}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-muted-foreground">{t("Работают", "Operational")}</dt>
+                <dt className="t-small muted">{t("Работают", "Operational")}</dt>
                 <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums">{data.totals.ok}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-muted-foreground">{t(`Uptime за ${data.window_days} дн.`, `${data.window_days}-day uptime`)}</dt>
+                <dt className="t-small muted">{t(`Uptime за ${data.window_days} дн.`, `${data.window_days}-day uptime`)}</dt>
                 <dd className="mt-1 font-display text-3xl font-extrabold tabular-nums">{fmtPct(data.uptime)}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-muted-foreground">{t("Ядро платформы", "Platform core")}</dt>
+                <dt className="t-small muted">{t("Ядро платформы", "Platform core")}</dt>
                 <dd className="mt-1 flex items-center gap-2 font-display text-lg font-bold">
                   <span className={`h-2.5 w-2.5 rounded-full ${dotClass(data.platform?.status ?? "unknown")}`} />
                   {stateLabel(data.platform?.status ?? "unknown")}

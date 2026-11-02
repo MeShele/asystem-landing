@@ -2,78 +2,86 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useLang } from "@/i18n";
 import Header from "@/components/Header";
-import SmoothScroll from "@/components/SmoothScroll";
 import Hero from "@/components/Hero";
-import Showreel from "@/components/Showreel";
-import { BlueprintCta, IntegrationsBar, Stats, Problem, ClientShowcase, Features, HowItWorks, OperatorShowcase, Architecture, Modules, ApiCores, Compliance } from "@/components/Sections";
-import { Faq, FinalCta, Footer } from "@/components/Closing";
-import { Tariffs } from "@/components/Tariffs";
+import Stage from "@/components/Stage";
+import Features from "@/components/Features";
+import Showcase from "@/components/Showcase";
+import HowItWorks from "@/components/HowItWorks";
+import ModulesSheet from "@/components/ModulesSheet";
+import Proof from "@/components/Proof";
+import Tariffs from "@/components/Tariffs";
+import Faq from "@/components/Faq";
+import Cta from "@/components/Cta";
+import Footer from "@/components/Footer";
 import { LeadDialogProvider } from "@/components/LeadDialog";
+import { StageProvider, useStageObserver } from "@/lib/stage";
+
+/** Колонка чтения слева, закреплённая сцена справа; дальше секции на всю ширину. */
+const SplitStage = () => {
+  const ref = useStageObserver();
+  return (
+    <div ref={ref} className="page-x grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="min-w-0">
+        <Hero />
+        <Features />
+      </div>
+      <div className="order-first lg:order-none">
+        <Stage className="h-[56svh] lg:sticky lg:top-4 lg:h-[calc(100svh-2rem)]" />
+      </div>
+    </div>
+  );
+};
 
 function App() {
   const { t } = useLang();
 
-  // title/description следуют за языком (дефолт в index.html — RU)
   useEffect(() => {
     document.title = t(
       "ASystem Core — платформа лицензированных криптообменников",
       "ASystem Core — the licensed crypto exchange platform",
     );
-    document
-      .querySelector('meta[name="description"]')
-      ?.setAttribute(
-        "content",
-        t(
-          "Платформа для лицензированного криптообменника в Кыргызстане: сайт и кабинет клиента, KYC/AML, комплаенс под ГСФР и отчёты в Финнадзор. Сервер в КР, ваш домен и бренд.",
-          "A platform for licensed crypto exchanges in Kyrgyzstan: website and client account, KYC/AML, SFIS compliance and FinSupervision reports. Servers in the KR, your domain and brand.",
-        ),
-      );
+    document.querySelector('meta[name="description"]')?.setAttribute(
+      "content",
+      t(
+        "Платформа для лицензированного криптообменника в Кыргызстане: сайт и кабинет клиента, KYC/AML, комплаенс под ГСФР и отчёты в Финнадзор. Сервер в КР, ваш домен и бренд.",
+        "A platform for licensed crypto exchanges in Kyrgyzstan: website and client account, KYC/AML, SFIS compliance and FinSupervision reports. Servers in the KR, your domain and brand.",
+      ),
+    );
   }, [t]);
 
-  // Заход с внутренних страниц (например /blueprint → «/#demo»): после маунта
-  // докручиваем к якорю из hash — SPA-навигация сама этого не делает. Два
-  // прогона: первый может проиграть гонку инициализации Lenis/лейаута.
+  // Заход с внутренних страниц на якорь: докручиваем после маунта.
   const { hash } = useLocation();
   useEffect(() => {
     if (!hash) return;
     const jump = () => {
       const el = document.querySelector(hash);
-      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 76 });
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 16 });
     };
     const t1 = setTimeout(jump, 150);
     const t2 = setTimeout(jump, 700);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [hash]);
 
   return (
     <LeadDialogProvider>
-    <div className="min-h-screen bg-background">
-      <SmoothScroll />
-      <Header />
-      <main>
-        <Hero />
-        <IntegrationsBar />
-        <Showreel />
-        <Stats />
-        <Problem />
-        <ClientShowcase />
-        <Features />
-        <HowItWorks />
-        <OperatorShowcase />
-        <Architecture />
-        <Modules />
-        <ApiCores />
-        <Compliance />
-        <BlueprintCta />
-        <Tariffs />
-        <Faq />
-        <FinalCta />
-      </main>
-      <Footer />
-    </div>
+      <StageProvider>
+        <div className="bg-page min-h-full">
+          <Header />
+          <main>
+            <SplitStage />
+            <div className="mt-20 lg:mt-28">
+              <Showcase />
+            </div>
+            <HowItWorks />
+            <ModulesSheet />
+            <Proof />
+            <Tariffs />
+            <Faq />
+            <Cta />
+          </main>
+          <Footer />
+        </div>
+      </StageProvider>
     </LeadDialogProvider>
   );
 }

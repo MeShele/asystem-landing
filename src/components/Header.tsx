@@ -1,126 +1,36 @@
-import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
-import { AnimatePresence, motion } from "motion/react";
-import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { useLeadDialog } from "@/components/LeadDialog";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
 import LangToggle from "@/components/LangToggle";
 import { useContent, useLang } from "@/i18n";
 
+/** Плоская строка на фоне страницы: знак, четыре ссылки, одно действие. Не прилипает. */
 const Header = () => {
   const { NAV } = useContent();
   const { t } = useLang();
   const openLead = useLeadDialog();
-  const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("");
-
-  // Scroll-spy: подсветка пункта меню для секции в зоне видимости
-  useEffect(() => {
-    const ids = NAV.map((n) => n.href.slice(1));
-    const els = ids.map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-    if (!els.length) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        const hit = entries.filter((e) => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (hit) setActive(hit.target.id);
-      },
-      { rootMargin: "-40% 0px -55% 0px", threshold: [0, 0.25, 0.5, 1] },
-    );
-    els.forEach((el) => obs.observe(el));
-    return () => obs.disconnect();
-  }, [NAV]);
-
-  const linkBase =
-    "rounded-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
-
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="container flex h-16 items-center justify-between">
-        <a href="#top" aria-label="asystem.ai" className={`${linkBase}`}>
-          <Logo />
-        </a>
-
-        <nav className="hidden items-center gap-7 md:flex">
-          {NAV.map((n) => {
-            const on = active === n.href.slice(1);
-            return (
-              <a
-                key={n.href}
-                href={n.href}
-                className={`relative py-1 text-sm font-medium ${linkBase} ${on ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                {n.label}
-                <span
-                  className={`absolute -bottom-0.5 left-0 h-0.5 rounded-full bg-accent transition-all duration-300 ${on ? "right-0 opacity-100" : "right-full opacity-0"}`}
-                />
-              </a>
-            );
-          })}
-        </nav>
-
-        <div className="hidden items-center gap-3 md:flex">
-          <LangToggle />
-          <ThemeToggle />
-          <Button variant="signal" size="sm" onClick={() => openLead({ source: "get.asystem.ai/header" })}>
-            {t("Запросить демо", "Request a demo")}
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2 md:hidden">
-          <LangToggle />
-          <ThemeToggle />
-          <button
-            className={`${linkBase} p-1`}
-            onClick={() => setOpen((v) => !v)}
-            aria-label={t("Меню", "Menu")}
-            aria-expanded={open}
-          >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 32 }}
-            className="overflow-hidden border-t border-border bg-background md:hidden"
-          >
-            <nav className="container flex flex-col gap-1 py-4">
-              {NAV.map((n, i) => {
-                const on = active === n.href.slice(1);
-                return (
-                  <motion.a
-                    key={n.href}
-                    href={n.href}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0, transition: { delay: 0.04 * i } }}
-                    onClick={() => setOpen(false)}
-                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${on ? "bg-accent/10 text-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-                  >
-                    <span className={`h-4 w-0.5 rounded-full bg-accent transition-opacity ${on ? "opacity-100" : "opacity-0"}`} />
-                    {n.label}
-                  </motion.a>
-                );
-              })}
-              <Button
-                variant="signal"
-                className="mt-2"
-                onClick={() => {
-                  setOpen(false);
-                  openLead({ source: "get.asystem.ai/header-mobile" });
-                }}
-              >
-                {t("Запросить демо", "Request a demo")}
-              </Button>
-            </nav>
-          </motion.div>
+    <header className="page-x flex h-[72px] items-center justify-between gap-6">
+      <a href="#top" aria-label="asystem.ai" className="shrink-0">
+        <Logo size="sm" />
+      </a>
+      <nav className="hidden items-center gap-7 lg:flex" aria-label={t("Разделы", "Sections")}>
+        {NAV.map((n) =>
+          n.href.startsWith("/") ? (
+            <Link key={n.href} to={n.href} className="link t-body font-medium">{n.label}</Link>
+          ) : (
+            <a key={n.href} href={n.href} className="link t-body font-medium">{n.label}</a>
+          ),
         )}
-      </AnimatePresence>
+      </nav>
+      <div className="flex items-center gap-2">
+        <LangToggle />
+        <ThemeToggle />
+        <button type="button" className="btn btn-ink btn-sm hidden sm:inline-flex" onClick={() => openLead({ source: "get.asystem.ai/header" })}>
+          {t("Запросить демо", "Request a demo")}
+        </button>
+      </div>
     </header>
   );
 };
