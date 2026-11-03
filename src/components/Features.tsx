@@ -17,11 +17,11 @@ const FRAGMENT: Record<string, ReactNode> = {
 };
 
 const SPAN: Record<string, string> = {
-  kyc: "lg:col-span-4",
+  brand: "lg:col-span-7",
+  kyc: "lg:col-span-5",
   compliance: "lg:col-span-4",
   reports: "lg:col-span-4",
-  server: "lg:col-span-5",
-  brand: "lg:col-span-7",
+  server: "lg:col-span-4",
   api: "lg:col-span-12",
 };
 
@@ -30,7 +30,8 @@ const Features = () => {
   return (
     <section id="features" className="wrap py-20 sm:py-28">
       <Reveal className="max-w-[640px]">
-        <h2 className="t-h2">{FEATURES.title}</h2>
+        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent))]">{FEATURES.eyebrow}</p>
+        <h2 className="t-h2 mt-3">{FEATURES.title}</h2>
         <p className="t-lead muted mt-5">{FEATURES.lead}</p>
       </Reveal>
 

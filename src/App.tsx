@@ -7,6 +7,8 @@ import Proof from "@/components/Proof";
 import Features from "@/components/Features";
 import Showreel from "@/components/Showreel";
 import Automation from "@/components/Automation";
+import Who from "@/components/Who";
+import Law from "@/components/Law";
 import HowItWorks from "@/components/HowItWorks";
 import Modules from "@/components/Modules";
 import Tariffs from "@/components/Tariffs";
@@ -52,12 +54,14 @@ function App() {
         <main>
           <Hero />
           <Proof />
+          <Who />
           <Features />
+          <Law />
           <Showreel />
-          <Automation />
           <HowItWorks />
-          <Modules />
+          <Automation />
           <Tariffs />
+          <Modules />
           <Faq />
           <Cta />
         </main>

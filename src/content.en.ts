@@ -8,9 +8,9 @@ import { MODULE_COUNT } from "@/modulesCatalog";
  */
 
 export const NAV: typeof RU.NAV = [
-  { label: "Features", href: "#features" },
-  { label: "How the launch goes", href: "#how" },
-  { label: "Modules", href: "#modules" },
+  { label: "What you get", href: "#features" },
+  { label: "Requirements", href: "#law" },
+  { label: "Launch", href: "#how" },
   { label: "Pricing", href: "#pricing" },
   { label: "Checklist", href: "/blueprint" },
 ];
@@ -18,13 +18,13 @@ export const NAV: typeof RU.NAV = [
 export const DEMO_URL = "https://demo.asystem.ai";
 
 export const HERO: typeof RU.HERO = {
-  h1Lines: ["Crypto exchange", "under the KR licence"],
-  sub: "Website, client account, admin panel, KYC/AML and regulator reports on your domain and server in Kyrgyzstan. You hold the licence, we run the software.",
+  h1Lines: ["An exchange that works", "by Kyrgyz law"],
+  sub: "A ready exchange under your brand: website, client account, admin panel and compliance built for SFIS requirements. Server in Bishkek. Launch within 14 days.",
   cta: "Request a demo",
   ctaSecondary: "Open the demo stand",
   demoUrl: DEMO_URL,
   fact: (n: number | null) => (n ? `${n} exchanges already live` : "Exchanges already live"),
-  facts: ["Server in Bishkek", "Comply Core for SFIS", "Launch in weeks"],
+  facts: ["Server in Bishkek", "SFIS requirements built in", "Launch within 14 days"],
   videoLabel: "Orders in the operator admin panel: kanban, statuses, payouts",
 };
 
@@ -34,16 +34,48 @@ export const PROOF: typeof RU.PROOF = {
 };
 
 export const FEATURES: typeof RU.FEATURES = {
-  title: "What's inside the platform",
-  lead: "Not mock-ups: below are the real admin and storefront screens every exchange gets.",
+  eyebrow: "Stage 1 · live now",
+  title: "What you get",
+  lead: "Not mock-ups: real screens below. On launch day you have everything listed here.",
   items: [
-    { stage: "kyc", title: "Client verification", text: ["Passport, selfie, age and residency. Reviewed by your officer or an automated provider, Didit or BiometricVision.", "After verification the client is screened against the SFIS lists. A match stops the order until the officer decides."] },
-    { stage: "compliance", title: "Compliance by SFIS rules", text: ["A directory of 156 suspicious-activity codes, limits and accumulators, a threshold above which an order waits for the officer.", "Every decision stays in the order history together with who made it."] },
-    { stage: "reports", title: "FinSupervision reports", text: ["Deal and client registries build themselves from orders in the required format. Financial figures are entered monthly by the officer.", "Data is kept for at least five years, as the regulator requires."] },
-    { stage: "server", title: "Your own server in Kyrgyzstan", text: ["Each exchange has a separate server and database in a Bishkek data centre. Client data never mixes with anyone else's.", "Daily backups, provider keys stored encrypted, updates shipped by us."] },
-    { stage: "brand", title: "Storefront under your brand", text: ["Logo, colours, texts, bank details and domain are changed in the admin panel. The client sees your exchange, not our platform.", "Two storefront templates, dark theme, emails and a Telegram bot in the exchange's name."] },
-    { stage: "api", title: "Standalone cores via API", text: ["Identity verification, payment acceptance and reporting data can be built into your own system without our exchange.", "Access by key, connection by arrangement."] },
+    { stage: "brand", title: "Exchange website", text: ["Your domain, logo and colours. Buy, sell, swap. You set rates and fees.", "Two storefront templates, dark theme, emails and a Telegram bot in the exchange's name."] },
+    { stage: "kyc", title: "Client account", text: ["Sign-up, identity check, order history, QR payment, documents and consents.", "Reviewed by your staff or a provider: Didit or BiometricVision."] },
+    { stage: "compliance", title: "Admin panel and compliance", text: ["Orders, staff and permissions. Clients are screened against SFIS lists; a match stops the order until the officer decides.", "You set the threshold above which a large order waits for the officer."] },
+    { stage: "reports", title: "FinSupervision reports", text: ["Deal and client registries build themselves from orders in the required format.", "Data is kept for at least five years, as the regulator requires."] },
+    { stage: "server", title: "Your own server in Kyrgyzstan", text: ["A separate server and database just for you in a Bishkek data centre. Daily backups.", "Updates, support and new regulator requirements are on us."] },
   ],
+};
+
+export const WHO: typeof RU.WHO = {
+  title: "Who it is for",
+  lead: "The platform is built for the virtual assets law. Without client identification a deal does not go through.",
+  labelYes: "A fit",
+  labelNo: "Not a fit",
+  cards: [
+    { title: "You are getting or already hold a virtual asset exchange operator licence", text: "You want to open an exchange fast, legally and without your own IT team. Clients pay in som and receive USDT and other crypto." },
+    { title: "You have an exchange, but it fails the regulator's review", text: "No client checks, no FinSupervision reports, no server in Kyrgyzstan. You move to a platform that already has them." },
+    { title: "Anonymous exchange, a trading exchange, work without a licence", text: "Not what the platform is for: every deal is tied to a verified client and leaves a trail for the regulator.", no: true },
+  ],
+};
+
+export const LAW: typeof RU.LAW = {
+  title: "Regulator requirements and what is already in the platform",
+  lead: "Based on SFIS requirements for virtual asset exchange platforms. Honestly: one line lives outside the platform.",
+  head: ["What SFIS requires", "How it is done", "Status"],
+  status: { done: "Done", you: "Your side" },
+  rows: [
+    { req: "Identity check before the first deal, age 18+, residency", how: "KYC in the client account: own, Didit or BiometricVision. Non-residents go to manual review", status: "done" },
+    { req: "Screening against SFIS and sanctions lists", how: "Comply Core: lists loaded, a match stops the order until the officer decides", status: "done" },
+    { req: "One client, one account; personal data consent; public offer", how: "Duplicates by tax ID are blocked; consent and offer acceptance are recorded with time and IP", status: "done" },
+    { req: "Order time to the minute, documents kept five years, daily backup", how: "History of every order, documents in the database, backup is part of every server deployment", status: "done" },
+    { req: "Servers on the territory of Kyrgyzstan", how: "A separate server for each exchange in a Bishkek data centre", status: "done" },
+    { req: "Cashless settlements, FinSupervision reports", how: "Payment only by transfer or QR; deal and client registries build from orders", status: "done" },
+    { req: "Wallet and transfer checks via Ranex", how: "Ranex KYT is built in: Ranex issues the API key to the exchange, we connect it the day it arrives", status: "done" },
+    { req: "Recording of client conversations, five years", how: "Outside the platform: the exchange's telephony and messengers", status: "you" },
+  ],
+  we: { title: "Us", items: ["Platform, server in Bishkek, updates", "Compliance with new regulator requirements", "Support and provider setup", "Daily backups and data protection"] },
+  you: { title: "You", items: ["Virtual asset exchange operator licence", "Contracts with Finik and the identity provider", "Compliance officer and decisions on disputed orders", "Rates, fees, bank details, working capital", "Recording of client conversations"] },
+  source: "Source: SFIS requirements for virtual asset exchange platforms, June 2026.",
 };
 
 export const SHOWREEL: typeof RU.SHOWREEL = {
@@ -95,13 +127,13 @@ export const AUTOMATION: typeof RU.AUTOMATION = {
 
 
 export const STEPS: typeof RU.STEPS = {
-  title: "How the launch goes",
-  note: "We deploy the server and database. Timing depends on how quickly bank details, domain and setup data are ready: weeks, not months of development from scratch.",
+  title: "How we launch",
+  note: "Four steps, within 14 days of the first payment. External services, the identity provider and Finik, are connected under their own contracts; we help with setup and keys.",
   stages: [
-    { short: "Brief", clause: "Brief and domain", text: "Company data, bank details, currency list and domain. One call and a form." },
-    { short: "Server", clause: "Server in Bishkek", text: "Separate server and database, domain, certificate, email from your domain." },
-    { short: "Setup", clause: "Setup and modules", text: "Brand, rates and fees, identity checks, payments, notifications." },
-    { short: "Launch", clause: "First clients", text: "We walk staff through orders and compliance, then open the doors." },
+    { short: "Contract", clause: "Contract", text: "You pick a plan. The first contract runs three months, paid a month ahead in som." },
+    { short: "Server", clause: "Deployment", text: "We bring up your server in Bishkek, the domain and a secure connection." },
+    { short: "Setup", clause: "Setup", text: "Logo and colours, currencies, rates, bank details, legal pages. Staff and their permissions." },
+    { short: "Opening", clause: "Opening", text: "The exchange takes clients. A readiness checklist in the admin panel shows what is still empty." },
   ],
 };
 
@@ -167,8 +199,9 @@ export const FOOTER: typeof RU.FOOTER = {
   about: "A platform for licensed crypto exchanges in Kyrgyzstan. Turnkey exchange, compliance and regulator reporting.",
   menuTitle: "Sections",
   menu: [
-    { label: "Features", href: "#features" },
-    { label: "How the launch goes", href: "#how" },
+    { label: "What you get", href: "#features" },
+    { label: "Requirements", href: "#law" },
+    { label: "Launch", href: "#how" },
     { label: "Modules", href: "#modules" },
     { label: "Pricing", href: "#pricing" },
     { label: "Questions", href: "#faq" },
