@@ -8,7 +8,7 @@ import { MODULE_COUNT } from "@/modulesCatalog";
  */
 
 export const NAV: typeof RU.NAV = [
-  { label: "What you get", href: "#features" },
+  { label: "What the platform provides", href: "#features" },
   { label: "Requirements", href: "#law" },
   { label: "Launch", href: "#how" },
   { label: "Pricing", href: "#pricing" },
@@ -18,8 +18,8 @@ export const NAV: typeof RU.NAV = [
 export const DEMO_URL = "https://demo.asystem.ai";
 
 export const HERO: typeof RU.HERO = {
-  h1Lines: ["An exchange that works", "by Kyrgyz law"],
-  sub: "A ready exchange under your brand: website, client account, admin panel and compliance built for SFIS requirements. Server in Bishkek. Launch within 14 days.",
+  h1Lines: ["A platform for exchanges", "under Kyrgyz law"],
+  sub: "Your exchange on a ready platform: website, client account, admin panel and compliance built for SFIS requirements. Your licence, our software. Server in Bishkek, launch within 14 days.",
   cta: "Request a demo",
   ctaSecondary: "Open the demo stand",
   demoUrl: DEMO_URL,
@@ -35,8 +35,8 @@ export const PROOF: typeof RU.PROOF = {
 
 export const FEATURES: typeof RU.FEATURES = {
   eyebrow: "Stage 1 · live now",
-  title: "What you get",
-  lead: "Not mock-ups: real screens below. On launch day you have everything listed here.",
+  title: "What the platform provides",
+  lead: "Not mock-ups: real screens below. On launch day your exchange has everything listed here.",
   items: [
     { stage: "brand", title: "Exchange website", text: ["Your domain, logo and colours. Buy, sell, swap. You set rates and fees.", "Two storefront templates, dark theme, emails and a Telegram bot in the exchange's name."] },
     { stage: "kyc", title: "Client account", text: ["Sign-up, identity check, order history, QR payment, documents and consents.", "Reviewed by your staff or a provider: Didit or BiometricVision."] },
@@ -52,7 +52,7 @@ export const WHO: typeof RU.WHO = {
   labelYes: "A fit",
   labelNo: "Not a fit",
   cards: [
-    { title: "You are getting or already hold a virtual asset exchange operator licence", text: "You want to open an exchange fast, legally and without your own IT team. Clients pay in som and receive USDT and other crypto." },
+    { title: "You are getting or already hold a virtual asset exchange operator licence", text: "You want to launch your exchange fast, legally and without your own IT team: the platform covers software, server and compliance." },
     { title: "You have an exchange, but it fails the regulator's review", text: "No client checks, no FinSupervision reports, no server in Kyrgyzstan. You move to a platform that already has them." },
     { title: "Anonymous exchange, a trading exchange, work without a licence", text: "Not what the platform is for: every deal is tied to a verified client and leaves a trail for the regulator.", no: true },
   ],
@@ -199,7 +199,7 @@ export const FOOTER: typeof RU.FOOTER = {
   about: "A platform for licensed crypto exchanges in Kyrgyzstan. Turnkey exchange, compliance and regulator reporting.",
   menuTitle: "Sections",
   menu: [
-    { label: "What you get", href: "#features" },
+    { label: "What the platform provides", href: "#features" },
     { label: "Requirements", href: "#law" },
     { label: "Launch", href: "#how" },
     { label: "Modules", href: "#modules" },
