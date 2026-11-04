@@ -1,7 +1,6 @@
 /* ASystem Core — лендинг. Тёмный финтех: тон шоурила, лайм только на действии.
-   Manrope для заголовков, Inter для текста. Тёмная тема по умолчанию, светлая по
-   переключателю (data-theme="light" на <html>); лайм как текст в светлой теме не читается,
-   поэтому для подписей отдельный токен --accent-ink. */
+   Manrope для заголовков, Inter для текста. Тема одна, тёмная (светлую убрали 04.11:
+   с переливающимся градиентом тёмная смотрится лучше). --accent-ink — лайм как текст подписей. */
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
 
 @tailwind base;
@@ -45,21 +44,6 @@
     color-scheme: dark;
   }
 
-  :root[data-theme="light"] {
-    --bg: 80 20% 97%;            /* #F6F7F2 — тёплый белый */
-    --surface: 0 0% 100%;
-    --surface-2: 80 12% 94%;
-    --line: 84 9% 10%;           /* тёмная линия с той же альфой */
-    --fg: 84 9% 8%;
-    --muted: 80 5% 40%;
-    --accent-fg: 240 10% 6%;
-    --accent-ink: 84 65% 26%;    /* тёмная олива вместо лайма для текста */
-    --ok: 152 55% 32%;
-    --warn: 38 92% 36%;
-    --danger: 0 72% 42%;
-    --border: 80 10% 86%;
-    color-scheme: light;
-  }
 
   /* clip, не hidden: hidden на body делает его скролл-контейнером и ломает position: sticky */
   html, body { overflow-x: clip; }
