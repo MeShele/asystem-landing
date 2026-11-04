@@ -1,8 +1,6 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import ShaderBackground from "@/components/ShaderBackground";
-import { useTheme } from "@/theme";
-import ProductVideo from "@/components/ProductVideo";
+import OrdersBoard from "@/components/scenes/OrdersBoard";
 import { useLeadDialog } from "@/components/LeadDialog";
 import { useContent, useLang } from "@/i18n";
 import { usePlatformStats } from "@/lib/platformStats";
@@ -30,7 +28,6 @@ const KineticLines = ({ lines, reduced }: { lines: string[]; reduced: boolean })
 const Hero = () => {
   const { HERO } = useContent();
   const { lang } = useLang();
-  const { theme } = useTheme();
   const openLead = useLeadDialog();
   const stats = usePlatformStats();
   const reduced = !!useReducedMotion();
@@ -46,8 +43,7 @@ const Hero = () => {
   });
 
   return (
-    <section id="top" ref={ref} className="relative isolate overflow-hidden pt-32 sm:pt-40">
-      <ShaderBackground className="absolute inset-0 -z-10 h-[120%]" />
+    <section id="top" ref={ref} className="relative overflow-hidden pt-32 sm:pt-40">
 
       <div className="wrap">
         <div className="max-w-[760px]">
@@ -70,7 +66,7 @@ const Hero = () => {
           className="mt-16 sm:mt-20"
         >
           <motion.div style={{ y }}>
-            <ProductVideo key={theme} src={theme === "light" ? "/demos/orders-light.mp4" : "/demos/orders.mp4"} poster={theme === "light" ? "/shots/orders-light.png" : "/shots/orders-dark.jpg"} ratio={1600 / 1000} label={HERO.videoLabel} />
+            <div className="frame p-0" aria-label={HERO.videoLabel}><OrdersBoard /></div>
           </motion.div>
         </motion.div>
       </div>

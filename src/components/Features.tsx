@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
 import Reveal from "@/components/Reveal";
-import ProductVideo from "@/components/ProductVideo";
+import ExchangeWidget from "@/components/ExchangeWidget";
 import { ApiSnippet, CompliancePanel, KycPanel, ReportPanel, ServerPanel } from "@/components/fragments/Panels";
 import { useContent } from "@/i18n";
-import { useTheme } from "@/theme";
 
 /**
  * Возможности: панели разной ширины на тёмном тоне, в каждой настоящий
@@ -28,7 +27,6 @@ const SPAN: Record<string, string> = {
 
 const Features = () => {
   const { FEATURES } = useContent();
-  const { theme } = useTheme();
   return (
     <section id="features" className="wrap py-20 sm:py-28">
       <Reveal className="max-w-[640px]">
@@ -46,16 +44,8 @@ const Features = () => {
               <p className="muted mt-2 max-w-[46ch] text-[15px]">{f.text[1]}</p>
             </div>
             {f.stage === "brand" ? (
-              <div className="relative mt-auto px-7">
-                <ProductVideo
-                  key={theme}
-                  src={theme === "light" ? "/demos/exchange-light.mp4" : "/demos/exchange.mp4"}
-                  poster={theme === "light" ? "/shots/exchange-light.png" : "/shots/exchange-dark.jpg"}
-                  ratio={900 / 700}
-                  label={f.title}
-                  className="mx-auto max-w-[520px] !rounded-b-none"
-                  style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
-                />
+              <div className="relative mt-auto flex justify-center px-7 pb-7">
+                <ExchangeWidget />
               </div>
             ) : (
               <div className={`relative mt-auto px-7 pb-7 ${f.stage === "api" ? "lg:w-1/2 lg:pt-7" : ""}`}>

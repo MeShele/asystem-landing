@@ -1,5 +1,5 @@
 import Reveal from "@/components/Reveal";
-import ProductVideo from "@/components/ProductVideo";
+import ModulesScene from "@/components/scenes/ModulesScene";
 import { useContent, useLang } from "@/i18n";
 import { BILLING_LABEL, CATALOG, moduleName, type Billing } from "@/modulesCatalog";
 
@@ -42,7 +42,7 @@ const Modules = () => {
       </div>
 
       <Reveal className="mt-12">
-        <ProductVideo src="/demos/modules.mp4" poster="/shots/modules-dark.jpg" ratio={1600 / 1000} label={MODULES.videoLabel} />
+        <div className="frame p-0" aria-label={MODULES.videoLabel}><ModulesScene /></div>
         <p className="t-small muted mt-4">{MODULES.foot}</p>
       </Reveal>
     </section>

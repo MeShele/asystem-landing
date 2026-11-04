@@ -25,7 +25,7 @@ export const HERO: typeof RU.HERO = {
   demoUrl: DEMO_URL,
   fact: (n: number | null) => (n ? `${n} exchanges already live` : "Exchanges already live"),
   facts: ["Server in Bishkek", "SFIS requirements built in", "Launch within 14 days"],
-  videoLabel: "Orders in the operator admin panel: kanban, statuses, payouts",
+  videoLabel: "Orders in the operator admin panel: status board",
 };
 
 export const PROOF: typeof RU.PROOF = {
@@ -80,7 +80,7 @@ export const LAW: typeof RU.LAW = {
 
 export const SHOWREEL: typeof RU.SHOWREEL = {
   title: "The platform in 30 seconds",
-  lead: "Storefront, client account, admin panel and reports in one clip.",
+  lead: "Storefront, client account, admin panel and reports: live screens, not a clip. Click around.",
 };
 
 export const AUTOMATION: typeof RU.AUTOMATION = {

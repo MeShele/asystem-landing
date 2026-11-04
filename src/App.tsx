@@ -8,6 +8,7 @@ import Features from "@/components/Features";
 import Showreel from "@/components/Showreel";
 import Automation from "@/components/Automation";
 import Who from "@/components/Who";
+import GradientBackground from "@/components/GradientBackground";
 import Law from "@/components/Law";
 import HowItWorks from "@/components/HowItWorks";
 import Modules from "@/components/Modules";
@@ -49,7 +50,8 @@ function App() {
 
   return (
     <LeadDialogProvider>
-      <div className="min-h-full bg-bg">
+      <GradientBackground />
+      <div className="relative z-[1] min-h-full">
         <Header />
         <main>
           <Hero />

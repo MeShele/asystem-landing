@@ -174,7 +174,7 @@
   [data-ui] .ui-line { border-top: 1px solid var(--ui-line); }
   [data-ui] .ui-chip { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding-inline: 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: hsl(var(--surface-2)); }
   [data-ui] .ui-chip-ok { background: hsl(var(--ok) / 0.16); color: hsl(var(--ok)); }
-  [data-ui] .ui-chip-accent { background: hsl(var(--accent) / 0.18); color: hsl(var(--accent)); }
+  [data-ui] .ui-chip-accent { background: hsl(var(--accent) / 0.22); color: hsl(var(--accent-ink)); }
   [data-ui] .ui-chip-warn { background: hsl(var(--warn) / 0.16); color: hsl(var(--warn)); }
   [data-ui] .ui-field { background: hsl(var(--surface-2)); border: 1px solid var(--ui-line); border-radius: 10px; padding: 10px 12px; }
   [data-ui] .ui-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding-inline: 16px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: transform var(--t-press) var(--ease-out), background-color var(--t-hover) ease; background: hsl(var(--surface-2)); }
