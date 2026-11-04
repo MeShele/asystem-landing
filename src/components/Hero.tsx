@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import OrdersBoard from "@/components/scenes/OrdersBoard";
+import Illus from "@/components/Illus";
 import { useLeadDialog } from "@/components/LeadDialog";
 import { useContent, useLang } from "@/i18n";
 import { usePlatformStats } from "@/lib/platformStats";
@@ -46,6 +47,10 @@ const Hero = () => {
     <section id="top" ref={ref} className="relative overflow-hidden pt-32 sm:pt-40">
 
       <div className="wrap">
+        <div className="relative">
+        <motion.div {...fade(0.5)} className="pointer-events-none absolute right-0 top-[-24px] hidden lg:block">
+          <Illus name="shield" size={400} />
+        </motion.div>
         <div className="max-w-[760px]">
           <KineticLines lines={HERO.h1Lines} reduced={reduced} />
           <motion.p {...fade(0.42)} className="t-lead muted mt-7 max-w-[46ch]">{HERO.sub}</motion.p>
@@ -57,6 +62,7 @@ const Hero = () => {
             <li className="chip"><i className="dot" />{HERO.fact(stats?.exchangers ?? null)}</li>
             {HERO.facts.map((f) => <li key={f} className="chip">{f}</li>)}
           </motion.ul>
+        </div>
         </div>
 
         <motion.div

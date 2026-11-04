@@ -1,5 +1,6 @@
 import Reveal from "@/components/Reveal";
 import { useContent } from "@/i18n";
+import Illus from "@/components/Illus";
 
 /**
  * Требования регулятора и что уже в платформе: таблица со статусом по каждой строке,
@@ -14,10 +15,13 @@ const Law = () => {
   const { LAW } = useContent();
   return (
     <section id="law" className="wrap py-20 sm:py-28">
-      <Reveal className="max-w-[640px]">
-        <h2 className="t-h2">{LAW.title}</h2>
-        <p className="t-lead muted mt-5">{LAW.lead}</p>
-      </Reveal>
+      <div className="flex items-end justify-between gap-8">
+        <Reveal className="max-w-[640px]">
+          <h2 className="t-h2">{LAW.title}</h2>
+          <p className="t-lead muted mt-5">{LAW.lead}</p>
+        </Reveal>
+        <Illus name="stamp" size={260} className="hidden shrink-0 lg:block" />
+      </div>
 
       {/* Телефон: строки таблицы карточками, чтобы ничего не обрезалось */}
       <div className="mt-12 flex flex-col gap-3 lg:hidden">

@@ -1,6 +1,7 @@
 import Reveal from "@/components/Reveal";
 import { LeadForm } from "@/components/LeadForm";
 import { useContent } from "@/i18n";
+import Illus from "@/components/Illus";
 
 /** Финал: панель с фразой слева и формой справа. */
 const Cta = () => {
@@ -12,6 +13,7 @@ const Cta = () => {
           <h2 className="t-h2 max-w-[16ch]">{CTA.title}</h2>
           <p className="t-lead muted mt-5 max-w-[40ch]">{CTA.sentence}</p>
           <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="link mt-6 inline-block font-medium underline underline-offset-4">{CTA.link}</a>
+          <Illus name="megaphone" size={280} className="mt-6 hidden lg:block" />
         </div>
         <div className="panel-2 p-5 sm:p-6">
           <LeadForm prefill={{ source: "get.asystem.ai/section" }} />

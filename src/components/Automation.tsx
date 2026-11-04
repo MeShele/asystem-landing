@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Reveal from "@/components/Reveal";
 import { useContent, useLang } from "@/i18n";
+import Illus from "@/components/Illus";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 
@@ -31,11 +32,14 @@ const Automation = () => {
 
   return (
     <section id="automation" className="wrap py-20 sm:py-28">
-      <Reveal className="max-w-[640px]">
-        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{AUTOMATION.eyebrow}</p>
-        <h2 className="t-h2 mt-3">{AUTOMATION.title}</h2>
-        <p className="t-lead muted mt-5">{AUTOMATION.lead}</p>
-      </Reveal>
+      <div className="flex items-end justify-between gap-8">
+        <Reveal className="max-w-[640px]">
+          <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{AUTOMATION.eyebrow}</p>
+          <h2 className="t-h2 mt-3">{AUTOMATION.title}</h2>
+          <p className="t-lead muted mt-5">{AUTOMATION.lead}</p>
+        </Reveal>
+        <Illus name="gear" size={260} className="hidden shrink-0 lg:block" />
+      </div>
 
       <div className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-10">
         <Reveal className="flex flex-col gap-4 lg:col-span-5">
