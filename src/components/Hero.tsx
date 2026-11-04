@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
-import OrdersBoard from "@/components/scenes/OrdersBoard";
-import Illus from "@/components/Illus";
+import ProductFrame from "@/components/ProductFrame";
 import { useLeadDialog } from "@/components/LeadDialog";
 import { useContent, useLang } from "@/i18n";
 import { usePlatformStats } from "@/lib/platformStats";
@@ -10,7 +9,7 @@ const EASE = [0.23, 1, 0.32, 1] as const;
 
 /** Заголовок построчно поднимается из-под маски; под reduced-motion только проявляется. */
 const KineticLines = ({ lines, reduced }: { lines: string[]; reduced: boolean }) => (
-  <h1 className="t-display max-w-[14ch]">
+  <h1 className="t-display mx-auto max-w-[16ch]">
     {lines.map((line, i) => (
       <span key={line} className="-mb-[0.08em] block overflow-hidden pb-[0.08em]">
         <motion.span
@@ -26,6 +25,10 @@ const KineticLines = ({ lines, reduced }: { lines: string[]; reduced: boolean })
   </h1>
 );
 
+/**
+ * Герой: короткий текст по центру и настоящий экран админки, который лежит под углом и
+ * выпрямляется, пока читатель скроллит к нему (как у Linear/Vercel). Один экран, один смысл.
+ */
 const Hero = () => {
   const { HERO } = useContent();
   const { lang } = useLang();
@@ -34,8 +37,10 @@ const Hero = () => {
   const reduced = !!useReducedMotion();
 
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : -80]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 90%", "start 30%"] });
+  const rotateX = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [14, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.94, 1]);
+  const opacity = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.6, 1]);
 
   const fade = (delay: number) => ({
     initial: { opacity: 0, y: reduced ? 0 : 14 },
@@ -44,35 +49,31 @@ const Hero = () => {
   });
 
   return (
-    <section id="top" ref={ref} className="relative overflow-hidden pt-32 sm:pt-40">
-
+    <section id="top" className="relative overflow-hidden pt-32 sm:pt-40">
       <div className="wrap">
-        <div className="relative">
-        <motion.div {...fade(0.5)} className="pointer-events-none absolute right-0 top-[-24px] hidden lg:block">
-          <Illus name="shield" size={400} />
-        </motion.div>
-        <div className="max-w-[760px]">
+        <div className="mx-auto max-w-[820px] text-center">
           <KineticLines lines={HERO.h1Lines} reduced={reduced} />
-          <motion.p {...fade(0.42)} className="t-lead muted mt-7 max-w-[46ch]">{HERO.sub}</motion.p>
-          <motion.div {...fade(0.52)} className="mt-9 flex flex-wrap items-center gap-3">
+          <motion.p {...fade(0.42)} className="t-lead muted mx-auto mt-7 max-w-[44ch]">{HERO.sub}</motion.p>
+          <motion.div {...fade(0.52)} className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <button type="button" className="btn btn-signal" onClick={() => openLead({ source: "get.asystem.ai/hero" })}>{HERO.cta}</button>
             <a href={HERO.demoUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">{HERO.ctaSecondary}</a>
           </motion.div>
-          <motion.ul {...fade(0.62)} className="mt-8 flex flex-wrap gap-2" aria-label={lang === "ru" ? "Факты" : "Facts"}>
+          <motion.ul {...fade(0.62)} className="mt-8 flex flex-wrap justify-center gap-2" aria-label={lang === "ru" ? "Факты" : "Facts"}>
             <li className="chip"><i className="dot" />{HERO.fact(stats?.exchangers ?? null)}</li>
             {HERO.facts.map((f) => <li key={f} className="chip">{f}</li>)}
           </motion.ul>
         </div>
-        </div>
 
         <motion.div
-          initial={{ opacity: 0, y: reduced ? 0 : 36 }}
+          ref={ref}
+          initial={{ opacity: 0, y: reduced ? 0 : 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: EASE, delay: 0.55 }}
-          className="mt-16 sm:mt-20"
+          transition={{ duration: 1, ease: EASE, delay: 0.6 }}
+          className="mx-auto mt-16 max-w-[1080px] sm:mt-20"
+          style={{ perspective: 1600 }}
         >
-          <motion.div style={{ y }}>
-            <div className="frame p-0" aria-label={HERO.videoLabel}><OrdersBoard /></div>
+          <motion.div style={{ rotateX, scale, opacity, transformOrigin: "50% 0%" }}>
+            <ProductFrame src="/shots/admin.webp" alt={HERO.shotLabel} url="your-exchange.kg/admin" eager tilt={false} />
           </motion.div>
         </motion.div>
       </div>

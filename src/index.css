@@ -141,6 +141,17 @@
   }
   .frame::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; box-shadow: inset 0 1px 0 hsl(var(--line) / 0.12); }
 
+  /* искра, бегущая по кромке рамки: conic-градиент крутится под маской в 1px толщиной */
+  .beam::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 1;
+    background: conic-gradient(from var(--beam-a, 0deg), transparent 0 62%, hsl(var(--accent) / 0.9) 78%, transparent 92%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
+    animation: beam 7s linear infinite;
+  }
+  @property --beam-a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  @keyframes beam { to { --beam-a: 360deg; } }
+
   /* Фрагменты интерфейса продукта (data-ui): свои правила — 1px контуры, 8–10px радиусы */
   [data-ui] {
     --ui-bg: hsl(var(--surface));
@@ -182,6 +193,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   html.js .rise > * { opacity: 1; transform: none; transition: none; }
+  .beam::before { animation: none; }
   .btn:active { transform: none; }
 }
 
