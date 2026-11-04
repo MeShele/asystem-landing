@@ -55,7 +55,7 @@ const Law = () => {
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Reveal className="panel p-7">
-          <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent))]">{LAW.we.title}</p>
+          <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{LAW.we.title}</p>
           <ul className="mt-4 space-y-2 text-[15px]">
             {LAW.we.items.map((i) => <li key={i} className="flex gap-3"><span className="dot mt-[9px] shrink-0" />{i}</li>)}
           </ul>

@@ -32,7 +32,7 @@ const Automation = () => {
   return (
     <section id="automation" className="wrap py-20 sm:py-28">
       <Reveal className="max-w-[640px]">
-        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent))]">{AUTOMATION.eyebrow}</p>
+        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{AUTOMATION.eyebrow}</p>
         <h2 className="t-h2 mt-3">{AUTOMATION.title}</h2>
         <p className="t-lead muted mt-5">{AUTOMATION.lead}</p>
       </Reveal>

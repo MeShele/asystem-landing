@@ -3,6 +3,7 @@ import Reveal from "@/components/Reveal";
 import ProductVideo from "@/components/ProductVideo";
 import { ApiSnippet, CompliancePanel, KycPanel, ReportPanel, ServerPanel } from "@/components/fragments/Panels";
 import { useContent } from "@/i18n";
+import { useTheme } from "@/theme";
 
 /**
  * Возможности: панели разной ширины на тёмном тоне, в каждой настоящий
@@ -27,10 +28,11 @@ const SPAN: Record<string, string> = {
 
 const Features = () => {
   const { FEATURES } = useContent();
+  const { theme } = useTheme();
   return (
     <section id="features" className="wrap py-20 sm:py-28">
       <Reveal className="max-w-[640px]">
-        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent))]">{FEATURES.eyebrow}</p>
+        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{FEATURES.eyebrow}</p>
         <h2 className="t-h2 mt-3">{FEATURES.title}</h2>
         <p className="t-lead muted mt-5">{FEATURES.lead}</p>
       </Reveal>
@@ -46,8 +48,9 @@ const Features = () => {
             {f.stage === "brand" ? (
               <div className="relative mt-auto px-7">
                 <ProductVideo
-                  src="/demos/exchange.mp4"
-                  poster="/shots/exchange-dark.jpg"
+                  key={theme}
+                  src={theme === "light" ? "/demos/exchange-light.mp4" : "/demos/exchange.mp4"}
+                  poster={theme === "light" ? "/shots/exchange-light.png" : "/shots/exchange-dark.jpg"}
                   ratio={900 / 700}
                   label={f.title}
                   className="mx-auto max-w-[520px] !rounded-b-none"

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useLeadDialog } from "@/components/LeadDialog";
 import Logo from "@/components/Logo";
 import LangToggle from "@/components/LangToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useContent, useLang } from "@/i18n";
 
 /** Фиксированная строка: прозрачная над героем, с тоном и линией после прокрутки. */
@@ -43,6 +44,7 @@ const Header = () => {
           )}
         </nav>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LangToggle />
           <button type="button" className="btn btn-signal btn-sm hidden sm:inline-flex" onClick={() => openLead({ source: "get.asystem.ai/header" })}>
             {t("Запросить демо", "Request a demo")}

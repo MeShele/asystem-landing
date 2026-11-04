@@ -16,7 +16,7 @@ const Who = () => {
       <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
         {WHO.cards.map((c) => (
           <Reveal key={c.title} className={`panel flex flex-col gap-4 p-7 ${c.no ? "bg-[hsl(var(--accent))] text-[hsl(var(--accent-fg))]" : ""}`}>
-            <p className={`text-[13px] font-semibold uppercase tracking-[0.12em] ${c.no ? "" : "text-[hsl(var(--accent))]"}`}>{c.no ? WHO.labelNo : WHO.labelYes}</p>
+            <p className={`text-[13px] font-semibold uppercase tracking-[0.12em] ${c.no ? "" : "text-[hsl(var(--accent-ink))]"}`}>{c.no ? WHO.labelNo : WHO.labelYes}</p>
             <h3 className="t-h3">{c.title}</h3>
             <p className={`text-[15px] leading-relaxed ${c.no ? "opacity-80" : "muted"}`}>{c.text}</p>
           </Reveal>

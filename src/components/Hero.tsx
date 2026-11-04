@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import ShaderBackground from "@/components/ShaderBackground";
+import { useTheme } from "@/theme";
 import ProductVideo from "@/components/ProductVideo";
 import { useLeadDialog } from "@/components/LeadDialog";
 import { useContent, useLang } from "@/i18n";
@@ -29,6 +30,7 @@ const KineticLines = ({ lines, reduced }: { lines: string[]; reduced: boolean })
 const Hero = () => {
   const { HERO } = useContent();
   const { lang } = useLang();
+  const { theme } = useTheme();
   const openLead = useLeadDialog();
   const stats = usePlatformStats();
   const reduced = !!useReducedMotion();
@@ -68,7 +70,7 @@ const Hero = () => {
           className="mt-16 sm:mt-20"
         >
           <motion.div style={{ y }}>
-            <ProductVideo src="/demos/orders.mp4" poster="/shots/orders-dark.jpg" ratio={1600 / 1000} label={HERO.videoLabel} />
+            <ProductVideo key={theme} src={theme === "light" ? "/demos/orders-light.mp4" : "/demos/orders.mp4"} poster={theme === "light" ? "/shots/orders-light.png" : "/shots/orders-dark.jpg"} ratio={1600 / 1000} label={HERO.videoLabel} />
           </motion.div>
         </motion.div>
       </div>

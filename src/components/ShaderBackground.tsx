@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useTheme } from "@/theme";
 import * as THREE from "three";
 
 /**
@@ -17,6 +18,7 @@ const FRAG = /* glsl */ `
   uniform float uTime;
   uniform vec2 uRes;
   uniform vec3 uAccent;
+  uniform float uLight;
 
   float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
   float noise(vec2 p) {
@@ -40,27 +42,27 @@ const FRAG = /* glsl */ `
     float warp = fbm(p * 1.4 + vec2(t, -t * 0.5));
     float n = fbm(p * 2.2 + vec2(-t * 0.6, t * 0.35) + warp * 1.1);
 
-    vec3 base = vec3(0.043, 0.047, 0.039);
-    vec3 fold = vec3(0.21, 0.23, 0.18);
+    vec3 base = mix(vec3(0.043, 0.047, 0.039), vec3(0.955, 0.965, 0.935), uLight);
+    vec3 fold = mix(vec3(0.21, 0.23, 0.18), vec3(0.82, 0.86, 0.76), uLight);
     float ridge = smoothstep(0.38, 0.8, n);
     vec3 col = mix(base, fold, ridge);
 
     /* лаймовый отблеск: только на самых высоких гребнях и сильнее к верху кадра */
     float glint = smoothstep(0.7, 0.95, n) * (0.3 + 0.7 * smoothstep(0.1, 0.95, uv.y));
-    col += uAccent * glint * 0.9;
+    col += uAccent * glint * mix(0.9, 0.3, uLight);
     /* второй, широкий отблеск на складках справа сверху */
     float wide = smoothstep(0.55, 0.9, warp) * smoothstep(0.35, 1.0, uv.x) * smoothstep(0.3, 1.0, uv.y);
-    col += uAccent * wide * 0.12;
+    col += uAccent * wide * mix(0.12, 0.05, uLight);
 
     /* виньетка к краям, чтобы текст слева читался */
     float v = smoothstep(1.25, 0.35, length((uv - vec2(0.62, 0.5)) * vec2(1.15, 1.0)));
-    col *= 0.45 + 0.55 * v;
+    col = mix(col * (0.45 + 0.55 * v), mix(col, vec3(0.975, 0.98, 0.965), 0.6 * (1.0 - v)), uLight);
 
     gl_FragColor = vec4(col, 1.0);
   }
 `;
 
-const Plane = ({ animate }: { animate: boolean }) => {
+const Plane = ({ animate, light }: { animate: boolean; light: boolean }) => {
   const mat = useRef<THREE.ShaderMaterial>(null);
   const { size, gl, invalidate } = useThree();
   const uniforms = useMemo(
@@ -68,6 +70,7 @@ const Plane = ({ animate }: { animate: boolean }) => {
       uTime: { value: 0 },
       uRes: { value: new THREE.Vector2(1, 1) },
       uAccent: { value: new THREE.Color("#B6FF1A") },
+      uLight: { value: 0 },
     }),
     [],
   );
@@ -81,8 +84,15 @@ const Plane = ({ animate }: { animate: boolean }) => {
     uniforms.uRes.value.set(size.width * dpr, size.height * dpr);
     invalidate();
   }, [size, gl, uniforms, invalidate]);
+  // R3F копирует uniforms в материал: менять значение надо на материале (как uTime), не в memo-объекте.
+  useEffect(() => {
+    if (mat.current) mat.current.uniforms.uLight.value = light ? 1 : 0;
+    invalidate();
+  }, [light, invalidate]);
   useFrame((_, dt) => {
-    if (!animate || !mat.current) return;
+    if (!mat.current) return;
+    mat.current.uniforms.uLight.value = light ? 1 : 0;
+    if (!animate) return;
     mat.current.uniforms.uTime.value += Math.min(dt, 0.05);
   });
   return (
@@ -93,6 +103,7 @@ const Plane = ({ animate }: { animate: boolean }) => {
 };
 
 const ShaderBackground = ({ className = "" }: { className?: string }) => {
+  const { theme } = useTheme();
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(true);
   const [ready, setReady] = useState(false);
@@ -126,7 +137,7 @@ const ShaderBackground = ({ className = "" }: { className?: string }) => {
         onCreated={() => setReady(true)}
         style={{ width: "100%", height: "100%" }}
       >
-        <Plane animate={animate} />
+        <Plane animate={animate} light={theme === "light"} />
       </Canvas>
     </div>
   );
