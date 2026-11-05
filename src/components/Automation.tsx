@@ -6,7 +6,7 @@ import { useContent } from "@/i18n";
 const Automation = () => {
   const { AUTOMATION } = useContent();
   return (
-    <section id="automation" className="wrap py-20 sm:py-28">
+    <section id="automation" className="wrap py-20 sm:py-24">
       <div className="flex items-end justify-between gap-8">
         <Reveal className="max-w-[640px]">
           <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{AUTOMATION.eyebrow}</p>

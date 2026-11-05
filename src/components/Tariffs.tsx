@@ -49,13 +49,13 @@ const Tariffs = () => {
   };
 
   return (
-    <section id="pricing" className="wrap py-20 sm:py-28">
+    <section id="pricing" className="wrap py-20 sm:py-24">
       <Reveal className="max-w-[640px]">
         <h2 className="t-h2">{PRICING.title}</h2>
-        <p className="t-lead muted mt-5">{PRICING.lead(prepay)}</p>
+        <p className="t-lead muted mt-4">{PRICING.lead(prepay)}</p>
       </Reveal>
 
-      <div className="mt-12 grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
         {cards.map((c) => (
           <Reveal key={c.key} className={`panel relative flex flex-col p-7 ${c.popular ? "ring-1 ring-accent" : ""}`}>
             <div className="flex items-start justify-between gap-3">
@@ -80,9 +80,9 @@ const Tariffs = () => {
         ))}
       </div>
 
-      <Reveal className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_2fr]">
-        <p className="t-small muted">{kgs ? PRICING.rateNote(kgs.date) : PRICING.noRate} {PRICING.providersNote}</p>
+      <Reveal className="mt-6 flex flex-col gap-1.5">
         <p className="t-small muted"><span className="text-fg">{PRICING.groups.addons.title}:</span> {PRICING.groups.addons.items.map((a) => a.name).join(" · ")}. {PRICING.groups.addons.price}</p>
+        <p className="t-small muted">{kgs ? PRICING.rateNote(kgs.date) : PRICING.noRate} {PRICING.providersNote}</p>
       </Reveal>
     </section>
   );

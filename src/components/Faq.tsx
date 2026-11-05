@@ -12,13 +12,10 @@ const Faq = () => {
   const reduced = !!useReducedMotion();
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="faq" className="wrap py-20 sm:py-28">
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_2fr] lg:gap-16">
-        <Reveal>
-          <h2 className="t-h2">{FAQ.title}</h2>
-          <p className="t-lead muted mt-5 max-w-[30ch]">{FAQ.lead}</p>
-        </Reveal>
-        <Reveal className="panel divide-y divide-line">
+    <section id="faq" className="wrap py-20 sm:py-24">
+      <div>
+        <Reveal><h2 className="t-h2">{FAQ.title}</h2></Reveal>
+        <Reveal className="panel mt-8 divide-y divide-line">
           {FAQ.items.map((f, i) => {
             const on = open === i;
             return (

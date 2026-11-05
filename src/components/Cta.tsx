@@ -7,7 +7,7 @@ import Illus from "@/components/Illus";
 const Cta = () => {
   const { CTA, DEMO_URL } = useContent();
   return (
-    <section id="demo" className="wrap py-20 sm:py-28">
+    <section id="demo" className="wrap py-20 sm:py-24">
       <Reveal className="panel grid grid-cols-1 gap-10 p-7 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-14">
         <div>
           <h2 className="t-h2 max-w-[16ch]">{CTA.title}</h2>
