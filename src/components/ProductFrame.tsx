@@ -2,12 +2,13 @@ import { useRef, type MouseEvent } from "react";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react";
 
 /**
- * Настоящий экран продукта в рамке браузера, всегда ровной (наклон убрали 08.11: читался как
+ * Картинка продукта в ровной рамке: иллюстрация (chrome=false) или экран в рамке браузера
+ * с адресной строкой (chrome=true). Рамка всегда ровная (наклон убрали 08.11: читался как
  * «криво»). Живёт двумя способами: лаймовый блик следует за курсором (spring), по кромке бежит
  * искра (CSS .beam). Под reduced-motion рамка статична.
  */
-const ProductFrame = ({ src, alt, url = "your-exchange.kg", eager = false, tilt = true, className = "" }: {
-  src: string; alt: string; url?: string; eager?: boolean; tilt?: boolean; className?: string;
+const ProductFrame = ({ src, alt, url = "your-exchange.kg", eager = false, tilt = true, chrome = true, width = 1800, height = 1125, className = "" }: {
+  src: string; alt: string; url?: string; eager?: boolean; tilt?: boolean; chrome?: boolean; width?: number; height?: number; className?: string;
 }) => {
   const reduced = !!useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
@@ -28,17 +29,19 @@ const ProductFrame = ({ src, alt, url = "your-exchange.kg", eager = false, tilt 
   return (
     <div ref={ref} onMouseMove={live ? onMove : undefined} onMouseLeave={live ? onLeave : undefined} className={className}>
       <div className="frame beam relative">
-        <div className="flex items-center gap-2 border-b border-[hsl(var(--line)/0.08)] px-4 py-2.5">
-          <i className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(0 72% 62%)" }} />
-          <i className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(38 92% 62%)" }} />
-          <i className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(var(--ok))" }} />
-          <span className="muted ml-3 text-[12.5px] tabular-nums">{url}</span>
-        </div>
+        {chrome && (
+          <div className="flex items-center gap-2 border-b border-[hsl(var(--line)/0.08)] px-4 py-2.5">
+            <i className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(0 72% 62%)" }} />
+            <i className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(38 92% 62%)" }} />
+            <i className="h-2.5 w-2.5 rounded-full" style={{ background: "hsl(var(--ok))" }} />
+            <span className="muted ml-3 text-[12.5px] tabular-nums">{url}</span>
+          </div>
+        )}
         <img
           src={src}
           alt={alt}
-          width={1800}
-          height={1125}
+          width={width}
+          height={height}
           loading={eager ? "eager" : "lazy"}
           decoding="async"
           draggable={false}

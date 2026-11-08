@@ -26,8 +26,8 @@ const KineticLines = ({ lines, reduced }: { lines: string[]; reduced: boolean })
 );
 
 /**
- * Герой: короткий текст по центру и настоящий экран админки, который проявляется и чуть
- * вырастает, пока читатель скроллит к нему. Рамка всегда ровная.
+ * Герой: короткий текст по центру и иллюстрация платформы (public/art/hero.webp), которая
+ * проявляется и чуть вырастает, пока читатель скроллит к ней. Рамка всегда ровная.
  */
 const Hero = () => {
   const { HERO } = useContent();
@@ -71,7 +71,7 @@ const Hero = () => {
           className="mx-auto mt-16 max-w-[1080px] sm:mt-20"
         >
           <motion.div style={{ scale, opacity, transformOrigin: "50% 0%" }}>
-            <ProductFrame src="/shots/admin.webp" alt={HERO.shotLabel} url="your-exchange.kg/admin" eager />
+            <ProductFrame src="/art/hero.webp" alt={HERO.shotLabel} chrome={false} width={1536} height={1024} eager />
           </motion.div>
         </motion.div>
       </div>

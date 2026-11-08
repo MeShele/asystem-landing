@@ -19,7 +19,7 @@ export const HERO: typeof RU.HERO = {
   demoUrl: DEMO_URL,
   fact: (n: number | null) => (n ? `${n} exchanges already live` : "Exchanges already live"),
   facts: ["Server in Bishkek", "Launch within 14 days"],
-  shotLabel: "Operator admin panel: orders by status",
+  shotLabel: "The platform: exchange website, server in Bishkek, compliance and reports",
 };
 
 export const PROOF: typeof RU.PROOF = {
@@ -30,7 +30,7 @@ export const PROOF: typeof RU.PROOF = {
 export const TOUR: typeof RU.TOUR = {
   eyebrow: "Stage 1 · live now",
   title: "What's inside",
-  lead: "Screenshots of the demo stand, demo.asystem.ai.",
+  lead: "Four parts of the platform. All of it is open live on the demo stand.",
   items: [
     { key: "store", title: "Storefront", text: "Your domain and rates. Buy, sell, swap." },
     { key: "cabinet", title: "Client account", text: "KYC, orders, QR payment, documents." },

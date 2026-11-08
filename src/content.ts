@@ -23,7 +23,7 @@ export const HERO = {
   demoUrl: DEMO_URL,
   fact: (n: number | null) => (n ? `${n} обменников уже работают` : "Обменники уже работают"),
   facts: ["Сервер в Бишкеке", "Запуск до 14 дней"],
-  shotLabel: "Админка оператора: заявки по статусам",
+  shotLabel: "Платформа: сайт обменника, сервер в Бишкеке, комплаенс и отчёты",
 };
 
 export const PROOF = {
@@ -31,11 +31,11 @@ export const PROOF = {
   names: ["Didit", "BiometricVision", "Finik", "Ranex KYT", "Jivo", "Telegram"],
 };
 
-/** Экскурсия по продукту: настоящие экраны демо-стенда (public/shots/*.webp, сняты 04.11). */
+/** Экскурсия по продукту: четыре части платформы, иллюстрации public/art/*.webp. */
 export const TOUR = {
   eyebrow: "Этап 1 · работает сейчас",
   title: "Что внутри",
-  lead: "Снимки демо-стенда demo.asystem.ai.",
+  lead: "Четыре части платформы. Вживую всё это открыто на демо-стенде.",
   items: [
     { key: "store", title: "Витрина", text: "Ваш домен и курсы. Купить, продать, обменять." },
     { key: "cabinet", title: "Кабинет клиента", text: "KYC, заявки, оплата по QR, документы." },

@@ -6,11 +6,10 @@ import { useContent } from "@/i18n";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
 const STEP_MS = 5000;
-const URLS: Record<string, string> = { store: "your-exchange.kg", cabinet: "your-exchange.kg/orders", admin: "your-exchange.kg/admin", reports: "your-exchange.kg/admin/reports" };
 
 /**
- * Что внутри: четыре настоящих экрана демо-стенда. Слева пункты с одной фразой, справа экран
- * в рамке; пункты сменяются сами (полоса прогресса), на наведении пауза, клик — вручную.
+ * Что внутри: четыре части платформы, каждая — иллюстрацией (public/art/*.webp). Слева пункты
+ * с одной фразой, справа картинка в рамке; пункты сменяются сами (полоса прогресса), на наведении пауза, клик — вручную.
  */
 const ProductTour = () => {
   const { TOUR } = useContent();
@@ -84,7 +83,7 @@ const ProductTour = () => {
               exit={{ opacity: 0, transition: { duration: 0.14 } }}
               transition={{ duration: 0.34, ease: EASE }}
             >
-              <ProductFrame src={`/shots/${items[i].key}.webp`} alt={items[i].title} url={URLS[items[i].key]} />
+              <ProductFrame src={`/art/${items[i].key}.webp`} alt={items[i].title} chrome={false} width={1536} height={1024} />
             </motion.div>
           </AnimatePresence>
         </div>
