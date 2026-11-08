@@ -14,17 +14,15 @@ const TONE: Record<string, string> = {
 const Law = () => {
   const { LAW } = useContent();
   return (
-    <section id="law" className="wrap py-20 sm:py-24">
-      <div className="flex items-end justify-between gap-8">
-        <Reveal className="max-w-[640px]">
-          <h2 className="t-h2">{LAW.title}</h2>
-          <p className="t-lead muted mt-4">{LAW.lead}</p>
-        </Reveal>
-        <Illus name="stamp" size={260} className="hidden shrink-0 lg:block" />
-      </div>
+    <section id="law" className="wrap relative py-20 sm:py-24">
+      <Illus bg name="stamp" size={520} className="right-[-60px] top-[-10px] hidden lg:block" />
+      <Reveal className="relative z-[1] max-w-[640px]">
+        <h2 className="t-h2">{LAW.title}</h2>
+        <p className="t-lead muted mt-4">{LAW.lead}</p>
+      </Reveal>
 
       {/* Телефон: строки таблицы карточками, чтобы ничего не обрезалось */}
-      <div className="mt-10 flex flex-col gap-3 lg:hidden">
+      <div className="relative z-[1] mt-10 flex flex-col gap-3 lg:hidden">
         {LAW.rows.map((r) => (
           <Reveal key={r.req} className="panel p-5">
             <div className="flex items-start justify-between gap-3">
@@ -36,7 +34,7 @@ const Law = () => {
         ))}
       </div>
 
-      <Reveal className="panel mt-10 hidden overflow-x-auto lg:block">
+      <Reveal className="panel relative z-[1] mt-10 hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[720px] border-collapse text-left text-[15px]">
           <thead>
             <tr className="muted text-[13px] uppercase tracking-[0.1em]">
@@ -57,7 +55,7 @@ const Law = () => {
         </table>
       </Reveal>
 
-      <p className="t-small muted mt-4">{LAW.source}</p>
+      <p className="t-small muted relative z-[1] mt-4">{LAW.source}</p>
     </section>
   );
 };
