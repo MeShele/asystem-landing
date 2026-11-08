@@ -13,7 +13,7 @@ export const DEMO_URL = "https://demo.asystem.ai";
 
 export const HERO: typeof RU.HERO = {
   h1Lines: ["The exchange platform", "built for Kyrgyz law"],
-  sub: "Website, client account, admin panel and SFIS compliance. Your licence, our software.",
+  sub: "Ready software for a licensed exchange: website, client account, admin panel and SFIS reporting.",
   cta: "Request a demo",
   ctaSecondary: "Open the demo stand",
   demoUrl: DEMO_URL,
@@ -30,7 +30,7 @@ export const PROOF: typeof RU.PROOF = {
 export const TOUR: typeof RU.TOUR = {
   eyebrow: "Stage 1 · live now",
   title: "What's inside",
-  lead: "Demo stand screens, not mock-ups.",
+  lead: "Screenshots of the demo stand, demo.asystem.ai.",
   items: [
     { key: "store", title: "Storefront", text: "Your domain and rates. Buy, sell, swap." },
     { key: "cabinet", title: "Client account", text: "KYC, orders, QR payment, documents." },
@@ -52,7 +52,7 @@ export const WHO: typeof RU.WHO = {
 
 export const LAW: typeof RU.LAW = {
   title: "SFIS requirements and what is already in the platform",
-  lead: "One line sits outside the platform, the rest works.",
+  lead: "The platform covers seven of eight requirements. Call recording stays with the exchange.",
   head: ["What SFIS requires", "How it is done", "Status"],
   status: { done: "Done", you: "Your side" },
   rows: [
@@ -71,11 +71,11 @@ export const LAW: typeof RU.LAW = {
 export const AUTOMATION: typeof RU.AUTOMATION = {
   eyebrow: "Stage 2 · Auto-exchange module",
   title: "A deal with no staff involved",
-  lead: "Paid by QR, the crypto leaves by itself. Sent crypto, the som leaves by itself.",
-  note: "Large orders go to the officer. Without the module: by hand, as before.",
+  lead: "Buying and selling run without staff: Finik confirms the payment, the platform sends the crypto.",
+  note: "Orders above the compliance threshold stay with the officer for manual review.",
   flows: [
-    { key: "buy", title: "Buy", steps: ["The client pays by Finik QR", "The platform sends crypto from the hot wallet", "Network confirmed, order closed with a hash"] },
-    { key: "sell", title: "Sell", steps: ["The client sends exactly the stated amount", "The platform recognises the deposit by amount", "Som leaves via Finik, order closed"] },
+    { key: "buy", title: "Buy", steps: ["The client pays by Finik QR", "The platform sends crypto from the hot wallet", "The network confirms the transfer, the order closes with a hash"] },
+    { key: "sell", title: "Sell", steps: ["The client sends the amount stated in the order", "The platform recognises the deposit by amount", "Finik pays out the som, the order closes"] },
   ],
 };
 
@@ -86,7 +86,7 @@ export const STEPS: typeof RU.STEPS = {
     { short: "01", clause: "Contract", text: "A plan, a three-month contract." },
     { short: "02", clause: "Server", text: "Server in Bishkek, domain, TLS." },
     { short: "03", clause: "Setup", text: "Brand, currencies, rates, bank details." },
-    { short: "04", clause: "Opening", text: "Checklist green, clients come in." },
+    { short: "04", clause: "Opening", text: "The exchange is open, clients sign up." },
   ],
 };
 
@@ -131,8 +131,8 @@ export const FAQ: typeof RU.FAQ = {
 };
 
 export const CTA: typeof RU.CTA = {
-  title: "See it live",
-  sentence: "We reply within one business day with a proposal.",
+  title: "See the platform",
+  sentence: "A 30-minute call and a commercial proposal within one business day.",
   link: "Or open the demo stand yourself",
 };
 

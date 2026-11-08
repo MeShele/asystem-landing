@@ -26,8 +26,8 @@ const KineticLines = ({ lines, reduced }: { lines: string[]; reduced: boolean })
 );
 
 /**
- * Герой: короткий текст по центру и настоящий экран админки, который лежит под углом и
- * выпрямляется, пока читатель скроллит к нему (как у Linear/Vercel). Один экран, один смысл.
+ * Герой: короткий текст по центру и настоящий экран админки, который проявляется и чуть
+ * вырастает, пока читатель скроллит к нему. Рамка всегда ровная.
  */
 const Hero = () => {
   const { HERO } = useContent();
@@ -38,8 +38,7 @@ const Hero = () => {
 
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 90%", "start 30%"] });
-  const rotateX = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [14, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.94, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.96, 1]);
   const opacity = useTransform(scrollYProgress, [0, 1], reduced ? [1, 1] : [0.6, 1]);
 
   const fade = (delay: number) => ({
@@ -70,10 +69,9 @@ const Hero = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: EASE, delay: 0.6 }}
           className="mx-auto mt-16 max-w-[1080px] sm:mt-20"
-          style={{ perspective: 1600 }}
         >
-          <motion.div style={{ rotateX, scale, opacity, transformOrigin: "50% 0%" }}>
-            <ProductFrame src="/shots/admin.webp" alt={HERO.shotLabel} url="your-exchange.kg/admin" eager tilt={false} />
+          <motion.div style={{ scale, opacity, transformOrigin: "50% 0%" }}>
+            <ProductFrame src="/shots/admin.webp" alt={HERO.shotLabel} url="your-exchange.kg/admin" eager />
           </motion.div>
         </motion.div>
       </div>
