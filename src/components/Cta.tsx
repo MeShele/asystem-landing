@@ -7,9 +7,9 @@ import Illus from "@/components/Illus";
 const Cta = () => {
   const { CTA, DEMO_URL } = useContent();
   return (
-    <section id="demo" className="wrap py-20 sm:py-24">
+    <section id="demo" className="wrap py-14 sm:py-20">
       <Reveal className="panel relative grid grid-cols-1 gap-10 overflow-hidden p-7 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-14">
-        <Illus bg name="megaphone" size={440} className="bottom-[-90px] left-[-30px] hidden lg:block" />
+        <Illus bg name="megaphone" size={440} className="bottom-[-150px] left-[-90px] hidden lg:block" />
         <div className="relative z-[1]">
           <h2 className="t-h2 max-w-[16ch]">{CTA.title}</h2>
           <p className="t-lead muted mt-5 max-w-[40ch]">{CTA.sentence}</p>

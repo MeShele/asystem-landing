@@ -14,7 +14,7 @@ const TONE: Record<string, string> = {
 const Law = () => {
   const { LAW } = useContent();
   return (
-    <section id="law" className="wrap relative py-20 sm:py-24">
+    <section id="law" className="wrap relative py-14 sm:py-20">
       <Illus bg name="stamp" size={520} className="right-[-60px] top-[-10px] hidden lg:block" />
       <Reveal className="relative z-[1] max-w-[640px]">
         <h2 className="t-h2">{LAW.title}</h2>

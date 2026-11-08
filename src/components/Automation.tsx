@@ -6,7 +6,7 @@ import { useContent } from "@/i18n";
 const Automation = () => {
   const { AUTOMATION } = useContent();
   return (
-    <section id="automation" className="wrap relative py-20 sm:py-24">
+    <section id="automation" className="wrap relative py-14 sm:py-20">
       <Illus bg name="gear" size={500} className="right-[-70px] top-[-20px] hidden lg:block" />
       <Reveal className="relative z-[1] max-w-[640px]">
         <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{AUTOMATION.eyebrow}</p>
@@ -15,7 +15,7 @@ const Automation = () => {
       </Reveal>
       <Reveal className="relative z-[1] mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
         {AUTOMATION.flows.map((f) => (
-          <div key={f.key} className="panel p-6 sm:p-7">
+          <div key={f.key} className="panel h-full p-6 sm:p-7">
             <h3 className="t-h3">{f.title}</h3>
             <ol className="mt-5 flex flex-col gap-3">
               {f.steps.map((s, j) => (

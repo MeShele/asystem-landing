@@ -49,8 +49,8 @@ const Tariffs = () => {
   };
 
   return (
-    <section id="pricing" className="wrap py-20 sm:py-24">
-      <Reveal className="max-w-[640px]">
+    <section id="pricing" className="wrap py-14 sm:py-20">
+      <Reveal className="max-w-[760px]">
         <h2 className="t-h2">{PRICING.title}</h2>
         <p className="t-lead muted mt-4">{PRICING.lead(prepay)}</p>
       </Reveal>

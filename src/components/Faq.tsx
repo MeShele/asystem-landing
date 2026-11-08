@@ -12,7 +12,7 @@ const Faq = () => {
   const reduced = !!useReducedMotion();
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <section id="faq" className="wrap py-20 sm:py-24">
+    <section id="faq" className="wrap py-14 sm:py-20">
       <div>
         <Reveal><h2 className="t-h2">{FAQ.title}</h2></Reveal>
         <Reveal className="panel mt-8 divide-y divide-line">

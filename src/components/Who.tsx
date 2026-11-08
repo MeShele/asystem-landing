@@ -6,7 +6,7 @@ import { useContent } from "@/i18n";
 const Who = () => {
   const { WHO } = useContent();
   return (
-    <section id="who" className="wrap relative py-20 sm:py-24">
+    <section id="who" className="wrap relative py-14 sm:py-20">
       <Illus bg name="shield" size={440} className="right-[-90px] top-[-80px] hidden lg:block" />
       <Reveal className="relative z-[1]"><h2 className="t-h2">{WHO.title}</h2></Reveal>
       <Reveal as="ul" className="relative z-[1] mt-8 flex flex-col divide-y divide-[hsl(var(--line)/0.08)] border-t border-[hsl(var(--line)/0.08)]">

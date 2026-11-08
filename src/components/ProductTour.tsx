@@ -27,7 +27,7 @@ const ProductTour = () => {
   }, [i, hold, reduced, run, items.length]);
 
   return (
-    <section id="features" className="wrap py-20 sm:py-24">
+    <section id="features" className="wrap py-14 sm:py-20">
       <Reveal className="max-w-[640px]">
         <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{TOUR.eyebrow}</p>
         <h2 className="t-h2 mt-3">{TOUR.title}</h2>

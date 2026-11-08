@@ -5,7 +5,7 @@ import { useContent } from "@/i18n";
 const Proof = () => {
   const { PROOF } = useContent();
   return (
-    <section className="wrap py-12 sm:py-16" aria-label={PROOF.lead}>
+    <section className="wrap py-8 sm:py-12" aria-label={PROOF.lead}>
       <Reveal className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 sm:gap-x-10">
         <p className="t-small muted w-full text-center sm:w-auto">{PROOF.lead}</p>
         {PROOF.names.map((n) => (

@@ -5,7 +5,7 @@ import { useContent } from "@/i18n";
 const HowItWorks = () => {
   const { STEPS } = useContent();
   return (
-    <section id="how" className="wrap py-20 sm:py-24">
+    <section id="how" className="wrap py-14 sm:py-20">
       <Reveal className="max-w-[640px]">
         <h2 className="t-h2">{STEPS.title}</h2>
         <p className="t-lead muted mt-4">{STEPS.note}</p>
