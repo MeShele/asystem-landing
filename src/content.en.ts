@@ -19,7 +19,7 @@ export const HERO: typeof RU.HERO = {
   demoUrl: DEMO_URL,
   fact: (n: number | null) => (n ? `${n} exchanges already live` : "Exchanges already live"),
   facts: ["Server in Bishkek", "Launch within 14 days"],
-  shotLabel: "The platform: exchange website, server in Bishkek, compliance and reports",
+  shotLabel: "Orders in the operator admin panel and the exchange widget on the website",
 };
 
 export const PROOF: typeof RU.PROOF = {
@@ -32,10 +32,10 @@ export const TOUR: typeof RU.TOUR = {
   title: "What's inside",
   lead: "Four parts of the platform. All of it is open live on the demo stand.",
   items: [
-    { key: "store", title: "Storefront", text: "Your domain and rates. Buy, sell, swap." },
-    { key: "cabinet", title: "Client account", text: "KYC, orders, QR payment, documents." },
-    { key: "admin", title: "Admin panel", text: "Orders, staff, SFIS list screening." },
-    { key: "reports", title: "FinSupervision reports", text: "Registries build from orders by themselves." },
+    { key: "store", title: "Storefront", text: "Your domain and rates. Buy, sell, swap.", callouts: ["Your domain and brand", "Buy, sell, swap", "Rate locked in the order"] },
+    { key: "cabinet", title: "Client account", text: "KYC, orders, QR payment, documents.", callouts: ["Status of every order", "Rate locked", "Transfer details"] },
+    { key: "admin", title: "Admin panel", text: "Orders, staff, SFIS list screening.", callouts: ["Readiness checklist", "Orders by status", "Compliance review"] },
+    { key: "reports", title: "FinSupervision reports", text: "Registries build from orders by themselves.", callouts: ["Annexes 1/o–6/o", "Figures come from orders", "Client KYC under control"] },
   ],
 };
 
