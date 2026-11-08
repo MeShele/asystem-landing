@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLeadDialog } from "@/components/LeadDialog";
 import Logo from "@/components/Logo";
 import LangToggle from "@/components/LangToggle";
@@ -11,6 +11,8 @@ const Header = () => {
   const { t } = useLang();
   const openLead = useLeadDialog();
   const [solid, setSolid] = useState(false);
+  // С внутренних страниц якоря ведут на главную: App докручивает до секции после маунта.
+  const home = useLocation().pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 24);
@@ -30,13 +32,15 @@ const Header = () => {
       }}
     >
       <div className="wrap flex h-16 items-center justify-between gap-6">
-        <a href="#top" aria-label="asystem.ai" className="shrink-0">
-          <Logo size="sm" />
-        </a>
+        {home ? (
+          <a href="#top" aria-label="asystem.ai" className="shrink-0"><Logo size="sm" /></a>
+        ) : (
+          <Link to="/" aria-label="asystem.ai" className="shrink-0"><Logo size="sm" /></Link>
+        )}
         <nav className="hidden items-center gap-7 lg:flex" aria-label={t("Разделы", "Sections")}>
           {NAV.map((n) =>
-            n.href.startsWith("/") ? (
-              <Link key={n.href} to={n.href} className="link text-[15px] font-medium">{n.label}</Link>
+            n.href.startsWith("/") || !home ? (
+              <Link key={n.href} to={n.href.startsWith("/") ? n.href : `/${n.href}`} className="link text-[15px] font-medium">{n.label}</Link>
             ) : (
               <a key={n.href} href={n.href} className="link text-[15px] font-medium">{n.label}</a>
             ),

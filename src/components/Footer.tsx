@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Logo from "@/components/Logo";
 import { useContent } from "@/i18n";
 
 const Footer = () => {
   const { FOOTER } = useContent();
+  const home = useLocation().pathname === "/";
   return (
     <footer className="border-t border-line">
       <div className="wrap grid grid-cols-1 gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
@@ -14,8 +15,8 @@ const Footer = () => {
         <nav className="flex flex-col gap-2.5" aria-label={FOOTER.menuTitle}>
           <p className="t-small font-semibold">{FOOTER.menuTitle}</p>
           {FOOTER.menu.map((m) =>
-            m.href.startsWith("/") ? (
-              <Link key={m.href} to={m.href} className="link text-[15px]">{m.label}</Link>
+            m.href.startsWith("/") || !home ? (
+              <Link key={m.href} to={m.href.startsWith("/") ? m.href : `/${m.href}`} className="link text-[15px]">{m.label}</Link>
             ) : (
               <a key={m.href} href={m.href} className="link text-[15px]">{m.label}</a>
             ),

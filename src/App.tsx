@@ -14,7 +14,6 @@ import Tariffs from "@/components/Tariffs";
 import Faq from "@/components/Faq";
 import Cta from "@/components/Cta";
 import Footer from "@/components/Footer";
-import { LeadDialogProvider } from "@/components/LeadDialog";
 
 function App() {
   const { t } = useLang();
@@ -47,7 +46,7 @@ function App() {
   }, [hash]);
 
   return (
-    <LeadDialogProvider>
+    <>
       <GradientBackground />
       <div className="relative z-[1] min-h-full">
         <Header />
@@ -65,7 +64,7 @@ function App() {
         </main>
         <Footer />
       </div>
-    </LeadDialogProvider>
+    </>
   );
 }
 

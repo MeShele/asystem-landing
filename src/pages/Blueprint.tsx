@@ -1,10 +1,9 @@
-import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckSquare, Download, TriangleAlert } from "lucide-react";
-import { motion } from "motion/react";
-import { Button } from "@/components/ui/button";
-import Logo from "@/components/Logo";
-import LangToggle from "@/components/LangToggle";
+import { ArrowRight, Download } from "lucide-react";
+import PageShell, { PageHead } from "@/components/PageShell";
+import Reveal from "@/components/Reveal";
+import Illus from "@/components/Illus";
+import { useLeadDialog } from "@/components/LeadDialog";
 import { DEMO_URL } from "@/content";
 import { useLang, type Lang } from "@/i18n";
 
@@ -12,7 +11,8 @@ import { useLang, type Lang } from "@/i18n";
  *  Текст выверен по первоисточникам (87/2018, ПКМ 739, приказы ГСФР) и прошёл
  *  ревью — правки согласовывать, юридические формулировки не ослаблять.
  *  RU — канон; EN — перевод для инвесторов/партнёров (шаблоны дисклеймеров
- *  остаются на русском: это юридические формулировки для рынка КР). */
+ *  остаются на русском: это юридические формулировки для рынка КР).
+ *  Оформление — сетка главной: PageShell, панели, лаймовые подписи. */
 
 type Stage = { title: string; intro?: string; items: string[] };
 
@@ -228,204 +228,170 @@ const PITFALLS: Record<Lang, { t: string; d: string }[]> = {
   ],
 };
 
-const rise = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 120, damping: 20 } },
-} as const;
-
 const Blueprint = () => {
   const { lang, l, t } = useLang();
-
-  useEffect(() => {
-    const prev = document.title;
-    document.title = t(
-      "Чек-лист запуска лицензированного криптообменника в КР — ASystem Core",
-      "Launch checklist for a licensed crypto exchange in the KR — ASystem Core",
-    );
-    window.scrollTo(0, 0);
-    return () => {
-      document.title = prev;
-    };
-  }, [t]);
+  const openLead = useLeadDialog();
 
   return (
-    <div className="min-h-[100svh] bg-background">
-      {/* топ-бар */}
-      <header className="bg-page print:hidden">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              <ArrowLeft className="h-4 w-4" /> {t("На главную", "Back to home")}
-            </Link>
-            <Link to="/" className="hidden sm:block">
-              <Logo />
-            </Link>
-          </div>
-          <div className="flex items-center gap-3">
-            <LangToggle />
-            <Button variant="signal" size="sm" asChild>
-              <Link to="/#demo">{t("Запросить демо", "Request a demo")}</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="container max-w-3xl py-12 sm:py-16">
+    <PageShell
+      title={t(
+        "Чек-лист запуска лицензированного криптообменника в КР — ASystem Core",
+        "Launch checklist for a licensed crypto exchange in the KR — ASystem Core",
+      )}
+    >
+      <div id="spec-doc">
         {/* шапка документа */}
-        <motion.div variants={rise} initial="hidden" animate="show">
-          <div className="flex items-center gap-3">
-            <span className="h-2 w-10 rounded-sm bg-accent" />
-            <span className="t-small font-medium muted">
-              {t("Blueprint · Кыргызстан · 2026", "Blueprint · Kyrgyzstan · 2026")}
-            </span>
-          </div>
-          <h1 className="mt-4 font-display text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl">
-            {t(
-              "Чек-лист запуска лицензированного криптообменника в Кыргызстане",
-              "Launch checklist for a licensed crypto exchange in Kyrgyzstan",
-            )}
-          </h1>
-          <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
-            {t(
-              "Полный путь от юрлица до работающего обменника: что потребует регулятор, что должно уметь ваше ПО и на чём чаще всего теряют месяцы.",
-              "The full path from a legal entity to a working exchange: what the regulator will demand, what your software must handle, and where people most often lose months.",
-            )}
-          </p>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t(
-              "Источники: закон КР № 87/2018 «О ПОД/ФТ»; ПКМ № 739 от 14.11.2025 (прил. 11 — программа внутреннего контроля, прил. 12 — надлежащая проверка клиента, прил. 10 — порядок мер к высокорискованным странам); приказы ГСФР (справочник кодов подозрительных операций; перечень высокорискованных стран № 78 от 20.06.2025); требования ГСФР к отрасли виртуальных активов (2026); практика запусков на ASystem Core.",
-              "Sources: KR law No. 87/2018 on AML/CFT; Cabinet decree No. 739 of 14.11.2025 (annex 11 — internal control program, annex 12 — customer due diligence, annex 10 — measures for high-risk countries); SFIS orders (suspicious transaction code reference; high-risk country list No. 78 of 20.06.2025); SFIS requirements for the virtual asset industry (2026); launch experience on ASystem Core.",
-            )}
-          </p>
-
-          <div className="mt-6 rounded-xl border border-amber-500/40 bg-amber-50 p-4 text-sm leading-relaxed text-amber-950 dark:bg-amber-950/20 dark:text-amber-100">
-            <TriangleAlert className="mb-1.5 h-4 w-4" />
-            {t(
-              "Обмен виртуальных активов в КР — лицензируемая деятельность. Работа без лицензии оператора обмена виртуальных активов — риск блокировок, штрафов и уголовной ответственности за незаконную предпринимательскую деятельность.",
-              "Virtual asset exchange in the KR is a licensed activity. Operating without a VA exchange operator licence risks blocks, fines and criminal liability for illegal entrepreneurship.",
-            )}
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-3 print:hidden">
-            <Button variant="ghost" size="sm" onClick={() => window.print()}>
-              <Download className="h-4 w-4" /> {t("Сохранить в PDF", "Save as PDF")}
-            </Button>
-            <Button variant="ghost" size="sm" asChild>
-              <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">
-                {t("Живое демо платформы", "Live platform demo")}
+        <section className="wrap relative pb-6">
+          <Illus bg name="stamp" size={480} className="right-[-80px] top-[-120px] hidden lg:block" />
+          <Reveal className="relative z-[1]">
+            <PageHead
+              eyebrow={t("Чек-лист · Кыргызстан · 2026", "Checklist · Kyrgyzstan · 2026")}
+              title={t(
+                "Чек-лист запуска лицензированного криптообменника в Кыргызстане",
+                "Launch checklist for a licensed crypto exchange in Kyrgyzstan",
+              )}
+              lead={t(
+                "Путь от юрлица до работающего обменника: что потребует регулятор, что должно уметь ПО и где теряют месяцы.",
+                "The path from a legal entity to a working exchange: what the regulator demands, what the software must handle and where months get lost.",
+              )}
+            />
+            <div className="mt-8 flex flex-wrap gap-3 print:hidden">
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => window.print()}>
+                <Download className="h-4 w-4" /> {t("Сохранить в PDF", "Save as PDF")}
+              </button>
+              <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">
+                {t("Демо-стенд", "Demo stand")}
               </a>
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* этапы */}
-        <div className="mt-12 space-y-10">
-          {STAGES[lang].map((s) => (
-            <motion.section
-              key={s.title}
-              variants={rise}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, margin: "-60px" }}
-            >
-              <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">{s.title}</h2>
-              {s.intro && <p className="mt-2 text-sm text-muted-foreground">{s.intro}</p>}
-              <ul className="mt-4 space-y-2.5">
-                {s.items.map((it) => (
-                  <li key={it.slice(0, 40)} className="flex items-start gap-2.5 text-[15px] leading-relaxed text-muted-foreground">
-                    <CheckSquare className="mt-0.5 h-4.5 w-4.5 shrink-0 text-foreground dark:text-accent" style={{ width: 18, height: 18 }} />
-                    <span>{it}</span>
-                  </li>
-                ))}
-              </ul>
-            </motion.section>
-          ))}
-
-          {/* шаблоны дисклеймеров */}
-          <motion.section variants={rise} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-            <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
-              {t("Готовые шаблоны риск-дисклеймеров", "Ready-made risk disclaimer templates")}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t(
-                "Составлены по требованиям ст. 34 ч. 2 закона «О виртуальных активах» и п. 18 Положения об операторе обмена. Финальную редакцию согласуйте с юристом и уполномоченным органом.",
-                "Drafted to the requirements of art. 34 p. 2 of the VA law and cl. 18 of the exchange operator regulation. The templates are in Russian — the legally required wording for the KG market. Have the final wording approved by a lawyer and the authorized body.",
-              )}
-            </p>
-            <div className="mt-4 space-y-3">
-              {DISCLAIMERS.map((d) => (
-                <div key={d.label.ru} className="rounded-xl border border-border bg-card p-4">
-                  <div className="t-small font-semibold">{l(d.label)}</div>
-                  <p className="mt-2 rounded-lg bg-secondary/50 p-3 text-[15px] leading-relaxed text-foreground" lang="ru">
-                    {d.text}
-                  </p>
-                </div>
-              ))}
             </div>
-          </motion.section>
+          </Reveal>
 
-          {/* грабли */}
-          <motion.section variants={rise} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-            <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">
-              {t("Типичные грабли (из практики запусков)", "Common pitfalls (from real launches)")}
-            </h2>
-            <div className="mt-4 space-y-3">
-              {PITFALLS[lang].map((p) => (
-                <div key={p.t} className="rounded-xl border border-border bg-card p-4">
-                  <div className="flex items-baseline gap-2.5">
-                    <div>
-                      <span className="font-semibold text-foreground">{p.t}</span>{" "}
-                      <span className="text-muted-foreground">— {p.d}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.section>
-
-          {/* сколько занимает + CTA */}
-          <motion.section variants={rise} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-60px" }}>
-            <h2 className="font-display text-xl font-extrabold tracking-tight sm:text-2xl">{t("Сколько это занимает", "How long it takes")}</h2>
-            <p className="mt-3 leading-relaxed text-muted-foreground">
-              {t(
-                "Разработка собственной платформы под эти требования — 6–12 месяцев командой. Готовая платформа со встроенным комплаенсом КР сокращает технологическую часть до недель: остаётся лицензия и операционная подготовка.",
-                "Building your own platform to these requirements takes a team 6–12 months. A ready platform with KR compliance built in cuts the technology part down to weeks: what's left is the licence and operational preparation.",
-              )}
-            </p>
-            <div className="mt-6 rounded-2xl border border-border bg-secondary/40 p-6">
-              <p className="leading-relaxed text-foreground">
-                <span className="font-display font-extrabold">ASystem Core</span>
+          <Reveal className="relative z-[1] mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1fr]">
+            <div className="panel border-l-2 border-l-[hsl(var(--warn))] p-6">
+              <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--warn))]">
+                {t("Лицензия обязательна", "A licence is mandatory")}
+              </p>
+              <p className="mt-3 text-[15px] leading-relaxed">
                 {t(
-                  " — платформа, на которой уже работают криптообменники КР, выстроенные под эти требования: обменник под ключ, KYC/AML, отчётность ГСФР, сервер и данные в КР.",
-                  " is the platform already running KR crypto exchanges built to these requirements: a turnkey exchange, KYC/AML, SFIS reporting, servers and data in the KR.",
+                  "Обмен виртуальных активов в КР — лицензируемая деятельность. Работа без лицензии оператора обмена виртуальных активов — риск блокировок, штрафов и уголовной ответственности за незаконную предпринимательскую деятельность.",
+                  "Virtual asset exchange in the KR is a licensed activity. Operating without a VA exchange operator licence risks blocks, fines and criminal liability for illegal entrepreneurship.",
                 )}
               </p>
-              <div className="mt-4 flex flex-wrap gap-3 print:hidden">
-                <Button variant="signal" asChild>
-                  <Link to="/#demo">
-                    {t("Запросить демо", "Request a demo")} <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button variant="ghost" asChild>
-                  <a href={DEMO_URL} target="_blank" rel="noopener noreferrer">
-                    {t("Потрогать живое демо", "Try the live demo")}
-                  </a>
-                </Button>
-              </div>
             </div>
-            <p className="mt-6 text-xs leading-relaxed text-muted-foreground">
+            <div className="panel p-6">
+              <p className="text-[13px] font-semibold uppercase tracking-[0.12em] muted">{t("Источники", "Sources")}</p>
+              <p className="muted mt-3 text-[14px] leading-relaxed">
+                {t(
+                  "Закон КР № 87/2018 «О ПОД/ФТ»; ПКМ № 739 от 14.11.2025 (прил. 10, 11, 12); приказы ГСФР: справочник кодов подозрительных операций, перечень высокорискованных стран № 78 от 20.06.2025; требования ГСФР к отрасли виртуальных активов (2026); практика запусков на ASystem Core.",
+                  "KR law No. 87/2018 on AML/CFT; Cabinet decree No. 739 of 14.11.2025 (annexes 10, 11, 12); SFIS orders: suspicious transaction code reference, high-risk country list No. 78 of 20.06.2025; SFIS requirements for the virtual asset industry (2026); launch experience on ASystem Core.",
+                )}
+              </p>
+            </div>
+          </Reveal>
+        </section>
+
+        {/* этапы */}
+        <section className="wrap py-10 sm:py-14">
+          <ol className="flex flex-col divide-y divide-[hsl(var(--line)/0.08)] border-t border-[hsl(var(--line)/0.08)]">
+            {STAGES[lang].map((s, i) => (
+              <Reveal as="li" key={s.title} className="grid grid-cols-1 gap-4 py-8 lg:grid-cols-[320px_1fr] lg:gap-12">
+                <div>
+                  <span className="font-display text-[13px] font-semibold tabular-nums text-[hsl(var(--accent-ink))]">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <h2 className="t-h3 mt-3">{s.title.replace(/^(Этап|Stage) \d+\.\s*/, "")}</h2>
+                  {s.intro && <p className="muted mt-3 text-[15px] leading-relaxed">{s.intro}</p>}
+                </div>
+                <ul className="flex flex-col gap-3">
+                  {s.items.map((it) => (
+                    <li key={it.slice(0, 40)} className="grid grid-cols-[14px_1fr] gap-3 text-[15px] leading-relaxed">
+                      <span className="dot mt-[0.6em]" aria-hidden="true" />
+                      <span className="muted">{it}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
+            ))}
+          </ol>
+        </section>
+
+        {/* шаблоны дисклеймеров */}
+        <section className="wrap py-10 sm:py-14">
+          <Reveal className="max-w-[640px]">
+            <h2 className="t-h2">{t("Шаблоны риск-дисклеймеров", "Risk disclaimer templates")}</h2>
+            <p className="t-lead muted mt-4">
               {t(
-                "Документ носит информационный характер, не является юридической консультацией и не гарантирует получение лицензии. Актуальность НПА проверяйте на дату запуска. © 2026 ASystem Core.",
-                "This document is informational, is not legal advice and does not guarantee licensing. Verify that regulations are current as of your launch date. © 2026 ASystem Core.",
+                "По ст. 34 ч. 2 закона «О виртуальных активах» и п. 18 Положения об операторе обмена. Финальную редакцию согласуйте с юристом и уполномоченным органом.",
+                "Per art. 34 p. 2 of the VA law and cl. 18 of the exchange operator regulation. The templates are in Russian, the legally required wording for the KG market. Have the final wording approved by a lawyer and the authorized body.",
               )}
             </p>
-          </motion.section>
-        </div>
-      </main>
-    </div>
+          </Reveal>
+          <Reveal className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-3">
+            {DISCLAIMERS.map((d) => (
+              <div key={d.label.ru} className="panel flex flex-col p-6">
+                <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{l(d.label)}</p>
+                <p className="panel-2 mt-4 p-4 text-[14px] leading-relaxed" lang="ru">{d.text}</p>
+              </div>
+            ))}
+          </Reveal>
+        </section>
+
+        {/* грабли */}
+        <section className="wrap py-10 sm:py-14">
+          <Reveal className="max-w-[640px]">
+            <h2 className="t-h2">{t("Где теряют месяцы", "Where months get lost")}</h2>
+          </Reveal>
+          <Reveal as="ul" className="mt-8 flex flex-col divide-y divide-[hsl(var(--line)/0.08)] border-t border-[hsl(var(--line)/0.08)]">
+            {PITFALLS[lang].map((p) => (
+              <li key={p.t} className="grid grid-cols-1 gap-2 py-5 lg:grid-cols-[320px_1fr] lg:gap-12">
+                <p className="font-semibold text-[16px]">{p.t}</p>
+                <p className="muted text-[15px] leading-relaxed">{p.d.charAt(0).toUpperCase() + p.d.slice(1)}</p>
+              </li>
+            ))}
+          </Reveal>
+        </section>
+
+        {/* сколько занимает + CTA */}
+        <section className="wrap py-10 pb-16 sm:py-14 sm:pb-20">
+          <Reveal className="panel relative grid grid-cols-1 gap-8 overflow-hidden p-7 sm:p-10 lg:grid-cols-2 lg:gap-16 lg:p-14">
+            <Illus bg name="gear" size={440} className="bottom-[-150px] right-[-90px] hidden lg:block" />
+            <div className="relative z-[1]">
+              <h2 className="t-h2 max-w-[16ch]">{t("Сколько это занимает", "How long it takes")}</h2>
+              <p className="t-lead muted mt-5">
+                {t(
+                  "Своя платформа под эти требования — 6–12 месяцев командой. Готовая платформа со встроенным комплаенсом КР оставляет лицензию и операционную подготовку.",
+                  "Building your own platform to these requirements takes a team 6–12 months. A ready platform with KR compliance built in leaves the licence and operational preparation.",
+                )}
+              </p>
+            </div>
+            <div className="relative z-[1] flex flex-col justify-center gap-5">
+              <p className="text-[15px] leading-relaxed">
+                {t(
+                  "На ASystem Core уже работают криптообменники КР, выстроенные под эти требования: обменник, KYC/AML, отчётность для ГСФР, сервер и данные в Кыргызстане.",
+                  "KR crypto exchanges built to these requirements already run on ASystem Core: the exchange, KYC/AML, SFIS reporting, servers and data in Kyrgyzstan.",
+                )}
+              </p>
+              <div className="flex flex-wrap gap-3 print:hidden">
+                <button type="button" className="btn btn-signal" onClick={() => openLead({ source: "get.asystem.ai/blueprint" })}>
+                  {t("Запросить демо", "Request a demo")} <ArrowRight className="h-4 w-4" />
+                </button>
+                <a href={DEMO_URL} target="_blank" rel="noopener noreferrer" className="btn btn-ghost">
+                  {t("Демо-стенд", "Demo stand")}
+                </a>
+              </div>
+            </div>
+          </Reveal>
+          <p className="t-small muted mt-6">
+            {t(
+              "Документ носит информационный характер, не является юридической консультацией и не гарантирует получение лицензии. Актуальность НПА проверяйте на дату запуска. © 2026 ASystem Core.",
+              "This document is informational, is not legal advice and does not guarantee licensing. Verify that regulations are current as of your launch date. © 2026 ASystem Core.",
+            )}
+          </p>
+          <p className="t-small mt-3 print:hidden">
+            <Link to="/status" className="link underline underline-offset-4">{t("Статус платформы", "Platform status")}</Link>
+          </p>
+        </section>
+      </div>
+    </PageShell>
   );
 };
 
