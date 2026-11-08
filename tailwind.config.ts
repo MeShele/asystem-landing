@@ -5,8 +5,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-body)", "Inter", "system-ui", "sans-serif"],
-        display: ["var(--font-heading)", "Manrope", "Inter", "sans-serif"],
+        sans: ["var(--font-body)", "Onest", "system-ui", "sans-serif"],
+        display: ["var(--font-heading)", "Unbounded", "Onest", "sans-serif"],
       },
       colors: {
         bg: "hsl(var(--bg))",

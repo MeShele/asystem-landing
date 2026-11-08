@@ -1,17 +1,16 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import Collage from "@/components/Collage";
+import Schema from "@/components/Schema";
 import Reveal from "@/components/Reveal";
 import { useContent } from "@/i18n";
-import { TOUR_COLLAGES } from "@/lib/collages";
 
 const EASE = [0.23, 1, 0.32, 1] as const;
-const STEP_MS = 7000;
+const STEP_MS = 8000;
 
 /**
- * Что внутри: четыре части платформы, каждая — коллаж из настоящих фрагментов экранов
- * стенда с подписями-выносками к функциям. Слева пункты с одной фразой, справа коллаж;
- * пункты сменяются сами (полоса прогресса), на наведении пауза, клик — вручную.
+ * Что внутри: четыре части платформы, каждая — участок общей схемы крупным планом
+ * (витрина, кабинет, админка, отчёты). Слева пункты, справа схема; пункты сменяются
+ * сами (полоса прогресса), на наведении пауза, клик — вручную.
  */
 const ProductTour = () => {
   const { TOUR } = useContent();
@@ -21,7 +20,6 @@ const ProductTour = () => {
   const [run, setRun] = useState(0);
   const items = TOUR.items;
   const cur = items[i];
-  const layout = TOUR_COLLAGES[cur.key];
 
   useEffect(() => {
     if (reduced || hold) return;
@@ -78,7 +76,7 @@ const ProductTour = () => {
           })}
         </ol>
 
-        <div className="order-1 pb-14 sm:pb-0 lg:order-2 lg:col-span-8">
+        <div className="order-1 lg:order-2 lg:col-span-8">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={cur.key}
@@ -86,13 +84,9 @@ const ProductTour = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, transition: { duration: 0.14 } }}
               transition={{ duration: 0.34, ease: EASE }}
+              className="panel p-5 sm:p-8"
             >
-              <Collage
-                aspect={layout.aspect}
-                shards={layout.shards}
-                callouts={layout.anchors.map((a, k) => ({ ...a, text: cur.callouts[k] ?? "" })).filter((c) => c.text)}
-                alt={cur.title}
-              />
+              <Schema graph={cur.schema} label={cur.title} />
             </motion.div>
           </AnimatePresence>
         </div>

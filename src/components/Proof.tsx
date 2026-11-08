@@ -12,7 +12,7 @@ const Proof = () => {
       <Reveal className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-y border-[hsl(var(--line)/0.08)] py-5 sm:gap-x-10">
         <p className="text-[13px] font-semibold uppercase tracking-[0.12em] muted w-full text-center sm:w-auto">{PROOF.lead}</p>
         {PROOF.names.map((n) => (
-          <span key={n} className="font-display text-[16px] font-semibold text-[hsl(var(--fg)/0.7)]">{n}</span>
+          <span key={n} className="text-[16px] font-semibold text-[hsl(var(--fg)/0.7)]">{n}</span>
         ))}
       </Reveal>
     </section>

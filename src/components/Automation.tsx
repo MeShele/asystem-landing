@@ -1,8 +1,9 @@
 import Reveal from "@/components/Reveal";
 import Illus from "@/components/Illus";
+import Schema from "@/components/Schema";
 import { useContent } from "@/i18n";
 
-/** Этап 2: сделка без сотрудника. Две карточки по три шага, без журнала событий. */
+/** Этап 2: сделка без сотрудника. Покупка и продажа — две схемы, узел «Сотрудник» пунктиром. */
 const Automation = () => {
   const { AUTOMATION } = useContent();
   return (
@@ -13,22 +14,15 @@ const Automation = () => {
         <h2 className="t-h2 mt-3">{AUTOMATION.title}</h2>
         <p className="t-lead muted mt-4">{AUTOMATION.lead}</p>
       </Reveal>
-      <Reveal className="relative z-[1] mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="relative z-[1] mt-10 flex flex-col gap-10">
         {AUTOMATION.flows.map((f) => (
-          <div key={f.key} className="panel h-full p-6 sm:p-7">
-            <h3 className="t-h3">{f.title}</h3>
-            <ol className="mt-5 flex flex-col gap-3">
-              {f.steps.map((s, j) => (
-                <li key={j} className="flex gap-4">
-                  <span className="mt-[3px] flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[hsl(var(--accent)/0.14)] text-[12px] font-semibold tabular-nums text-[hsl(var(--accent-ink))]">{j + 1}</span>
-                  <span>{s}</span>
-                </li>
-              ))}
-            </ol>
-          </div>
+          <Reveal key={f.key} className="grid grid-cols-1 gap-5 lg:grid-cols-[200px_1fr] lg:gap-10">
+            <h3 className="t-h3 lg:pt-4">{f.title}</h3>
+            <Schema graph={f.schema} label={f.title} />
+          </Reveal>
         ))}
-      </Reveal>
-      <Reveal className="relative z-[1]"><p className="muted mt-6 max-w-[62ch] text-[15px]">{AUTOMATION.note}</p></Reveal>
+      </div>
+      <Reveal className="relative z-[1]"><p className="muted mt-8 max-w-[62ch] text-[15px]">{AUTOMATION.note}</p></Reveal>
     </section>
   );
 };
