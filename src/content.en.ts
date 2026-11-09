@@ -71,7 +71,7 @@ export const TOUR: typeof RU.TOUR = {
           { id: "paid", col: 2, row: 1, title: "Paid", text: "Finik QR or bank transfer" },
           { id: "issued", col: 3, row: 1, title: "Sent", text: "Transaction hash in the order" },
           { id: "done", col: 4, row: 1, kind: "accent", title: "Completed", text: "Receipt and history in the account" },
-          { id: "kyc", col: 1, row: 2, kind: "side", title: "KYC and residency", text: "Once, before the first deal" },
+          { id: "kyc", col: 1, row: 2, kind: "side", title: "KYC", text: "Once before the first deal: 18+, residency" },
           { id: "docs", col: 4, row: 2, kind: "side", title: "Offer and consents", text: "Stored with time and IP" },
         ],
         edges: [
@@ -84,14 +84,14 @@ export const TOUR: typeof RU.TOUR = {
     {
       key: "admin", title: "Admin panel", text: "Orders, staff, SFIS list screening.",
       schema: {
-        cols: 4,
+        cols: 3,
         nodes: [
           { id: "waitpay", col: 1, row: 1, title: "Awaiting payment", text: "The order is visible to staff" },
           { id: "waitissue", col: 2, row: 1, title: "Awaiting payout", text: "Staff confirms and sends" },
           { id: "done", col: 3, row: 1, kind: "accent", title: "Completed", text: "With the transaction hash" },
           { id: "compliance", col: 1, row: 2, title: "Compliance review", text: "SFIS list match: the order waits for the officer" },
-          { id: "staff", col: 4, row: 1, kind: "side", title: "Staff", text: "Roles and permissions" },
-          { id: "ready", col: 4, row: 2, kind: "side", title: "Readiness checklist", text: "What to fill in before launch" },
+          { id: "staff", col: 2, row: 2, kind: "side", title: "Staff", text: "Roles and permissions" },
+          { id: "ready", col: 3, row: 2, kind: "side", title: "Readiness checklist", text: "What to fill in before launch" },
         ],
         edges: [
           { from: "waitpay", to: "waitissue" }, { from: "waitissue", to: "done" },

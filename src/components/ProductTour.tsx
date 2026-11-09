@@ -9,8 +9,9 @@ const STEP_MS = 8000;
 
 /**
  * Что внутри: четыре части платформы, каждая — участок общей схемы крупным планом
- * (витрина, кабинет, админка, отчёты). Слева пункты, справа схема; пункты сменяются
- * сами (полоса прогресса), на наведении пауза, клик — вручную.
+ * (витрина, кабинет, админка, отчёты). Две колонки: слева заголовок и под ним пункты одной
+ * колонкой, справа схема по центру её высоты. Пункты сменяются сами (полоса прогресса),
+ * на наведении пауза, клик — вручную. На телефоне: заголовок, схема, пункты.
  */
 const ProductTour = () => {
   const { TOUR } = useContent();
@@ -29,14 +30,18 @@ const ProductTour = () => {
 
   return (
     <section id="features" className="wrap py-14 sm:py-20">
-      <Reveal className="max-w-[640px]">
-        <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{TOUR.eyebrow}</p>
-        <h2 className="t-h2 mt-3">{TOUR.title}</h2>
-        <p className="t-lead muted mt-4">{TOUR.lead}</p>
-      </Reveal>
+      <div
+        className="grid grid-cols-1 gap-y-8 lg:grid-cols-12 lg:grid-rows-[auto_auto] lg:items-center lg:gap-x-12 lg:gap-y-10"
+        onMouseEnter={() => setHold(true)}
+        onMouseLeave={() => setHold(false)}
+      >
+        <Reveal className="order-1 lg:col-span-4 lg:col-start-1 lg:row-start-1">
+          <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{TOUR.eyebrow}</p>
+          <h2 className="t-h2 mt-3">{TOUR.title}</h2>
+          <p className="t-lead muted mt-4">{TOUR.lead}</p>
+        </Reveal>
 
-      <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
-        <ol className="order-2 flex flex-col lg:order-1 lg:col-span-4">
+        <ol className="order-3 flex flex-col lg:col-span-4 lg:col-start-1 lg:row-start-2">
           {items.map((it, n) => {
             const on = n === i;
             return (
@@ -76,7 +81,7 @@ const ProductTour = () => {
           })}
         </ol>
 
-        <div className="order-1 lg:order-2 lg:col-span-8">
+        <div className="order-2 lg:col-span-8 lg:col-start-5 lg:row-span-2 lg:row-start-1 lg:self-center">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={cur.key}
@@ -84,7 +89,6 @@ const ProductTour = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, transition: { duration: 0.14 } }}
               transition={{ duration: 0.34, ease: EASE }}
-              className="panel p-5 sm:p-8"
             >
               <Schema graph={cur.schema} label={cur.title} />
             </motion.div>

@@ -78,7 +78,7 @@ export const TOUR = {
           { id: "paid", col: 2, row: 1, title: "Оплачена", text: "QR Finik или перевод" },
           { id: "issued", col: 3, row: 1, title: "Выдана", text: "Хэш транзакции в заявке" },
           { id: "done", col: 4, row: 1, kind: "accent", title: "Завершена", text: "Чек и история в кабинете" },
-          { id: "kyc", col: 1, row: 2, kind: "side", title: "KYC и резидентство", text: "Один раз, до первой сделки" },
+          { id: "kyc", col: 1, row: 2, kind: "side", title: "KYC", text: "Один раз до первой сделки: 18+, резидентство" },
           { id: "docs", col: 4, row: 2, kind: "side", title: "Оферта и согласия", text: "Сохраняются с временем и IP" },
         ],
         edges: [
@@ -91,14 +91,14 @@ export const TOUR = {
     {
       key: "admin", title: "Админка", text: "Заявки, сотрудники, сверка с перечнями ГСФР.",
       schema: {
-        cols: 4,
+        cols: 3,
         nodes: [
           { id: "waitpay", col: 1, row: 1, title: "Ожидает оплаты", text: "Заявка видна сотруднику" },
           { id: "waitissue", col: 2, row: 1, title: "Ожидает выдачи", text: "Сотрудник подтверждает и отправляет" },
           { id: "done", col: 3, row: 1, kind: "accent", title: "Завершено", text: "С хэшем транзакции" },
           { id: "compliance", col: 1, row: 2, title: "Проверка комплаенс", text: "Совпадение с перечнями ГСФР: заявка ждёт решения офицера" },
-          { id: "staff", col: 4, row: 1, kind: "side", title: "Сотрудники", text: "Роли и права" },
-          { id: "ready", col: 4, row: 2, kind: "side", title: "Чек-лист готовности", text: "Что заполнить до запуска" },
+          { id: "staff", col: 2, row: 2, kind: "side", title: "Сотрудники", text: "Роли и права" },
+          { id: "ready", col: 3, row: 2, kind: "side", title: "Чек-лист готовности", text: "Что заполнить до запуска" },
         ],
         edges: [
           { from: "waitpay", to: "waitissue" }, { from: "waitissue", to: "done" },
