@@ -135,6 +135,18 @@
     .schema-node { grid-column: var(--c) / span var(--s); grid-row: var(--r); }
   }
 
+  /* карта героя на широком экране: влево заходит под свободный край текста, вправо — до края окна */
+  @media (min-width: 1024px) {
+    .hero-map { --bleed: calc(max(0px, (100vw - 1200px) / 2) + 20px); width: min(960px, calc(122% + var(--bleed))); margin-left: -22%; }
+  }
+  @media (min-width: 1280px) {
+    .hero-map { width: min(960px, calc(140% + var(--bleed))); margin-left: -40%; }
+  }
+
+  /* подпись у маяка на карте героя: точка привязки — нижний угол, от него тонкая выноска */
+  .relief-tag { position: absolute; left: 14px; bottom: 0; width: max-content; padding: 0 0 2px 12px; border-left: 1px solid hsl(var(--accent) / 0.7); }
+  [data-flip] > .relief-tag { left: auto; right: 14px; padding: 0 12px 2px 0; border-left: 0; border-right: 1px solid hsl(var(--accent) / 0.7); text-align: right; }
+
   /* вход секции по частям: 16px подъём, сильный ease-out, задержка по --i (60ms) */
   html.js .rise > * {
     opacity: 0; transform: translateY(16px);

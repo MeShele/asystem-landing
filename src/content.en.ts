@@ -21,6 +21,7 @@ export const HERO: typeof RU.HERO = {
   fact: (n: number | null) => (n ? `${n} exchanges already live` : "Exchanges already live"),
   facts: ["Server in Bishkek", "Launch within 14 days"],
   shotLabel: "The order's path: client, exchange website, payment, operator, FinSupervision",
+  map: { label: "Relief map of Kyrgyzstan: the exchange server sits in Bishkek, orders reach it from cities across the country", city: "Bishkek", note: "exchange server and data" },
   schema: {
     cols: 5,
     nodes: [
