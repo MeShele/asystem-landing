@@ -147,6 +147,12 @@
   .relief-tag { position: absolute; left: 14px; bottom: 0; width: max-content; padding: 0 0 2px 12px; border-left: 1px solid hsl(var(--accent) / 0.7); }
   [data-flip] > .relief-tag { left: auto; right: 14px; padding: 0 12px 2px 0; border-left: 0; border-right: 1px solid hsl(var(--accent) / 0.7); text-align: right; }
 
+  /* объёмная схема: крыши узлов и рейку рисует сцена (src/three/towers.ts), вёрстке остаётся текст */
+  .schema.is-solid .schema-node { background: transparent; border-color: transparent; }
+  @media (max-width: 767px) {
+    .schema.is-solid .schema-grid { border-left-color: transparent; }
+  }
+
   /* вход секции по частям: 16px подъём, сильный ease-out, задержка по --i (60ms) */
   html.js .rise > * {
     opacity: 0; transform: translateY(16px);
