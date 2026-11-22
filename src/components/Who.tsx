@@ -13,7 +13,7 @@ const Who = () => {
         {WHO.cards.map((c) => (
           <li key={c.text} className="grid grid-cols-1 gap-2 py-5 sm:grid-cols-[160px_1fr] sm:items-baseline sm:gap-6">
             <span className={`text-[13px] font-semibold uppercase tracking-[0.12em] ${c.no ? "muted" : "text-[hsl(var(--accent-ink))]"}`}>{c.no ? WHO.labelNo : WHO.labelYes}</span>
-            <p className={`t-h3 font-medium ${c.no ? "muted" : ""}`}>{c.text}</p>
+            <p className={`t-h3 font-medium lg:pr-[300px] ${c.no ? "muted" : ""}`}>{c.text}</p>
           </li>
         ))}
       </Reveal>

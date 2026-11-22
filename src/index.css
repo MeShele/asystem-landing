@@ -145,6 +145,13 @@
 
   /* подписи на 3D-сценах: сцена каждый кадр ставит .scene-tag в точку привязки (translate),
      внутри подпись растёт вверх от конца луча, вниз от края детали или вбок от неё */
+  /* холст шире ячейки (колода «Что внутри»): слева, сверху и снизу он плавно гаснет, чтобы улетающая карточка не обрезалась по линии */
+  .scene-bleed {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 13%), linear-gradient(180deg, transparent, #000 11%, #000 89%, transparent);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent, #000 13%), linear-gradient(180deg, transparent, #000 11%, #000 89%, transparent);
+    mask-composite: intersect;
+  }
   .scene-tag { position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none; will-change: transform; }
   .scene-tag-up { position: absolute; left: 0; bottom: 8px; width: max-content; max-width: 190px; transform: translateX(-50%); text-align: center; }
   .scene-tag-down { position: absolute; left: 0; top: 10px; width: max-content; max-width: 300px; padding-left: 12px; border-left: 1px solid hsl(var(--accent) / 0.7); }

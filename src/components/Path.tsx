@@ -31,21 +31,21 @@ const Path = () => {
           <div className="scene relative mt-6 aspect-[4/3] md:mt-2 md:aspect-[12/5]" role="img" aria-label={PATH.label}>
             <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
             {PATH.steps.map((s, i) => (
-              <div key={s.id} ref={(el) => { tags.current[i] = el; }} className="scene-tag hidden md:block">
+              <div key={s.id} ref={(el) => { tags.current[i] = el; }} className="scene-tag hidden lg:block">
                 <div className="scene-tag-up">
                   <p className={`font-display text-[14px] font-medium leading-tight ${i === PATH.steps.length - 1 ? "text-[hsl(var(--accent-ink))]" : ""}`}>{s.title}</p>
                   <p className="muted mt-1 text-[12.5px] leading-snug">{s.text}</p>
                 </div>
               </div>
             ))}
-            <div ref={base} className="scene-tag hidden md:block">
+            <div ref={base} className="scene-tag hidden lg:block">
               <div className="scene-tag-down">
                 <p className="font-display text-[14px] font-medium leading-tight">{PATH.base.title}</p>
                 <p className="muted mt-1 text-[12.5px] leading-snug">{PATH.base.text}</p>
               </div>
             </div>
           </div>
-          <Steps items={list} className="mt-6 md:hidden" />
+          <Steps items={list} className="mt-6 lg:hidden" />
         </>
       ) : (
         <Steps items={list} columns className="mt-10" />

@@ -1,13 +1,14 @@
-import { BoxGeometry, BufferGeometry, Float32BufferAttribute, Group, LineBasicMaterial, LineSegments, Mesh, PerspectiveCamera, Scene, Vector3, type CanvasTexture } from "three";
+import { BoxGeometry, Group, Mesh, PerspectiveCamera, Scene, Vector3, type CanvasTexture } from "three";
 import { mountLive, type LiveSize } from "@/three/live";
-import { art, ease, engrave, frameCamera, nap, outline, pointer, ribbon, shared, tags } from "@/three/kit";
+import { art, ease, engrave, nap, outline, pointer, shared, tags } from "@/three/kit";
 
 /**
- * «Что внутри» как взрыв-схема: платформа разобрана на четыре слоя — витрина, кабинет клиента,
- * админка, отчёты. На каждом слое линиями нарисован его экран. Выбранный слой выдвигается
- * и светится, остальные гаснут; сквозь стопку сверху вниз идёт импульс заявки.
+ * «Что внутри» как колода экранов: четыре части платформы — витрина, кабинет клиента, админка,
+ * отчёты — стоят друг за другом, на каждой линиями нарисован её экран. Колодой управляет прокрутка:
+ * блок закреплён на экране, и пока страница листается, ближняя карточка улетает на зрителя,
+ * а следующая выходит вперёд. Там, где закрепления нет (телефон), карточки сменяются по списку.
  */
-const W = 4.4, D = 2.9, H = 0.12, GAP = 0.88, N = 4;
+const W = 4.4, D = 2.9, H = 0.12, N = 4;
 
 const round = (c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number, fill = false) => {
   c.beginPath(); c.roundRect(x, y, w, h, r);
@@ -76,91 +77,105 @@ const screen = (kind: number) => art(1024, 675, (c, w, h) => {
   }
 });
 
-export type LayersOptions = { canvas: HTMLCanvasElement; tag: HTMLElement | null };
+export type LayersOptions = {
+  canvas: HTMLCanvasElement;
+  tag: HTMLElement | null;
+  /** закреплённый блок: колоду ведёт его прокрутка; без него — выбранный в списке пункт */
+  track: HTMLElement | null;
+  /** какая карточка сейчас впереди (в режиме прокрутки) */
+  onActive?: (i: number) => void;
+};
 export type LayersHandle = { setActive: (i: number) => void; dispose: () => void };
 
-export const mountLayers = async ({ canvas, tag }: LayersOptions): Promise<LayersHandle> => {
+/** доля прокрутки закреплённого блока → положение колоды: 0,12 — первая карточка впереди, N − 0,38 — последняя */
+export const DECK = { from: 0.12, span: N - 0.5 };
+
+export const mountLayers = async ({ canvas, tag, track, onActive }: LayersOptions): Promise<LayersHandle> => {
   const sh = shared(), scene = new Scene(), group = new Group();
   scene.add(group);
-  const camera = new PerspectiveCamera(26, 1.4, 0.1, 80);
+  const camera = new PerspectiveCamera(30, 1.4, 0.1, 80);
+  camera.position.set(0, 0, 10);
   const geo = new BoxGeometry(W, H, D);
   const screens: CanvasTexture[] = [];
   for (let i = 0; i < N; i++) { screens.push(screen(i)); await nap(); }
   const plates = Array.from({ length: N }, (_, i) => {
     const tex = screens[i];
-    const mat = engrave(sh, { art: tex, rect: [-W / 2, -D / 2, W, D], strata: 60, alpha: 0.94 });
+    const mat = engrave(sh, { art: tex, rect: [-W / 2, -D / 2, W, D], strata: 60, top: 30, hatch: 0.16 });
     const body = new Mesh(geo, mat), edge = outline(geo, 0.4);
+    // карточка стоит: её лицевая (верхняя) грань смотрит на зрителя
+    const stand = new Group();
+    stand.rotation.x = Math.PI / 2;
+    stand.add(body, edge);
     const holder = new Group();
-    holder.add(body, edge);
+    holder.add(stand);
     group.add(holder);
-    return { holder, mat, edge, tex, on: 0 };
+    return { holder, mat, edge, tex };
   });
 
-  // направляющие взрыв-схемы: четыре тонкие вертикали по углам стопки
-  const guideGeo = new BufferGeometry();
-  const top = (N - 1) * GAP + 0.3, gp: number[] = [];
-  for (const x of [-W / 2, W / 2]) for (const z of [-D / 2, D / 2]) gp.push(x, -0.3, z, x, top, z);
-  guideGeo.setAttribute("position", new Float32BufferAttribute(gp, 3));
-  const guideMat = new LineBasicMaterial({ color: 0xb6ff1a, transparent: true, opacity: 0 });
-  group.add(new LineSegments(guideGeo, guideMat));
-
-  // импульс заявки идёт сквозь слои сверху вниз
-  const pulse = ribbon(sh, [{ pts: Array.from({ length: 24 }, (_, i) => new Vector3(-0.6, top + 0.25 - (i / 23) * (top + 0.7), 0.3)), phase: 0.2, speed: 0.22 }], 0.12);
-  pulse.renderOrder = 2;
-  group.add(pulse);
-
-  const anchor = new Vector3();
+  const anchor = new Vector3(W / 2 + 0.12, 0.55, 0.1);
   const tagSet = tags([tag], [anchor]);
   const ptr = pointer(canvas);
-  const YAW = -0.62, target = new Vector3(0.25, ((N - 1) * GAP) / 2, 0), axis = new Vector3(0, 1, 0);
-  let fitted = 0, t0 = -1, yaw = 0, pitch = 0, active = 0;
+  let fitted = 0, t0 = -1, yaw = 0, pitch = 0, f = -1.2, want = 0, shown = -1;
   const frame = (t: number, dt: number, size: LiveSize) => {
     const aspect = size.cssW / size.cssH;
     if (Math.abs(aspect - fitted) > 0.001) {
       fitted = aspect;
-      const pts: Vector3[] = [];
-      for (const x of [-W / 2, W / 2 + 0.9]) for (const z of [-D / 2, D / 2]) for (const y of [-0.2, top]) pts.push(new Vector3(x, y, z).applyAxisAngle(axis, YAW));
-      // на широком экране стопка смещена влево: справа место под список выбранного слоя
-      const roomy = size.cssW >= 640;
-      camera.clearViewOffset();
-      frameCamera(camera, aspect, target.clone().applyAxisAngle(axis, YAW), new Vector3(0, Math.sin(0.52), Math.cos(0.52)), pts, [roomy ? 0.8 : 0.94, 0.94, 0.94]);
-      if (roomy) { camera.setViewOffset(aspect, 1, 0.09 * aspect, 0, aspect, 1); camera.updateMatrixWorld(); }
+      camera.aspect = aspect;
+      camera.updateProjectionMatrix();
+      // карточка в фокусе занимает около 58 % ширины кадра (на узком — 84 %) и чуть сдвинута влево под список
+      const viewW = 2 * 10 * Math.tan((15 * Math.PI) / 180) * aspect, roomy = size.cssW >= 640;
+      group.scale.setScalar(Math.min((viewW * (roomy ? 0.54 : 0.84)) / W, 1.5));
+      group.position.x = roomy ? -viewW * 0.12 : 0;
     }
     if (t0 < 0) t0 = t;
     const age = t - t0;
     sh.uTime.value = age;
     sh.uShow.value = ease(age / 0.6);
-    // стопка разъезжается из сложенного состояния
-    const open = ease((age - 0.2) / 1.3), k = 1 - Math.exp(-dt * 5);
+
+    // куда должна прийти колода: по прокрутке закреплённого блока или по выбранному пункту
+    let goal = want + 0.3;
+    if (track) {
+      const r = track.getBoundingClientRect(), total = Math.max(1, r.height - window.innerHeight);
+      goal = DECK.from + Math.max(0, Math.min(1, -r.top / total)) * DECK.span;
+    }
+    f += (goal - f) * (1 - Math.exp(-dt * (track ? 9 : 3.2)));
+    const lead = Math.max(0, Math.min(N - 1, Math.floor(f + 0.14)));
+    if (lead !== shown) { shown = lead; onActive?.(lead); }
+
+    let focus = 0;
     plates.forEach((p, i) => {
-      p.on += ((i === active ? 1 : 0) - p.on) * k;
-      p.holder.position.set(p.on * 0.9, (N - 1 - i) * (0.16 + (GAP - 0.16) * open) + p.on * 0.06, p.on * 0.35);
-      p.mat.uniforms.uGain.value = 0.22 + 0.78 * p.on;
-      p.mat.uniforms.uHot.value = p.on * 0.25;
+      const s = f - i, back = Math.max(0, -s), e = Math.max(0, (s - 0.72) / 0.28), out = e * e;
+      // ждёт в глубине → выходит вперёд → улетает на зрителя и влево
+      p.holder.position.set(back * 1.45 - out * 3.6, back * 0.72 - e * 0.5, s < 0 ? s * 2.7 : s * 0.55 + out * 9);
+      p.holder.rotation.set(-0.07 - back * 0.03, -0.3 - e * 0.5, 0);
+      const near = Math.max(0, Math.min(1, (s + 0.3) / 0.38)), gone = 1 - Math.max(0, Math.min(1, (e - 0.3) / 0.6));
+      const alpha = Math.max(0.3, 1 - back * 0.2) * gone;
+      p.holder.visible = alpha > 0.01;
+      p.mat.uniforms.uAlpha.value = alpha;
+      p.mat.uniforms.uGain.value = 0.22 + 0.78 * near;
+      p.mat.uniforms.uHot.value = near * 0.2;
       p.mat.uniforms.uReveal.value = ease((age - 0.5 - i * 0.12) / 0.9);
-      p.edge.material.opacity = (0.28 + 0.62 * p.on) * sh.uShow.value;
+      p.edge.material.opacity = (0.3 + 0.6 * near) * alpha * sh.uShow.value;
+      // дальние рисуются первыми: карточки полупрозрачны
+      p.holder.children[0].children[0].renderOrder = N - i;
+      if (i === lead) focus = near * gone;
     });
-    guideMat.opacity = 0.2 * open * sh.uShow.value;
-    pulse.material.uniforms.uRes.value.set(size.w, size.h);
-    pulse.material.uniforms.uWidth.value = 1.6 * size.dpr;
-    const kk = 1 - Math.exp(-dt * 3);
-    yaw += (Math.sin(age * 0.22) * 0.05 + ptr.p.nx * 0.09 - yaw) * kk;
-    pitch += (-ptr.p.ny * 0.04 - pitch) * kk;
-    group.rotation.set(pitch, YAW + yaw, 0);
+    const k = 1 - Math.exp(-dt * 3);
+    yaw += (Math.sin(age * 0.22) * 0.03 + ptr.p.nx * 0.07 - yaw) * k;
+    pitch += (-ptr.p.ny * 0.04 - pitch) * k;
+    group.rotation.set(pitch, yaw, 0);
     group.updateMatrixWorld();
-    // подпись держится у правого дальнего угла выбранного слоя: там свободно
-    anchor.set(W / 2 + 0.05, 0, -D / 2).add(plates[active].holder.position);
-    tagSet.place(group, camera, size, ease((age - 1.2) / 0.6));
+    // список выбранной части держится у правого края карточки в фокусе
+    tagSet.place(plates[lead].holder, camera, size, focus * sh.uShow.value);
   };
 
   const unmount = mountLive({ canvas, scene, camera, maxDpr: 1.5, frame, post: tagSet.write });
   return {
-    setActive: (i) => { active = Math.max(0, Math.min(N - 1, i)); },
+    setActive: (i) => { want = Math.max(0, Math.min(N - 1, i)); },
     dispose: () => {
       unmount(); ptr.off();
-      geo.dispose(); guideGeo.dispose(); guideMat.dispose();
+      geo.dispose();
       for (const p of plates) { p.mat.dispose(); p.tex.dispose(); p.edge.geometry.dispose(); p.edge.material.dispose(); }
-      pulse.geometry.dispose(); pulse.material.dispose();
     },
   };
 };

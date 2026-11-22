@@ -189,7 +189,6 @@ export const AUTOMATION: typeof RU.AUTOMATION = {
 export const STEPS: typeof RU.STEPS = {
   title: "Launch in four steps",
   note: "Within 14 days of payment.",
-  peak: "The route follows the real relief of Jengish Chokusu (Pobeda Peak): 7,439 m, the highest point of Kyrgyzstan.",
   schema: {
     cols: 4,
     nodes: [

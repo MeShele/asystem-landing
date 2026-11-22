@@ -22,7 +22,7 @@ const Automation = () => {
         <p className="t-lead muted mt-4">{AUTOMATION.lead}</p>
       </Reveal>
       {on && (
-        <div className="scene relative mt-4 aspect-[4/3] md:aspect-[12/5]" role="img" aria-label={AUTOMATION.title}>
+        <div className="scene relative mt-4 aspect-[4/3] md:aspect-[3/1]" role="img" aria-label={AUTOMATION.title}>
           <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
         </div>
       )}

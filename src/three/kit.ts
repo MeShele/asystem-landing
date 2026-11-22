@@ -34,6 +34,9 @@ uniform float uTop;
 uniform float uArtOn;
 uniform float uGain;
 uniform float uInk;
+uniform float uFace;
+uniform float uRings;
+uniform float uHatch;
 uniform float uReveal;
 uniform vec4 uRect;
 uniform sampler2D tArt;
@@ -45,9 +48,11 @@ void main() {
   vec3 no = normalize(vNo);
   float lit = 0.32 + 0.68 * clamp(dot(normalize(vNw), normalize(vec3(-0.5, 0.75, 0.45))), 0.0, 1.0);
   float up = smoothstep(0.6, 0.9, no.y);
+  // грань с рисунком: верхняя или передняя (фасад)
+  float face = uFace > 0.5 ? smoothstep(0.6, 0.9, no.z) : up;
   float side = 1.0 - smoothstep(0.3, 0.6, abs(no.y));
-  // срез — горизонтали, верх — тонкие линии; слишком частые гаснут
-  float f = mix(vObj.z * uTop, vObj.y * uStrata, side);
+  // срез — горизонтали; верх — тонкие линии или круги по форме детали; слишком частые гаснут
+  float f = mix(uRings > 0.5 ? length(vObj.xz) * uTop : vObj.z * uTop, vObj.y * uStrata, side);
   float w = fwidth(f);
   float dl = abs(fract(f) - 0.5) / max(w, 1e-5);
   float line = (1.0 - smoothstep(0.4, 1.2, dl)) * (1.0 - smoothstep(0.3, 0.55, w));
@@ -55,15 +60,15 @@ void main() {
   vec3 col = (accent ? vec3(0.2, 0.29, 0.04) : vec3(0.034, 0.042, 0.03)) * (0.45 + 0.65 * lit);
   float ink = line * (0.16 + 0.5 * lit) * uInk;
   float art = 0.0;
-  if (uArtOn > 0.5 && up > 0.5) {
-    // рисунок на верхней грани: координаты из положения точки, проявляется слева направо
-    vec2 uv = vec2((vObj.x - uRect.x) / uRect.z, (vObj.z - uRect.y) / uRect.w);
+  if (uArtOn > 0.5 && face > 0.5) {
+    // рисунок на грани: координаты из положения точки, проявляется слева направо; под ним — слабая штриховка
+    vec2 uv = uFace > 0.5 ? vec2((vObj.x - uRect.x) / uRect.z, 1.0 - (vObj.y - uRect.y) / uRect.w) : vec2((vObj.x - uRect.x) / uRect.z, (vObj.z - uRect.y) / uRect.w);
     art = texture2D(tArt, vec2(uv.x, 1.0 - uv.y)).a * smoothstep(uv.x - 0.08, uv.x, uReveal * 1.08) * uGain;
-    ink = art;
+    ink = max(art, ink * uHatch);
   }
-  if (accent && up > 0.5) {
-    // итоговая деталь: лаймовый верх, рисунок на нём тёмный
-    col = mix(LIME * (0.9 + 0.1 * lit), vec3(0.05, 0.07, 0.02), clamp(art, 0.0, 1.0) * 0.9);
+  if (accent && (up > 0.5 || face > 0.5)) {
+    // итоговая деталь: лаймовая грань, рисунок и штриховка на ней тёмные
+    col = mix(LIME * (0.9 + 0.1 * lit), vec3(0.05, 0.07, 0.02), clamp(max(art, line * 0.35 * uHatch), 0.0, 1.0) * 0.9);
     col = mix(col, vec3(1.0), uHot * 0.3);
   } else {
     col = mix(col, LIME, clamp(ink * (1.0 + uHot * 1.3), 0.0, 1.0));
@@ -73,7 +78,8 @@ void main() {
   gl_FragColor = vec4(col * a, a);
 }`;
 
-export type EngraveOptions = { kind?: 0 | 1; art?: Texture | null; rect?: [number, number, number, number]; strata?: number; top?: number; alpha?: number; gain?: number; ink?: number };
+/** face: "front" — рисунок на передней грани (rect: x0, y0, ширина, высота); rings — верх штрихуется кругами; hatch — доля штриховки под рисунком */
+export type EngraveOptions = { kind?: 0 | 1; art?: Texture | null; rect?: [number, number, number, number]; strata?: number; top?: number; alpha?: number; gain?: number; ink?: number; face?: "top" | "front"; rings?: boolean; hatch?: number };
 
 /** rect — прямоугольник верхней грани в координатах детали (x0, z0, ширина, глубина) под рисунок */
 export const engrave = (sh: Shared, o: EngraveOptions = {}) => new ShaderMaterial({
@@ -81,6 +87,7 @@ export const engrave = (sh: Shared, o: EngraveOptions = {}) => new ShaderMateria
   uniforms: {
     uShow: sh.uShow, uKind: { value: o.kind ?? 0 }, uHot: { value: 0 }, uAlpha: { value: o.alpha ?? 1 },
     uStrata: { value: o.strata ?? 14 }, uTop: { value: o.top ?? 9 }, uArtOn: { value: o.art ? 1 : 0 }, uGain: { value: o.gain ?? 1 }, uInk: { value: o.ink ?? 1 },
+    uFace: { value: o.face === "front" ? 1 : 0 }, uRings: { value: o.rings ? 1 : 0 }, uHatch: { value: o.hatch ?? 0 },
     uReveal: { value: 1 }, uRect: { value: new Vector4(...(o.rect ?? [0, 0, 1, 1])) }, tArt: { value: o.art ?? null },
   },
 });
@@ -91,6 +98,18 @@ export const outline = (geo: BufferGeometry, opacity = 0.5, angle = 30) => {
   const l = new LineSegments(new EdgesGeometry(geo, angle), m);
   l.frustumCulled = false;
   return l;
+};
+
+// ── тень под макетом: мягкое тёмное пятно на «полу» ──────────────────────────────
+export const shadow = (sh: Shared, w: number, d: number, y = 0, strength = 0.5) => {
+  const m = new Mesh(new PlaneGeometry(w, d).rotateX(-Math.PI / 2), new ShaderMaterial({
+    vertexShader: "varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
+    fragmentShader: `uniform float uShow; uniform float uK; varying vec2 vUv;
+      void main() { float d = length((vUv - 0.5) * 2.0); float a = (1.0 - smoothstep(0.25, 1.0, d)) * uK * uShow; gl_FragColor = vec4(vec3(0.0), a); }`,
+    transparent: true, premultipliedAlpha: true, depthWrite: false, uniforms: { uShow: sh.uShow, uK: { value: strength } },
+  }));
+  m.position.y = y; m.renderOrder = -1;
+  return m;
 };
 
 // ── рисунок линиями: холст 2D → текстура ─────────────────────────────────────────

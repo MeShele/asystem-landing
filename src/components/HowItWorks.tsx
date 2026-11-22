@@ -5,15 +5,15 @@ import { useScene } from "@/components/useScene";
 import { useContent } from "@/i18n";
 
 /**
- * Запуск за четыре шага как восхождение: рельеф пика Победы, по леднику к вершине идёт маршрут
- * с четырьмя лагерями-шагами (сцена — src/three/peak.ts). У лагерей стоят только названия шагов,
- * чтобы не закрывать рельеф; пояснения — списком слева, на телефоне — под сценой.
+ * Запуск за четыре шага как сборка обменника: четыре модуля встают друг на друга — основание,
+ * этаж со стойками, этаж с окном выдачи, крыша с вывеской (сцена — src/three/build.ts). У модулей
+ * стоят только названия шагов; пояснения — списком слева, на телефоне — под сценой.
  */
 const HowItWorks = () => {
   const { STEPS } = useContent();
   const tags = useRef<(HTMLDivElement | null)[]>([]);
   const mount = useCallback(
-    (canvas: HTMLCanvasElement) => import("@/three/peak").then((m) => m.mountPeak({ canvas, labels: tags.current, url: "/relief/peak.webp" })),
+    (canvas: HTMLCanvasElement) => import("@/three/build").then((m) => m.mountBuild({ canvas, labels: tags.current })),
     [],
   );
   const { canvas, on } = useScene(mount);
@@ -26,11 +26,10 @@ const HowItWorks = () => {
           <h2 className="t-h2">{STEPS.title}</h2>
           <p className="t-lead muted mt-4">{STEPS.note}</p>
           {on && <Steps items={steps} className="mt-8 hidden lg:flex" />}
-          {on && <p className="t-small muted mt-8 hidden max-w-[36ch] lg:block">{STEPS.peak}</p>}
         </Reveal>
         {on ? (
           <div className="lg:col-span-8">
-            <div className="scene relative aspect-[4/3] lg:aspect-[3/2]" role="img" aria-label={`${STEPS.title}. ${STEPS.peak}`}>
+            <div className="scene relative aspect-[4/3] lg:aspect-[3/2]" role="img" aria-label={STEPS.title}>
               <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
               {steps.map((s, i) => (
                 <div key={s.id} ref={(el) => { tags.current[i] = el; }} className="scene-tag hidden md:block">
@@ -40,7 +39,7 @@ const HowItWorks = () => {
                 </div>
               ))}
             </div>
-            <Steps items={steps} className="mt-6 md:hidden" />
+            <Steps items={steps} columns className="mt-6 lg:hidden" />
           </div>
         ) : (
           <Steps items={steps} className="lg:col-span-8" />

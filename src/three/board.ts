@@ -1,7 +1,7 @@
 import { BoxGeometry, CylinderGeometry, Group, Mesh, PerspectiveCamera, Scene, Vector3, type BufferGeometry, type CanvasTexture } from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { mountLive, type LiveSize } from "@/three/live";
-import { art, beam, ease, engrave, frameCamera, headAt, nap, outline, pointer, ribbon, shared, tags } from "@/three/kit";
+import { art, beam, ease, engrave, frameCamera, headAt, nap, outline, pointer, ribbon, shadow, shared, tags } from "@/three/kit";
 
 /**
  * Путь заявки как плата: платформа — печатная плата, пять шагов заявки — пять микросхем на общей
@@ -98,12 +98,13 @@ export const mountBoard = async ({ canvas, labels, base }: BoardOptions): Promis
 
   // плата
   const boardGeo = keep(new BoxGeometry(W, T, D));
-  const boardMat = keep(engrave(sh, { art: keep(boardArt()), rect: [-W / 2, -D / 2, W, D], strata: 22, gain: 0.9 }));
+  const boardMat = keep(engrave(sh, { art: keep(boardArt()), rect: [-W / 2, -D / 2, W, D], strata: 22, top: 26, gain: 0.9, hatch: 0.3 }));
   const board = new Mesh(boardGeo, boardMat);
   board.position.y = -T / 2;
   const boardEdge = edged(boardGeo, 0.55);
   boardEdge.position.copy(board.position);
-  group.add(board, boardEdge);
+  const ground = shadow(sh, W * 1.25, D * 1.9, -T - 0.25, 0.55);
+  group.add(ground, board, boardEdge);
 
   await nap();
   // микросхемы: последняя — итоговая, лаймовая и выше остальных
@@ -112,7 +113,7 @@ export const mountBoard = async ({ canvas, labels, base }: BoardOptions): Promis
   const chips = XS.map((x, i) => {
     const last = i === XS.length - 1, s = last ? 1.26 : 1.1, hgt = last ? 0.36 : 0.24;
     const geo = keep(new BoxGeometry(s, hgt, s));
-    const mat = keep(engrave(sh, { kind: last ? 1 : 0, art: chipArts[i], rect: [-s / 2, -s / 2, s, s], strata: 30 }));
+    const mat = keep(engrave(sh, { kind: last ? 1 : 0, art: chipArts[i], rect: [-s / 2, -s / 2, s, s], strata: 30, top: 34, hatch: 0.35 }));
     const body = new Mesh(geo, mat), edge = edged(geo, last ? 0.9 : 0.6);
     const holder = new Group();
     holder.add(body, edge);
@@ -192,5 +193,6 @@ export const mountBoard = async ({ canvas, labels, base }: BoardOptions): Promis
     bus.geometry.dispose(); bus.material.dispose();
     for (const b of beams) { b.geometry.dispose(); b.material.dispose(); }
     for (const e of edges) { e.line.geometry.dispose(); e.line.material.dispose(); }
+    ground.geometry.dispose(); ground.material.dispose();
   };
 };

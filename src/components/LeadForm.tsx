@@ -94,7 +94,7 @@ export const LeadForm = ({ prefill, autoFocus = false }: { prefill?: LeadPrefill
 
       <input required name="name" autoFocus={autoFocus} placeholder={LEAD.name} aria-label={LEAD.name} className="field" />
       <input required name="company" placeholder={LEAD.company} aria-label={LEAD.company} className="field" />
-      <input required name="contact" type="text" placeholder={LEAD.contact} aria-label={LEAD.contact} className="field" />
+      <input required name="contact" type="text" placeholder={LEAD.contact} aria-label={LEAD.contact} className="field max-sm:placeholder:text-[15px]" />
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" className="hidden" />
 
       <button type="submit" disabled={sending} className="btn btn-signal w-full">
