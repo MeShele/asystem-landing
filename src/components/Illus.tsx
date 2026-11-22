@@ -9,7 +9,7 @@ import { motion, useReducedMotion } from "motion/react";
  * когда секция выходит на экран, и расступается под курсором. Под reduced-motion, на узком
  * экране и без WebGL остаётся обычная картинка.
  */
-export type IllusName = "shield" | "stamp" | "gear" | "megaphone";
+export type IllusName = "stamp" | "gear" | "megaphone";
 
 const wide = () => typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches;
 

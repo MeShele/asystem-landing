@@ -1,55 +1,27 @@
-import { useCallback, useRef } from "react";
 import Reveal from "@/components/Reveal";
-import Steps from "@/components/Steps";
-import { useScene } from "@/components/useScene";
 import { useContent } from "@/i18n";
 
 /**
- * Путь заявки: плата с пятью микросхемами-шагами на общей шине (сцена — src/three/board.ts).
- * Подписи шагов стоят над микросхемами на лучах; место им каждый кадр сообщает сцена. На телефоне
- * и без сцены шаги идут текстом под ней.
+ * Путь заявки: пять шагов в строку на одной линии, последний — лаймовый. Графики здесь нет
+ * намеренно: блок короткий, смысл — порядок шагов, объёмная плата его не усиливала.
+ * На узком экране шаги идут столбиком вдоль лаймовой рейки.
  */
 const Path = () => {
   const { PATH } = useContent();
-  const tags = useRef<(HTMLDivElement | null)[]>([]);
-  const base = useRef<HTMLDivElement>(null);
-  const mount = useCallback(
-    (canvas: HTMLCanvasElement) => import("@/three/board").then((m) => m.mountBoard({ canvas, labels: tags.current, base: base.current })),
-    [],
-  );
-  const { canvas, on } = useScene(mount);
-  const list = [...PATH.steps.map((s, i) => ({ ...s, accent: i === PATH.steps.length - 1 })), { ...PATH.base, muted: true }];
-
+  const last = PATH.steps.length - 1;
   return (
-    <section id="path" className="wrap py-14 sm:py-20">
-      <Reveal className="max-w-[640px]">
-        <h2 className="t-h2">{PATH.title}</h2>
-        <p className="t-lead muted mt-4">{PATH.lead}</p>
+    <section id="path" className="wrap pb-6 pt-14 sm:pt-20">
+      <Reveal><h2 className="t-h2">{PATH.title}</h2></Reveal>
+      <Reveal as="ol" className="mt-8 flex flex-col gap-5 border-l-2 border-[hsl(var(--accent)/0.45)] pl-5 lg:grid lg:grid-cols-5 lg:gap-x-6 lg:border-l-0 lg:pl-0">
+        {PATH.steps.map((s, i) => (
+          <li key={s.id} className="relative lg:border-t lg:border-[hsl(var(--line)/0.14)] lg:pt-5">
+            <span aria-hidden="true" className={`absolute left-0 top-[-4.5px] hidden h-2 w-2 rounded-full lg:block ${i === last ? "bg-[hsl(var(--accent))]" : "bg-[hsl(var(--line)/0.5)]"}`} />
+            <p className={`font-display text-[16px] font-medium leading-snug ${i === last ? "text-[hsl(var(--accent-ink))]" : ""}`}>{s.title}</p>
+            <p className="muted mt-1.5 text-[14px] leading-snug">{s.text}</p>
+          </li>
+        ))}
       </Reveal>
-      {on ? (
-        <>
-          <div className="scene relative mt-6 aspect-[4/3] md:mt-2 md:aspect-[12/5]" role="img" aria-label={PATH.label}>
-            <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
-            {PATH.steps.map((s, i) => (
-              <div key={s.id} ref={(el) => { tags.current[i] = el; }} className="scene-tag hidden lg:block">
-                <div className="scene-tag-up">
-                  <p className={`font-display text-[14px] font-medium leading-tight ${i === PATH.steps.length - 1 ? "text-[hsl(var(--accent-ink))]" : ""}`}>{s.title}</p>
-                  <p className="muted mt-1 text-[12.5px] leading-snug">{s.text}</p>
-                </div>
-              </div>
-            ))}
-            <div ref={base} className="scene-tag hidden lg:block">
-              <div className="scene-tag-down">
-                <p className="font-display text-[14px] font-medium leading-tight">{PATH.base.title}</p>
-                <p className="muted mt-1 text-[12.5px] leading-snug">{PATH.base.text}</p>
-              </div>
-            </div>
-          </div>
-          <Steps items={list} className="mt-6 lg:hidden" />
-        </>
-      ) : (
-        <Steps items={list} columns className="mt-10" />
-      )}
+      <p className="muted mt-7 text-[14px]">{PATH.base}</p>
     </section>
   );
 };

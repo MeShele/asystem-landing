@@ -10,6 +10,9 @@ import type { LiveSize } from "@/three/live";
  * на тонком луче. Тексты подписей остаются вёрсткой: сцена только сообщает, где им стоять.
  */
 export const LIME = "vec3(0.714, 1.0, 0.102)";
+/** краски сцен: лайм — действие и крипта, янтарь — сомы и «внимание», лёд — нейтральные детали; RGB для шейдера, HEX для холста */
+export const INK = { lime: [0.714, 1, 0.102], amber: [1, 0.74, 0.2], ice: [0.86, 0.95, 0.9] } as const satisfies Record<string, readonly [number, number, number]>;
+export const HEX = { lime: "#B6FF1A", amber: "#FFBD33", ice: "#DBF2E6" } as const;
 export type Shared = { uTime: { value: number }; uShow: { value: number } };
 export const shared = (): Shared => ({ uTime: { value: 0 }, uShow: { value: 0 } });
 
@@ -39,12 +42,15 @@ uniform float uRings;
 uniform float uHatch;
 uniform float uReveal;
 uniform vec4 uRect;
+uniform vec3 uTint;
+uniform float uArtRgb;
+uniform float uFill;
 uniform sampler2D tArt;
 varying vec3 vObj;
 varying vec3 vNo;
 varying vec3 vNw;
-const vec3 LIME = ${LIME};
 void main() {
+  vec3 LIME = uTint;
   vec3 no = normalize(vNo);
   float lit = 0.32 + 0.68 * clamp(dot(normalize(vNw), normalize(vec3(-0.5, 0.75, 0.45))), 0.0, 1.0);
   float up = smoothstep(0.6, 0.9, no.y);
@@ -57,29 +63,39 @@ void main() {
   float dl = abs(fract(f) - 0.5) / max(w, 1e-5);
   float line = (1.0 - smoothstep(0.4, 1.2, dl)) * (1.0 - smoothstep(0.3, 0.55, w));
   bool accent = uKind > 0.5;
-  vec3 col = (accent ? vec3(0.2, 0.29, 0.04) : vec3(0.034, 0.042, 0.03)) * (0.45 + 0.65 * lit);
+  vec3 col = (accent ? LIME * 0.28 : vec3(0.034, 0.042, 0.03)) * (0.45 + 0.65 * lit);
   float ink = line * (0.16 + 0.5 * lit) * uInk;
   float art = 0.0;
+  vec3 paint = LIME;
   if (uArtOn > 0.5 && face > 0.5) {
     // рисунок на грани: координаты из положения точки, проявляется слева направо; под ним — слабая штриховка
     vec2 uv = uFace > 0.5 ? vec2((vObj.x - uRect.x) / uRect.z, 1.0 - (vObj.y - uRect.y) / uRect.w) : vec2((vObj.x - uRect.x) / uRect.z, (vObj.z - uRect.y) / uRect.w);
-    art = texture2D(tArt, vec2(uv.x, 1.0 - uv.y)).a * smoothstep(uv.x - 0.08, uv.x, uReveal * 1.08) * uGain;
-    ink = max(art, ink * uHatch);
+    vec4 tex = texture2D(tArt, vec2(uv.x, 1.0 - uv.y));
+    art = tex.a * smoothstep(uv.x - 0.08, uv.x, uReveal * 1.08) * uGain;
+    float under = ink * uHatch;
+    // цветной рисунок: краска берётся из самой текстуры, штриховка под ним остаётся цвета детали
+    if (uArtRgb > 0.5) paint = mix(LIME, tex.rgb, clamp(art / max(art + under, 1e-4), 0.0, 1.0));
+    ink = max(art, under);
   }
-  if (accent && (up > 0.5 || face > 0.5)) {
-    // итоговая деталь: лаймовая грань, рисунок и штриховка на ней тёмные
-    col = mix(LIME * (0.9 + 0.1 * lit), vec3(0.05, 0.07, 0.02), clamp(max(art, line * 0.35 * uHatch), 0.0, 1.0) * 0.9);
+  if (accent && (up > 0.5 || face > 0.5 || uFill > 0.5)) {
+    // залитая деталь: грань цвета краски, рисунок и штриховка на ней тёмные; у залитой целиком бока темнее по свету
+    float shade = up > 0.5 || face > 0.5 ? 0.9 + 0.1 * lit : 0.42 + 0.58 * lit;
+    col = mix(LIME * shade, vec3(0.05, 0.07, 0.02), clamp(max(art, line * 0.35 * uHatch), 0.0, 1.0) * 0.9);
     col = mix(col, vec3(1.0), uHot * 0.3);
   } else {
-    col = mix(col, LIME, clamp(ink * (1.0 + uHot * 1.3), 0.0, 1.0));
+    col = mix(col, paint, clamp(ink * (1.0 + uHot * 1.3), 0.0, 1.0));
     col += LIME * uHot * 0.07;
   }
   float a = uAlpha * uShow;
   gl_FragColor = vec4(col * a, a);
 }`;
 
-/** face: "front" — рисунок на передней грани (rect: x0, y0, ширина, высота); rings — верх штрихуется кругами; hatch — доля штриховки под рисунком */
-export type EngraveOptions = { kind?: 0 | 1; art?: Texture | null; rect?: [number, number, number, number]; strata?: number; top?: number; alpha?: number; gain?: number; ink?: number; face?: "top" | "front"; rings?: boolean; hatch?: number };
+/**
+ * face: "front" — рисунок на передней грани (rect: x0, y0, ширина, высота); rings — верх штрихуется кругами;
+ * hatch — доля штриховки под рисунком; tint — краска линий и залитой грани (по умолчанию лайм);
+ * rgb — рисунок цветной: краски берутся из текстуры, а не из tint; fill — деталь залита краской целиком, а не только лицевой гранью
+ */
+export type EngraveOptions = { kind?: 0 | 1; art?: Texture | null; rect?: [number, number, number, number]; strata?: number; top?: number; alpha?: number; gain?: number; ink?: number; face?: "top" | "front"; rings?: boolean; hatch?: number; tint?: readonly [number, number, number]; rgb?: boolean; fill?: boolean };
 
 /** rect — прямоугольник верхней грани в координатах детали (x0, z0, ширина, глубина) под рисунок */
 export const engrave = (sh: Shared, o: EngraveOptions = {}) => new ShaderMaterial({
@@ -89,12 +105,13 @@ export const engrave = (sh: Shared, o: EngraveOptions = {}) => new ShaderMateria
     uStrata: { value: o.strata ?? 14 }, uTop: { value: o.top ?? 9 }, uArtOn: { value: o.art ? 1 : 0 }, uGain: { value: o.gain ?? 1 }, uInk: { value: o.ink ?? 1 },
     uFace: { value: o.face === "front" ? 1 : 0 }, uRings: { value: o.rings ? 1 : 0 }, uHatch: { value: o.hatch ?? 0 },
     uReveal: { value: 1 }, uRect: { value: new Vector4(...(o.rect ?? [0, 0, 1, 1])) }, tArt: { value: o.art ?? null },
+    uTint: { value: new Vector3(...(o.tint ?? INK.lime)) }, uArtRgb: { value: o.rgb ? 1 : 0 }, uFill: { value: o.fill ? 1 : 0 },
   },
 });
 
-/** тонкий лаймовый контур детали по её рёбрам */
-export const outline = (geo: BufferGeometry, opacity = 0.5, angle = 30) => {
-  const m = new LineBasicMaterial({ color: 0xb6ff1a, transparent: true, opacity });
+/** тонкий контур детали по её рёбрам; по умолчанию лаймовый */
+export const outline = (geo: BufferGeometry, opacity = 0.5, angle = 30, color: string = HEX.lime) => {
+  const m = new LineBasicMaterial({ color, transparent: true, opacity });
   const l = new LineSegments(new EdgesGeometry(geo, angle), m);
   l.frustumCulled = false;
   return l;
@@ -281,6 +298,16 @@ export const tags = (els: (HTMLElement | null)[], points: Vector3[]) => {
     }),
   };
 };
+
+/**
+ * Шрифты сайта для надписей на текстурах. Холст рисует тем, что уже загружено: без ожидания надпись
+ * выйдет запасным шрифтом. Образец текста нужен, чтобы подгрузились и кириллица, и латиница.
+ */
+export const fonts = () => Promise.race([
+  Promise.all(["600 40px Unbounded", "500 40px Unbounded"].map((f) => document.fonts.load(f, "Сс KGS USDT 09"))),
+  new Promise((r) => setTimeout(r, 1800)),
+]).then(() => undefined, () => undefined);
+export const FONT = (px: number, weight = 600) => `${weight} ${px}px Unbounded, Onest, system-ui, sans-serif`;
 
 /** отдать кадр браузеру между шагами сборки сцены: без этого сборка одним куском дёргает прокрутку */
 export const nap = () => new Promise<void>((r) => setTimeout(r, 0));

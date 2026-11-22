@@ -2,7 +2,7 @@ import { Mesh, WebGLRenderer, type Camera, type Material, type Object3D, type Sc
 import { every, scale, tick } from "@/three/pace";
 
 /**
- * Одна живая сцена на страницу. Большие 3D-сцены сайта (карта, плата, слои, вершина, механизм)
+ * Одна живая сцена на страницу. Большие 3D-сцены сайта (карта, щит, запуск, механизм)
  * делят один WebGL-холст: он переезжает в ту сцену, которая сейчас занимает больше всего экрана,
  * и рисует её напрямую, без копирования кадра. Остальные сцены показывают свой последний кадр
  * обычной картинкой и ничего не стоят; у ушедших с экрана освобождается память видеокарты.
@@ -23,7 +23,10 @@ export type LiveView = {
   post?: () => void;
 };
 
-type Slot = LiveView & { ctx: CanvasRenderingContext2D; onScreen: boolean; cssW: number; cssH: number; away: number; io: IntersectionObserver; ro: ResizeObserver };
+/** shown — сколько секунд сцена уже была живой: у непоказанной на её месте пусто, ей нужен первый показ */
+type Slot = LiveView & { ctx: CanvasRenderingContext2D; onScreen: boolean; cssW: number; cssH: number; away: number; shown: number; io: IntersectionObserver; ro: ResizeObserver };
+/** столько секунд сцена держит холст, чтобы доиграть вход, прежде чем уступить его непоказанной соседке */
+const MIN_SHOW = 2.6;
 
 let renderer: WebGLRenderer | null = null;
 let live: Slot | null = null, liveW = 0, liveH = 0;
@@ -49,17 +52,26 @@ const seen = (s: Slot) => {
   return w > 0 && h > 0 ? w * h : 0;
 };
 
-/** живой становится сцена с наибольшей видимой площадью; текущую сменяет только заметно бо́льшая */
+/**
+ * Живой становится сцена с наибольшей видимой площадью; текущую сменяет только заметно бо́льшая.
+ * Исключение — сцена, которую ещё ни разу не показывали: у неё нет последнего кадра, на её месте
+ * пусто. Если она видна хотя бы на треть, холст переходит к ней, как только текущая доиграла вход.
+ */
 const pick = () => {
-  let best: Slot | null = null, area = 0;
+  let best: Slot | null = null, area = 0, rookie: Slot | null = null, rookieArea = 0;
   for (const s of slots) {
     if (!s.onScreen || s.cssW < 2 || s.cssH < 2) continue;
     const a = seen(s);
     if (a > area) { area = a; best = s; }
+    if (s.shown === 0 && a > s.cssW * s.cssH * 0.33 && a > rookieArea) { rookieArea = a; rookie = s; }
   }
   if (live && slots.has(live) && live.onScreen) {
     const mine = seen(live);
-    if (mine > 0 && area < mine * 1.35) return live;
+    if (mine > 0) {
+      if (live.shown < MIN_SHOW && mine > live.cssW * live.cssH * 0.33) return live;
+      if (rookie && rookie !== live) return rookie;
+      if (area < mine * 1.35) return live;
+    }
   }
   return area > 0 ? best : null;
 };
@@ -114,7 +126,9 @@ const loop = (now: number) => {
       const dpr = Math.max(0.75, Math.min(window.devicePixelRatio || 1, live.maxDpr) * scale());
       const w = Math.max(1, Math.round(live.cssW * dpr)), h = Math.max(1, Math.round(live.cssH * dpr));
       if (w !== liveW || h !== liveH) { liveW = w; liveH = h; r.setSize(w, h, false); }
-      live.frame(t, Math.min(0.05, (delta / 1000) * step), { w, h, cssW: live.cssW, cssH: live.cssH, dpr });
+      const dt = Math.min(0.05, (delta / 1000) * step);
+      live.shown += dt;
+      live.frame(t, dt, { w, h, cssW: live.cssW, cssH: live.cssH, dpr });
       r.setViewport(0, 0, w, h);
       r.clear();
       r.render(live.scene, live.camera);
@@ -137,7 +151,7 @@ export const mountLive = (view: LiveView): (() => void) => {
   ensure();
   const rect = view.canvas.getBoundingClientRect();
   const s: Slot = {
-    ...view, ctx, onScreen: false, cssW: rect.width, cssH: rect.height, away: 0,
+    ...view, ctx, onScreen: false, cssW: rect.width, cssH: rect.height, away: 0, shown: 0,
     io: new IntersectionObserver(([e]) => { s.onScreen = e.isIntersecting; if (s.onScreen) kick(); }, { rootMargin: "60px 0px" }),
     ro: new ResizeObserver(([e]) => { s.cssW = e.contentRect.width; s.cssH = e.contentRect.height; kick(); }),
   };

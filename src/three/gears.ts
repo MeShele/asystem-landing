@@ -1,11 +1,13 @@
 import { BoxGeometry, CylinderGeometry, ExtrudeGeometry, Group, Mesh, Path, PerspectiveCamera, Scene, Shape, Vector3, type BufferGeometry, type Material, type ShaderMaterial } from "three";
 import { mountLive, type LiveSize } from "@/three/live";
-import { art, ease, engrave, frameCamera, nap, outline, pointer, shadow, shared } from "@/three/kit";
+import { art, ease, engrave, fonts, FONT, frameCamera, HEX, INK, nap, outline, pointer, shadow, shared } from "@/three/kit";
+import { drawIcon, ICON } from "@/three/icons";
 
 /**
  * «Сделка без сотрудника» как механизм: корпус платформы с шестернями, которые крутятся сами,
  * и две ленты. По ближней дорожке слева направо идёт покупка: сомы заезжают в корпус, с другой
  * стороны выезжает крипта. По дальней дорожке справа налево — продажа. Человека в сцене нет.
+ * Сомы янтарные, крипта лаймовая: по цвету монет видно, что во что превращается.
  * Шестерни собраны как настоящие: зубчатый венец, спицы, ступица с болтами, круговая гравировка.
  */
 const HOUSE = { w: 4.9, h: 0.6, d: 2.8 }, BELT = { x0: 2.45, x1: 5.35, y: 0.22, d: 1.5 }, LANE = 0.36;
@@ -60,44 +62,49 @@ const houseTop = () => art(1024, 585, (c, w, h) => {
   for (const sx of [-1, 1]) for (let i = 0; i < 6; i++) { const x = sx * (HOUSE.w / 2 - 0.5 - i * 0.07); c.beginPath(); c.moveTo(X(x), Y(HOUSE.d / 2 - 0.2)); c.lineTo(X(x), Y(HOUSE.d / 2 - 0.55)); c.stroke(); }
 });
 
-/** фасад корпуса: окошко с показаниями, жалюзи, болты */
+/** фасад корпуса: табло с парой валют, жалюзи, болты */
 const houseFront = () => art(1024, 126, (c, w, h) => {
+  c.strokeStyle = HEX.lime; c.fillStyle = HEX.lime;
   c.lineWidth = 4; c.globalAlpha = 0.5;
   c.strokeRect(10, 10, w - 20, h - 20);
-  c.globalAlpha = 0.9;
-  c.beginPath(); c.roundRect(w / 2 - 150, 30, 300, h - 60, 10); c.stroke();
-  for (let i = 0; i < 9; i++) c.fillRect(w / 2 - 126 + i * 29, h - 44 - ((i * 37) % 30), 16, 14 + ((i * 37) % 30));
-  c.globalAlpha = 0.55; c.lineWidth = 5;
-  for (const sx of [-1, 1]) for (let i = 0; i < 14; i++) { const x = w / 2 + sx * (230 + i * 17); c.beginPath(); c.moveTo(x, 36); c.lineTo(x, h - 36); c.stroke(); }
+  c.globalAlpha = 0.9; c.strokeStyle = HEX.ice;
+  c.beginPath(); c.roundRect(w / 2 - 190, 26, 380, h - 52, 12); c.stroke();
+  // табло: пара, как на монетах — сомы и биткоин
+  c.globalAlpha = 1; c.font = FONT(38); c.textBaseline = "middle";
+  c.textAlign = "right"; c.fillStyle = HEX.amber; c.fillText("KGS", w / 2 - 44, h / 2 + 2);
+  c.textAlign = "left"; c.fillStyle = HEX.lime; c.fillText("BTC", w / 2 + 44, h / 2 + 2);
+  c.strokeStyle = HEX.ice; c.lineWidth = 5;
+  for (const [y, dir] of [[h / 2 - 9, 1], [h / 2 + 9, -1]]) {
+    c.beginPath(); c.moveTo(w / 2 - 24, y); c.lineTo(w / 2 + 24, y); c.stroke();
+    c.beginPath(); c.moveTo(w / 2 + dir * 24 - dir * 10, y - 8); c.lineTo(w / 2 + dir * 24, y); c.lineTo(w / 2 + dir * 24 - dir * 10, y + 8); c.stroke();
+  }
+  c.strokeStyle = HEX.lime; c.fillStyle = HEX.lime; c.globalAlpha = 0.55; c.lineWidth = 5;
+  for (const sx of [-1, 1]) for (let i = 0; i < 13; i++) { const x = w / 2 + sx * (252 + i * 17); c.beginPath(); c.moveTo(x, 36); c.lineTo(x, h - 36); c.stroke(); }
   c.globalAlpha = 0.9;
   for (const x of [34, w - 34]) for (const y of [34, h - 34]) { c.beginPath(); c.arc(x, y, 7, 0, Math.PI * 2); c.fill(); }
 });
 
-/** монета сверху: 0 — сом (буква «с» с чертой), 1 — крипта (шестиугольник) */
-const coinArt = (kind: number) => art(128, 128, (c) => {
-  c.lineWidth = 8;
-  c.beginPath(); c.arc(64, 64, 54, 0, Math.PI * 2); c.stroke();
-  c.globalAlpha = 0.6; c.lineWidth = 3; c.beginPath(); c.arc(64, 64, 44, 0, Math.PI * 2); c.stroke(); c.globalAlpha = 1; c.lineWidth = 9;
+/** монета сверху (рисунок тёмный на залитой грани): 0 — сом, буква «с» с чертой; 1 — крипта, знак биткоина */
+const coinArt = (kind: number) => art(160, 160, (c) => {
+  c.lineWidth = 7;
+  c.beginPath(); c.arc(80, 80, 66, 0, Math.PI * 2); c.stroke();
   if (kind === 0) {
-    c.beginPath(); c.arc(64, 58, 20, Math.PI * 0.3, Math.PI * 1.7); c.stroke();
-    c.beginPath(); c.moveTo(42, 92); c.lineTo(86, 92); c.stroke();
-  } else {
-    c.beginPath();
-    for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2 + Math.PI / 6; if (i) c.lineTo(64 + Math.cos(a) * 26, 64 + Math.sin(a) * 26); else c.moveTo(64 + Math.cos(a) * 26, 64 + Math.sin(a) * 26); }
-    c.closePath(); c.stroke();
-    c.beginPath(); c.arc(64, 64, 7, 0, Math.PI * 2); c.fill();
-  }
+    c.font = FONT(92); c.textAlign = "center"; c.textBaseline = "alphabetic";
+    c.fillText("с", 80, 104);
+    c.lineWidth = 9; c.beginPath(); c.moveTo(54, 124); c.lineTo(106, 124); c.stroke();
+  } else drawIcon(c, ICON.bitcoin, 24, 24, 112, 2.6);
 });
 
 export const mountGears = async ({ canvas }: { canvas: HTMLCanvasElement }): Promise<() => void> => {
+  await fonts();
   const sh = shared(), scene = new Scene(), group = new Group();
   scene.add(group);
   const camera = new PerspectiveCamera(26, 2.4, 0.1, 80);
   const kept: { dispose: () => void }[] = [];
   const keep = <G extends { dispose: () => void }>(g: G) => { kept.push(g); return g; };
   const edges: { line: ReturnType<typeof outline>; base: number }[] = [];
-  const add = (geo: BufferGeometry, parent: Group, mat: Material | Material[], edge = 0.5, angle = 30) => {
-    const mesh = new Mesh(keep(geo), mat), line = outline(geo, 0, angle);
+  const add = (geo: BufferGeometry, parent: Group, mat: Material | Material[], edge = 0.5, angle = 30, color: string = HEX.lime) => {
+    const mesh = new Mesh(keep(geo), mat), line = outline(geo, 0, angle, color);
     edges.push({ line, base: edge });
     parent.add(mesh, line);
   };
@@ -111,7 +118,7 @@ export const mountGears = async ({ canvas }: { canvas: HTMLCanvasElement }): Pro
   house.position.y = HOUSE.h / 2;
   const plain = body({ strata: 22, top: 16, ink: 0.5 });
   const top = body({ art: keep(houseTop()), rect: [-HOUSE.w / 2, -HOUSE.d / 2, HOUSE.w, HOUSE.d], strata: 22, top: 22, hatch: 0.22, gain: 0.85 });
-  const front = body({ art: keep(houseFront()), rect: [-HOUSE.w / 2, -HOUSE.h / 2, HOUSE.w, HOUSE.h], face: "front", strata: 22, gain: 0.85 });
+  const front = body({ art: keep(houseFront()), rect: [-HOUSE.w / 2, -HOUSE.h / 2, HOUSE.w, HOUSE.h], face: "front", rgb: true, strata: 22, gain: 0.9 });
   add(new BoxGeometry(HOUSE.w, HOUSE.h, HOUSE.d), house, [plain, plain, top, plain, front, plain], 0.65);
   group.add(house);
   await nap();
@@ -130,7 +137,7 @@ export const mountGears = async ({ canvas }: { canvas: HTMLCanvasElement }): Pro
     add(gear(w.r, w.n, w.spokes), holder, mat, 0.95, 18);
     // ступица поверх колеса и крышка оси
     add(new CylinderGeometry(w.r * 0.24, w.r * 0.26, 0.1, 28).translate(0, THICK + 0.05, 0), holder, body({ kind: w.kind, rings: true, top: w.kind ? 40 : 28, strata: 50, ink: 1.2 }), 0.9);
-    add(new CylinderGeometry(w.r * 0.1, w.r * 0.1, 0.12, 18).translate(0, THICK + 0.16, 0), holder, body({ strata: 60 }), 0.8);
+    add(new CylinderGeometry(w.r * 0.1, w.r * 0.1, 0.12, 18).translate(0, THICK + 0.16, 0), holder, body({ kind: 1, fill: true, tint: INK.amber, strata: 60, top: 60 }), 0.9, 30, HEX.amber);
     // стойка оси под колесом
     const post = new Group();
     post.position.set(w.x, HOUSE.h, 0);
@@ -160,8 +167,8 @@ export const mountGears = async ({ canvas }: { canvas: HTMLCanvasElement }): Pro
   for (const lane of [1, -1]) for (const side of [-1, 1]) for (let slot = 0; slot < 3; slot++) {
     // слева всегда сомы, справа всегда крипта: ближняя дорожка везёт их вправо (покупка), дальняя — влево (продажа)
     const som = side === -1;
-    const mat = body({ kind: som ? 0 : 1, art: arts[som ? 0 : 1], rect: [-0.3, -0.3, 0.6, 0.6], strata: 70, rings: true, top: 30, hatch: 0.3 });
-    const holder = new Group(), line = outline(coinGeo, 0, 40);
+    const mat = body({ kind: 1, tint: som ? INK.amber : INK.lime, art: arts[som ? 0 : 1], rect: [-0.3, -0.3, 0.6, 0.6], strata: 70, rings: true, top: 30, hatch: 0.25 });
+    const holder = new Group(), line = outline(coinGeo, 0, 40, som ? HEX.amber : HEX.lime);
     edges.push({ line, base: 0.8 });
     holder.add(new Mesh(coinGeo, mat), line);
     group.add(holder);

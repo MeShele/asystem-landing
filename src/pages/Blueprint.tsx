@@ -245,7 +245,6 @@ const Blueprint = () => {
           <Illus bg name="stamp" size={480} className="right-[-80px] top-[-120px] hidden lg:block" />
           <Reveal className="relative z-[1]">
             <PageHead
-              eyebrow={t("Чек-лист · Кыргызстан · 2026", "Checklist · Kyrgyzstan · 2026")}
               title={t(
                 "Чек-лист запуска лицензированного криптообменника в Кыргызстане",
                 "Launch checklist for a licensed crypto exchange in Kyrgyzstan",

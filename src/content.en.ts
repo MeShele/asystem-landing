@@ -1,5 +1,4 @@
 /** EN mirror of content.ts: same structure, short sentences. */
-import type { Graph } from "@/lib/schema";
 import type * as RU from "@/content";
 
 export const NAV: typeof RU.NAV = [
@@ -25,16 +24,14 @@ export const HERO: typeof RU.HERO = {
 
 export const PATH: typeof RU.PATH = {
   title: "The order's path",
-  lead: "From client sign-up to the FinSupervision registry, an order runs on one platform.",
-  label: "A circuit board with five chips: client, exchange website, payment, operator, FinSupervision; the board is the server in Bishkek",
   steps: [
-    { id: "client", title: "Client", text: "Sign-up and KYC before the first deal" },
-    { id: "site", title: "Exchange website", text: "Your domain, the rate is locked in the order" },
-    { id: "pay", title: "Payment", text: "Bank transfer or Finik QR, confirmed automatically" },
-    { id: "operator", title: "Operator", text: "SFIS list screening, payout" },
-    { id: "fin", title: "FinSupervision", text: "Registries build from orders" },
+    { id: "client", title: "Client", text: "Sign-up and KYC" },
+    { id: "site", title: "Exchange website", text: "The rate is locked in the order" },
+    { id: "pay", title: "Payment", text: "Bank transfer or Finik QR" },
+    { id: "operator", title: "Operator", text: "Screening and payout" },
+    { id: "fin", title: "FinSupervision", text: "The report builds from orders" },
   ],
-  base: { id: "server", title: "Server in Bishkek", text: "Data kept five years, daily backup, your domain and brand" },
+  base: "A dedicated server in Bishkek, your domain and brand, daily backup.",
 };
 
 export const PROOF: typeof RU.PROOF = {
@@ -43,80 +40,14 @@ export const PROOF: typeof RU.PROOF = {
 };
 
 export const TOUR: typeof RU.TOUR = {
-  eyebrow: "Stage 1 · live now",
   title: "What's inside",
-  lead: "Four parts of the platform. All of it is open live on the demo stand.",
+  lead: "Four parts of the platform. Screens taken from the demo stand.",
+  hint: "Scroll down, the screens change",
   items: [
-    {
-      key: "store", title: "Storefront", text: "Your domain and rates. Buy, sell, swap.",
-      schema: {
-        cols: 3,
-        nodes: [
-          { id: "domain", col: 1, row: 1, kind: "ghost", title: "Your domain", text: "your-exchange.kg, your brand" },
-          { id: "choose", col: 2, row: 1, title: "Buy, sell, swap", text: "The client picks a direction and an amount" },
-          { id: "order", col: 3, row: 1, kind: "accent", title: "Order created", text: "Rate locked, payment details issued" },
-          { id: "kyc", col: 2, row: 2, kind: "side", title: "Sign-in and KYC", text: "Before the first deal: 18+, residency" },
-        ],
-        edges: [{ from: "domain", to: "choose" }, { from: "choose", to: "order" }, { from: "kyc", to: "choose", dashed: true }],
-        route: ["domain", "choose", "order"],
-      } as Graph,
-    },
-    {
-      key: "cabinet", title: "Client account", text: "KYC, orders, QR payment, documents.",
-      schema: {
-        cols: 4,
-        nodes: [
-          { id: "created", col: 1, row: 1, title: "Order created", text: "Rate and payment details inside" },
-          { id: "paid", col: 2, row: 1, title: "Paid", text: "Finik QR or bank transfer" },
-          { id: "issued", col: 3, row: 1, title: "Sent", text: "Transaction hash in the order" },
-          { id: "done", col: 4, row: 1, kind: "accent", title: "Completed", text: "Receipt and history in the account" },
-          { id: "kyc", col: 1, row: 2, kind: "side", title: "KYC", text: "Once before the first deal: 18+, residency" },
-          { id: "docs", col: 4, row: 2, kind: "side", title: "Offer and consents", text: "Stored with time and IP" },
-        ],
-        edges: [
-          { from: "created", to: "paid" }, { from: "paid", to: "issued" }, { from: "issued", to: "done" },
-          { from: "kyc", to: "created", dashed: true }, { from: "docs", to: "done", dashed: true },
-        ],
-        route: ["created", "paid", "issued", "done"],
-      } as Graph,
-    },
-    {
-      key: "admin", title: "Admin panel", text: "Orders, staff, SFIS list screening.",
-      schema: {
-        cols: 3,
-        nodes: [
-          { id: "waitpay", col: 1, row: 1, title: "Awaiting payment", text: "The order is visible to staff" },
-          { id: "waitissue", col: 2, row: 1, title: "Awaiting payout", text: "Staff confirms and sends" },
-          { id: "done", col: 3, row: 1, kind: "accent", title: "Completed", text: "With the transaction hash" },
-          { id: "compliance", col: 1, row: 2, title: "Compliance review", text: "SFIS list match: the order waits for the officer" },
-          { id: "staff", col: 2, row: 2, kind: "side", title: "Staff", text: "Roles and permissions" },
-          { id: "ready", col: 3, row: 2, kind: "side", title: "Readiness checklist", text: "What to fill in before launch" },
-        ],
-        edges: [
-          { from: "waitpay", to: "waitissue" }, { from: "waitissue", to: "done" },
-          { from: "waitpay", to: "compliance", dashed: true }, { from: "compliance", to: "waitissue", dashed: true },
-        ],
-        route: ["waitpay", "waitissue", "done"],
-      } as Graph,
-    },
-    {
-      key: "reports", title: "FinSupervision reports", text: "Registries build from orders by themselves.",
-      schema: {
-        cols: 3,
-        nodes: [
-          { id: "orders", col: 1, row: 2, title: "Orders for the month", text: "Each with time, rate and client" },
-          { id: "r4", col: 2, row: 1, title: "VA sales", text: "Annex 4/o" },
-          { id: "r5", col: 2, row: 2, title: "VA purchases", text: "Annex 5/o" },
-          { id: "r6", col: 2, row: 3, title: "VA swaps", text: "Annex 6/o" },
-          { id: "fin", col: 3, row: 2, kind: "accent", title: "FinSupervision", text: "Report file and cover letter" },
-        ],
-        edges: [
-          { from: "orders", to: "r4" }, { from: "orders", to: "r5" }, { from: "orders", to: "r6" },
-          { from: "r4", to: "fin" }, { from: "r5", to: "fin" }, { from: "r6", to: "fin" },
-        ],
-        route: ["orders", "r5", "fin"],
-      } as Graph,
-    },
+    { key: "store", title: "Storefront", text: "A site on your domain: rates and the exchange order.", alt: "Exchange storefront: a form to swap som for crypto, with rate and fee" },
+    { key: "cabinet", title: "Client account", text: "KYC, orders, QR payment, documents.", alt: "Client account: order history with statuses" },
+    { key: "admin", title: "Admin panel", text: "Orders, staff, SFIS list screening.", alt: "Admin panel: an order board by status" },
+    { key: "reports", title: "FinSupervision reports", text: "Registries build from orders.", alt: "Reporting: FinSupervision reports for the chosen month" },
   ],
 };
 
@@ -132,56 +63,37 @@ export const WHO: typeof RU.WHO = {
 };
 
 export const LAW: typeof RU.LAW = {
-  title: "SFIS requirements and what is already in the platform",
-  lead: "The platform covers seven of eight requirements. Call recording stays with the exchange.",
-  head: ["What SFIS requires", "How it is done", "Status"],
-  status: { done: "Done", you: "Your side" },
-  rows: [
-    { req: "KYC before the first deal, 18+, residency", how: "Own KYC, Didit or BiometricVision", status: "done" },
-    { req: "Screening against SFIS and sanctions lists", how: "A match stops the order until the officer decides", status: "done" },
-    { req: "One client, one account; consent; public offer", how: "Duplicates by tax ID blocked; consents with time and IP", status: "done" },
-    { req: "Order time, documents five years, backup", how: "History of every order, daily backup", status: "done" },
-    { req: "Servers in Kyrgyzstan", how: "Own server in a Bishkek data centre", status: "done" },
-    { req: "Cashless and FinSupervision reports", how: "Transfer or QR, registries from orders", status: "done" },
-    { req: "Ranex wallet checks", how: "Built in; Ranex issues the key to the exchange", status: "done" },
-    { req: "Call recording, five years", how: "The exchange's telephony and messengers", status: "you" },
+  title: "SFIS requirements in the platform",
+  groups: [
+    { key: "kyc", title: "KYC", points: ["before the first deal", "18+ and residency", "own, Didit or BiometricVision"] },
+    { key: "checks", title: "Screening", points: ["SFIS and sanctions lists", "wallets via Ranex KYT"] },
+    { key: "data", title: "Data", points: ["server in Bishkek", "five-year retention", "daily backup"] },
+    { key: "reports", title: "Reports", points: ["FinSupervision registries", "cashless payments only"] },
   ],
+  label: "A shield of four plates: KYC, screening, data, reports",
   source: "Source: SFIS requirements for virtual asset exchange platforms, June 2026.",
 };
 
 export const AUTOMATION: typeof RU.AUTOMATION = {
-  eyebrow: "Stage 2 · Auto-exchange module",
   title: "A deal with no staff involved",
-  lead: "Buying and selling run without staff: Finik confirms the payment, the platform sends the crypto.",
-  note: "Orders above the compliance threshold stay with the officer for manual review.",
+  lead: "The Auto-exchange module: Finik confirms the payment, the platform sends the crypto.",
+  note: "Orders above the compliance threshold go to the officer.",
   flows: [
     {
       key: "buy", title: "Buy",
-      schema: {
-        cols: 3,
-        nodes: [
-          { id: "pay", col: 1, row: 1, title: "The client pays by Finik QR", text: "Finik confirms the payment" },
-          { id: "send", col: 2, row: 1, title: "The platform sends the crypto", text: "From the exchange's hot wallet" },
-          { id: "done", col: 3, row: 1, kind: "accent", title: "Order closed", text: "Network confirmed, hash in the order" },
-          { id: "staff", col: 2, row: 2, kind: "ghost", title: "Staff", text: "Not involved" },
-        ],
-        edges: [{ from: "pay", to: "send" }, { from: "send", to: "done" }, { from: "send", to: "staff", dashed: true }],
-        route: ["pay", "send", "done"],
-      } as Graph,
+      steps: [
+        { id: "pay", title: "The client pays by Finik QR", text: "Finik confirms the payment" },
+        { id: "send", title: "The platform sends the crypto", text: "From the exchange's hot wallet" },
+        { id: "done", title: "Order closed", text: "Transaction hash in the order" },
+      ],
     },
     {
       key: "sell", title: "Sell",
-      schema: {
-        cols: 3,
-        nodes: [
-          { id: "transfer", col: 1, row: 1, title: "The client sends the order amount", text: "To the exchange's address" },
-          { id: "detect", col: 2, row: 1, title: "The platform recognises the deposit", text: "By the order's unique amount" },
-          { id: "payout", col: 3, row: 1, kind: "accent", title: "Finik pays out the som", text: "Order closed" },
-          { id: "staff", col: 2, row: 2, kind: "ghost", title: "Staff", text: "Not involved" },
-        ],
-        edges: [{ from: "transfer", to: "detect" }, { from: "detect", to: "payout" }, { from: "detect", to: "staff", dashed: true }],
-        route: ["transfer", "detect", "payout"],
-      } as Graph,
+      steps: [
+        { id: "transfer", title: "The client sends the order amount", text: "To the exchange's address" },
+        { id: "detect", title: "The platform recognises the deposit", text: "By the order's unique amount" },
+        { id: "payout", title: "Finik pays out the som", text: "Order closed" },
+      ],
     },
   ],
 };
@@ -189,17 +101,13 @@ export const AUTOMATION: typeof RU.AUTOMATION = {
 export const STEPS: typeof RU.STEPS = {
   title: "Launch in four steps",
   note: "Within 14 days of payment.",
-  schema: {
-    cols: 4,
-    nodes: [
-      { id: "contract", col: 1, row: 1, title: "Contract", text: "A plan, a three-month contract" },
-      { id: "server", col: 2, row: 1, title: "Server", text: "Server in Bishkek, domain, TLS" },
-      { id: "setup", col: 3, row: 1, title: "Setup", text: "Brand, currencies, rates, bank details" },
-      { id: "open", col: 4, row: 1, kind: "accent", title: "Opening", text: "The exchange is open, clients sign up" },
-    ],
-    edges: [{ from: "contract", to: "server" }, { from: "server", to: "setup" }, { from: "setup", to: "open" }],
-    route: ["contract", "server", "setup", "open"],
-  } as Graph,
+  label: "Four launch steps: a handshake over the contract, a server rack, a setup console, the exchange building",
+  steps: [
+    { id: "contract", title: "Contract", text: "A plan and a three-month contract" },
+    { id: "server", title: "Server", text: "Server in Bishkek, domain, TLS" },
+    { id: "setup", title: "Setup", text: "Brand, currencies, rates, bank details" },
+    { id: "open", title: "Opening", text: "The exchange takes clients" },
+  ],
 };
 
 export const PRICING: typeof RU.PRICING = {
@@ -212,9 +120,9 @@ export const PRICING: typeof RU.PRICING = {
   setup: "one-time setup",
   popular: "popular",
   groups: {
-    start: { title: "Start", desc: "Everything to operate under a licence.", points: ["Exchange on your domain", "Your own server in Kyrgyzstan", "Compliance for SFIS", "ASystem KYC and Ranex KYT", "Email, two-factor login"] },
+    start: { title: "Start", desc: "The base set for operating under a licence.", points: ["Exchange on your domain", "Your own server in Kyrgyzstan", "Compliance for SFIS", "ASystem KYC and Ranex KYT", "Email, two-factor login"] },
     business: { title: "Business", desc: "Payments, reports and external KYC.", points: ["Everything in Start", "Finik: QR payments", "FinSupervision reports", "Didit or BiometricVision", "SMS notifications"] },
-    buyout: { title: "Buyout", desc: "The platform is yours for good.", points: ["No monthly fee", "Modules as in the plans", "Server in Kyrgyzstan"], from: "from", unit: "one-time, instead of a subscription" },
+    buyout: { title: "Buyout", desc: "The platform stays with you.", points: ["No monthly fee", "Modules as in the plans", "Server in Kyrgyzstan"], from: "from", unit: "one-time, instead of a subscription" },
     addons: {
       title: "Add-ons for any plan",
       price: "Prices in the proposal.",

@@ -1,82 +1,81 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { ArrowDown } from "lucide-react";
-import Schema from "@/components/Schema";
 import Reveal from "@/components/Reveal";
-import { useScene } from "@/components/useScene";
-import { useContent, useLang } from "@/i18n";
-import type { LayersHandle } from "@/three/layers";
+import { useContent } from "@/i18n";
 
-const EASE = [0.23, 1, 0.32, 1] as const;
-const STEP_MS = 8000;
+const STEP_MS = 7000;
 /** закрепление блока: нужен широкий и не слишком низкий экран, иначе колонка не помещается в его высоту */
 const PIN = "(min-width: 1024px) and (min-height: 620px)";
-/** та же шкала, что DECK в src/three/layers.ts: доля прокрутки блока, на которой карточка n стоит впереди */
-const stop = (n: number, count: number) => (n + 0.3 - 0.12) / (count - 0.5);
+/** размеры снимков из public/shots: браузер резервирует место до загрузки */
+const SIZE: Record<string, [number, number]> = { store: [1800, 1125], cabinet: [1205, 753], admin: [1800, 1125], reports: [1606, 1004] };
+/** на телефоне целый экран нечитаем: снимок увеличен в z раз вокруг точки at (доли ширины и высоты снимка) */
+const FOCUS: Record<string, { at: string; z: number }> = {
+  store: { at: "100% 30%", z: 2.08 }, cabinet: { at: "50% 55%", z: 1.25 }, admin: { at: "40% 46%", z: 1.75 }, reports: { at: "36% 44%", z: 1.75 },
+};
 
 /**
- * Что внутри: четыре части платформы колодой экранов (сцена — src/three/layers.ts). На широком
- * экране блок закрепляется, и колоду листает прокрутка: карточка улетает на зрителя, следующая
- * выходит вперёд, пункт слева подсвечивается сам. Клик по пункту прокручивает к его карточке.
- * На телефоне закрепления нет: карточки сменяются сами и по касанию пункта.
- * Без сцены (reduced-motion, нет WebGL) справа плоская схема выбранной части.
+ * Что внутри: четыре настоящих экрана платформы стопкой. На широком экране блок закрепляется,
+ * и стопку листает прокрутка: верхний экран уходит на зрителя, следующий встаёт на его место,
+ * пункт слева подсвечивается сам; клик по пункту прокручивает к его экрану. На телефоне и на
+ * низком экране закрепления нет — экраны сменяются сами и по касанию пункта.
+ * Экраны стоят ровно, без наклона: наклон читается как «криво».
  */
 const ProductTour = () => {
   const { TOUR } = useContent();
-  const { t } = useLang();
   const reduced = !!useReducedMotion();
   const [i, setI] = useState(0);
   const [hold, setHold] = useState(false);
   const [run, setRun] = useState(0);
-  const [wide, setWide] = useState(() => typeof window !== "undefined" && window.matchMedia(PIN).matches);
-  const items = TOUR.items;
-  const cur = items[i];
+  const [pinned, setPinned] = useState(() => typeof window !== "undefined" && window.matchMedia(PIN).matches);
+  const track = useRef<HTMLElement>(null);
+  const items = TOUR.items, count = items.length;
 
   useEffect(() => {
     const mq = window.matchMedia(PIN);
-    const on = () => setWide(mq.matches);
+    const on = () => setPinned(mq.matches);
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
   }, []);
 
-  const track = useRef<HTMLElement>(null);
-  const api = useRef<LayersHandle | null>(null);
-  const tag = useRef<HTMLDivElement>(null);
-  const index = useRef(0);
-  const mount = useCallback(
-    (canvas: HTMLCanvasElement) => import("@/three/layers")
-      .then((m) => m.mountLayers({ canvas, tag: tag.current, track: wide ? track.current : null, onActive: wide ? setI : undefined }))
-      .then((h) => {
-        h.setActive(index.current);
-        api.current = h;
-        return () => { api.current = null; h.dispose(); };
-      }),
-    [wide],
-  );
-  const { canvas, on } = useScene(mount);
-  const pinned = on && wide;
-  useEffect(() => { index.current = i; api.current?.setActive(i); }, [i]);
+  // в закреплённом блоке экран выбирает доля прокрутки секции
+  useEffect(() => {
+    if (!pinned) return;
+    let raf = 0;
+    const read = () => {
+      raf = 0;
+      const el = track.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect(), total = r.height - window.innerHeight;
+      if (total > 0) setI(Math.floor(Math.max(0, Math.min(0.9999, -r.top / total)) * count));
+    };
+    const on = () => { if (!raf) raf = requestAnimationFrame(read); };
+    read();
+    window.addEventListener("scroll", on, { passive: true });
+    window.addEventListener("resize", on);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("scroll", on); window.removeEventListener("resize", on); };
+  }, [pinned, count]);
 
-  // без закрепления пункты сменяются сами
+  // без закрепления экраны сменяются сами
   useEffect(() => {
     if (reduced || hold || pinned) return;
-    const id = setTimeout(() => { setI((n) => (n + 1) % items.length); setRun((k) => k + 1); }, STEP_MS);
+    const id = setTimeout(() => { setI((n) => (n + 1) % count); setRun((k) => k + 1); }, STEP_MS);
     return () => clearTimeout(id);
-  }, [i, hold, reduced, pinned, run, items.length]);
+  }, [i, hold, reduced, pinned, run, count]);
 
   const pick = (n: number) => {
     const el = track.current;
     if (pinned && el) {
       const top = el.getBoundingClientRect().top + window.scrollY, total = el.offsetHeight - window.innerHeight;
-      window.scrollTo({ top: top + total * stop(n, items.length), behavior: "smooth" });
+      window.scrollTo({ top: top + (total * (n + 0.5)) / count, behavior: reduced ? "auto" : "smooth" });
     } else { setI(n); setRun((k) => k + 1); }
   };
 
   return (
-    <section id="features" ref={track} className="relative" style={pinned ? { height: `${100 + items.length * 62}vh` } : undefined}>
+    <section id="features" ref={track} className="relative" style={pinned ? { height: `${100 + count * 55}vh` } : undefined}>
       {/* закреплённый блок привязан к верху: пояснение под пунктом меняет высоту колонки, и по центру она бы прыгала */}
       <div className={pinned ? "sticky top-0 h-screen overflow-hidden" : ""}>
-        <div className={`wrap w-full ${pinned ? "pt-[max(6.5rem,calc(50vh-16.5rem))]" : "py-14 sm:py-20"}`}>
+        <div className={`wrap w-full ${pinned ? "pt-[max(6.5rem,calc(50vh-17rem))]" : "py-14 sm:py-20"}`}>
           <div
             className={`grid grid-cols-1 gap-y-8 lg:grid-cols-12 lg:gap-x-10 ${pinned ? "lg:items-start" : "lg:items-center"}`}
             onMouseEnter={() => setHold(true)}
@@ -84,8 +83,7 @@ const ProductTour = () => {
           >
             <div className="order-1 lg:col-span-4">
               <Reveal>
-                <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{TOUR.eyebrow}</p>
-                <h2 className="t-h2 mt-3">{TOUR.title}</h2>
+                <h2 className="t-h2">{TOUR.title}</h2>
                 <p className={`t-lead muted mt-4 ${pinned ? "[@media(max-height:719px)]:hidden" : ""}`}>{TOUR.lead}</p>
               </Reveal>
               <ol className="mt-8 hidden flex-col lg:flex">
@@ -94,37 +92,34 @@ const ProductTour = () => {
               {pinned && (
                 <p className="muted mt-6 flex items-center gap-2 text-[13px]">
                   <ArrowDown className="h-3.5 w-3.5 text-[hsl(var(--accent-ink))]" aria-hidden="true" />
-                  {t("Листайте вниз: части сменяются по ходу прокрутки", "Scroll down: the parts change as you go")}
+                  {TOUR.hint}
                 </p>
               )}
             </div>
 
-            <div className="order-2 lg:col-span-8">
-              {on ? (
-                <div className="scene relative aspect-[4/3] lg:aspect-[7/5]" role="img" aria-label={`${TOUR.title}: ${cur.title}`}>
-                  {/* в закреплённом блоке холст шире своей ячейки: улетающей карточке нужно место, края гаснут маской */}
-                  <div className={pinned ? "scene-bleed pointer-events-none absolute -inset-y-[24%] -left-10 right-0" : "absolute inset-0"}>
-                    <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
-                    <div ref={tag} className="scene-tag hidden md:block">
-                      <div className="scene-tag-side">
-                        <AnimatePresence mode="wait" initial={false}>
-                          <motion.ul key={cur.key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.18 }} className="flex flex-col gap-1.5">
-                            {cur.schema.nodes.map((n) => (
-                              <li key={n.id} className={`text-[13px] leading-snug ${n.kind === "accent" ? "font-display font-medium text-[hsl(var(--accent-ink))]" : n.kind === "ghost" || n.kind === "side" ? "muted" : ""}`}>{n.title}</li>
-                            ))}
-                          </motion.ul>
-                        </AnimatePresence>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div key={cur.key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.14 } }} transition={{ duration: 0.34, ease: EASE }}>
-                    <Schema graph={cur.schema} label={cur.title} />
-                  </motion.div>
-                </AnimatePresence>
-              )}
+            {/* стопка: сверху запас под экраны, которые выглядывают из-за переднего */}
+            <div className="order-2 pt-[7%] lg:col-span-8">
+              <div className="relative aspect-[16/10]">
+                {items.map((it, n) => {
+                  const d = n - i, back = Math.min(d, 3);
+                  const [w, h] = SIZE[it.key] ?? [1600, 1000];
+                  return (
+                    <figure
+                      key={it.key}
+                      aria-hidden={d !== 0}
+                      className="shot absolute inset-0 overflow-hidden rounded-[14px] border border-[hsl(var(--line)/0.2)] bg-[hsl(var(--bg))] motion-reduce:transition-none"
+                      style={{
+                        zIndex: d === 0 ? count + 1 : d > 0 ? count - d : count + 2,
+                        opacity: d === 0 ? 1 : d < 0 ? 0 : d === 1 ? 0.5 : d === 2 ? 0.24 : 0,
+                        transform: d === 0 ? "none" : d < 0 ? "translateY(5%) scale(1.07)" : `translateY(${-4.6 * back}%) scale(${1 - 0.055 * back})`,
+                        pointerEvents: d === 0 ? "auto" : "none",
+                      }}
+                    >
+                      <img src={`/shots/${it.key}.webp`} width={w} height={h} alt={it.alt} loading="lazy" decoding="async" className="h-full w-full object-cover object-top max-sm:[transform:scale(var(--z))]" style={{ transformOrigin: FOCUS[it.key]?.at, "--z": FOCUS[it.key]?.z ?? 1 } as CSSProperties} />
+                    </figure>
+                  );
+                })}
+              </div>
             </div>
 
             <ol className="order-3 flex flex-col lg:hidden">

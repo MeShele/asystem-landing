@@ -28,11 +28,10 @@ const PageShell = ({ title, children }: { title: string; children: ReactNode }) 
   );
 };
 
-/** Шапка страницы: подпись, заголовок, одна строка под ним. */
-export const PageHead = ({ eyebrow, title, lead }: { eyebrow: string; title: string; lead: string }) => (
+/** Шапка страницы: заголовок и одна строка под ним. Ярлыков-подписей над заголовком нет намеренно. */
+export const PageHead = ({ title, lead }: { title: string; lead: string }) => (
   <div className="max-w-[760px]">
-    <p className="text-[13px] font-semibold uppercase tracking-[0.12em] text-[hsl(var(--accent-ink))]">{eyebrow}</p>
-    <h1 className="t-h2 mt-4">{title}</h1>
+    <h1 className="t-h2">{title}</h1>
     <p className="t-lead muted mt-4">{lead}</p>
   </div>
 );

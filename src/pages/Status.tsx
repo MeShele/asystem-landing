@@ -55,11 +55,10 @@ const Status = () => {
         <Illus bg name="gear" size={480} className="right-[-80px] top-[-120px] hidden lg:block" />
         <Reveal className="relative z-[1]">
           <PageHead
-            eyebrow={t("Статус · проверка раз в минуту", "Status · checked every minute")}
             title={t("Статус платформы", "Platform status")}
             lead={t(
-              "Витрина, API и база каждого обменника проверяются снаружи. Имена клиентов не публикуем, только номера.",
-              "The storefront, API and database of every exchange are checked from outside. Client names are not published, only numbers.",
+              "Витрина, API и база каждого обменника проверяются снаружи раз в минуту. Имена клиентов не публикуем, только номера.",
+              "The storefront, API and database of every exchange are checked from outside once a minute. Client names are not published, only numbers.",
             )}
           />
         </Reveal>
