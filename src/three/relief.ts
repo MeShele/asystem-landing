@@ -3,7 +3,7 @@ import {
   NormalBlending, PerspectiveCamera, PlaneGeometry, Points, RGBAFormat, Scene, ShaderMaterial,
   UnsignedByteType, Vector2, Vector3,
 } from "three";
-import { mountView, type ViewSize } from "@/three/stage";
+import { mountLive, type LiveSize as ViewSize } from "@/three/live";
 import { loadRelief, project, sample, type Relief } from "@/three/reliefData";
 
 /**
@@ -557,7 +557,7 @@ export const mountRelief = async ({ canvas, label, url }: ReliefOptions): Promis
     if (shared.uShow.value !== tagShown) { tagShown = shared.uShow.value; label.style.opacity = String(tagShown); }
   };
 
-  const unmount = mountView({ canvas, scene, camera, maxDpr: coarse ? 1.75 : 1.5, frame, post });
+  const unmount = mountLive({ canvas, scene, camera, maxDpr: coarse ? 1.75 : 1.5, frame, post });
   return () => {
     unmount();
     window.removeEventListener("pointermove", onMove);

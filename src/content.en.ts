@@ -20,23 +20,21 @@ export const HERO: typeof RU.HERO = {
   demoUrl: DEMO_URL,
   fact: (n: number | null) => (n ? `${n} exchanges already live` : "Exchanges already live"),
   facts: ["Server in Bishkek", "Launch within 14 days"],
-  shotLabel: "The order's path: client, exchange website, payment, operator, FinSupervision",
   map: { label: "Relief map of Kyrgyzstan: the exchange server sits in Bishkek, orders reach it from cities across the country", city: "Bishkek", note: "exchange server and data" },
-  schema: {
-    cols: 5,
-    nodes: [
-      { id: "client", col: 1, row: 1, title: "Client", text: "Sign-up and KYC before the first deal" },
-      { id: "site", col: 2, row: 1, title: "Exchange website", text: "Your domain, the rate is locked in the order" },
-      { id: "pay", col: 3, row: 1, title: "Payment", text: "Bank transfer or Finik QR, confirmed automatically" },
-      { id: "operator", col: 4, row: 1, title: "Operator", text: "SFIS list screening, payout" },
-      { id: "fin", col: 5, row: 1, kind: "accent", title: "FinSupervision", text: "Registries build from orders" },
-      { id: "server", col: 1, row: 2, span: 5, kind: "ghost", title: "Server in Bishkek", text: "Data kept five years, daily backup, your domain and brand" },
-    ],
-    edges: [
-      { from: "client", to: "site" }, { from: "site", to: "pay" }, { from: "pay", to: "operator" }, { from: "operator", to: "fin" },
-    ],
-    route: ["client", "site", "pay", "operator", "fin"],
-  } as Graph,
+};
+
+export const PATH: typeof RU.PATH = {
+  title: "The order's path",
+  lead: "From client sign-up to the FinSupervision registry, an order runs on one platform.",
+  label: "A circuit board with five chips: client, exchange website, payment, operator, FinSupervision; the board is the server in Bishkek",
+  steps: [
+    { id: "client", title: "Client", text: "Sign-up and KYC before the first deal" },
+    { id: "site", title: "Exchange website", text: "Your domain, the rate is locked in the order" },
+    { id: "pay", title: "Payment", text: "Bank transfer or Finik QR, confirmed automatically" },
+    { id: "operator", title: "Operator", text: "SFIS list screening, payout" },
+    { id: "fin", title: "FinSupervision", text: "Registries build from orders" },
+  ],
+  base: { id: "server", title: "Server in Bishkek", text: "Data kept five years, daily backup, your domain and brand" },
 };
 
 export const PROOF: typeof RU.PROOF = {
@@ -191,6 +189,7 @@ export const AUTOMATION: typeof RU.AUTOMATION = {
 export const STEPS: typeof RU.STEPS = {
   title: "Launch in four steps",
   note: "Within 14 days of payment.",
+  peak: "The route follows the real relief of Jengish Chokusu (Pobeda Peak): 7,439 m, the highest point of Kyrgyzstan.",
   schema: {
     cols: 4,
     nodes: [

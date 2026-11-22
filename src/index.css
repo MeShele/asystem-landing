@@ -143,26 +143,16 @@
     .hero-map { width: min(960px, calc(140% + var(--bleed))); margin-left: -40%; }
   }
 
+  /* подписи на 3D-сценах: сцена каждый кадр ставит .scene-tag в точку привязки (translate),
+     внутри подпись растёт вверх от конца луча, вниз от края детали или вбок от неё */
+  .scene-tag { position: absolute; left: 0; top: 0; opacity: 0; pointer-events: none; will-change: transform; }
+  .scene-tag-up { position: absolute; left: 0; bottom: 8px; width: max-content; max-width: 190px; transform: translateX(-50%); text-align: center; }
+  .scene-tag-down { position: absolute; left: 0; top: 10px; width: max-content; max-width: 300px; padding-left: 12px; border-left: 1px solid hsl(var(--accent) / 0.7); }
+  .scene-tag-side { position: absolute; left: 12px; top: 0; width: max-content; max-width: 240px; padding: 7px 12px 8px; border-left: 1px solid hsl(var(--accent) / 0.7); border-radius: 0 10px 10px 0; background: hsl(var(--bg) / 0.74); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); transform: translateY(-50%); }
+
   /* подпись у маяка на карте героя: точка привязки — нижний угол, от него тонкая выноска */
   .relief-tag { position: absolute; left: 14px; bottom: 0; width: max-content; padding: 0 0 2px 12px; border-left: 1px solid hsl(var(--accent) / 0.7); }
   [data-flip] > .relief-tag { left: auto; right: 14px; padding: 0 12px 2px 0; border-left: 0; border-right: 1px solid hsl(var(--accent) / 0.7); text-align: right; }
-
-  /* подачи схем, меняющие вёрстку (только где возможна объёмная отрисовка — .is-deep):
-     лестница — узлы маршрута поднимаются ступенями над общим полом; лента — стоят вплотную одной плитой */
-  @media (min-width: 768px) {
-    .schema--stairs.is-deep .schema-grid { align-items: end; column-gap: 12px; }
-    .schema--stairs.is-deep .schema-node { margin-bottom: var(--lift, 0px); }
-    .schema--strip.is-deep .schema-grid { column-gap: 0; align-items: stretch; }
-    .schema--strip.is-deep .schema-node[data-cell="first"] { border-top-right-radius: 0; border-bottom-right-radius: 0; }
-    .schema--strip.is-deep .schema-node[data-cell="mid"] { border-radius: 0; }
-    .schema--strip.is-deep .schema-node[data-cell="last"] { border-top-left-radius: 0; border-bottom-left-radius: 0; }
-  }
-
-  /* объёмная схема: крыши узлов и рейку рисует сцена (src/three/towers.ts), вёрстке остаётся текст */
-  .schema.is-solid .schema-node { background: transparent; border-color: transparent; }
-  @media (max-width: 767px) {
-    .schema.is-solid .schema-grid { border-left-color: transparent; }
-  }
 
   /* вход секции по частям: 16px подъём, сильный ease-out, задержка по --i (60ms) */
   html.js .rise > * {

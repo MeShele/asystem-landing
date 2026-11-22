@@ -4,6 +4,7 @@ import { useLang } from "@/i18n";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Proof from "@/components/Proof";
+import Path from "@/components/Path";
 import ProductTour from "@/components/ProductTour";
 import Automation from "@/components/Automation";
 import Who from "@/components/Who";
@@ -53,6 +54,7 @@ function App() {
         <main>
           <Hero />
           <Proof />
+          <Path />
           <ProductTour />
           <Who />
           <Law />

@@ -1,21 +1,13 @@
 import { WebGLRenderer, type Camera, type Scene } from "three";
+import { every as paceEvery, scale, tick } from "@/three/pace";
 
 /**
- * Сцена для всех 3D-вставок сайта: один WebGL-контекст на страницу. Каждая вставка — обычный
- * <canvas> в потоке вёрстки (2D). За кадр общий рендерер рисует все видимые вставки в свой буфер
- * друг под другом, после чего каждая забирает свой участок через drawImage. Так вставка
- * скроллится, маскируется и перекрывается средствами CSS, а контекстов не становится больше
- * с каждым элементом. Сначала все сцены, потом все копии: браузер снимает буфер один раз на кадр.
- *
- * Нагрузка держится тремя правилами:
- * — на плотных экранах без аппаратного сглаживания (MSAA на общем буфере стоит дороже всего
- *   остального; кромки сглаживают сами шейдеры), на обычных — с ним;
- * — вставка рисуется, только когда ей есть что менять (frame вернул не false), и не чаще 60 раз
- *   в секунду даже на 120-герцовом экране;
- * — если кадры всё равно запаздывают, разрешение вставок ступенчато падает, а на нижней ступени
- *   они обновляются через кадр; при запасе качество возвращается.
- * Кадры идут только пока вставка на экране и вкладка активна; под reduced-motion — по одному
- * кадру на изменение размера.
+ * Общий рендерер для мелких фоновых вставок (гравюры из частиц): один WebGL-контекст, каждая
+ * вставка — обычный <canvas> в потоке вёрстки (2D). За кадр рендерер рисует все вставки, которым
+ * есть что менять, в свой буфер друг под другом, после чего каждая забирает свой участок через
+ * drawImage: сначала все сцены, потом все копии — браузер снимает буфер один раз на кадр.
+ * Вставка остаётся элементом вёрстки: маску, прозрачность и перекрытия делает CSS.
+ * Большие сцены живут отдельно, по одной за раз — см. live.ts. Темп и разрешение задаёт pace.ts.
  */
 export type ViewSize = { w: number; h: number; cssW: number; cssH: number; dpr: number };
 
@@ -37,39 +29,11 @@ type Job = { s: Slot; w: number; h: number; y: number; size: ViewSize };
 let renderer: WebGLRenderer | null = null;
 let bufW = 0, bufH = 0, limit = 4096, roomy = 0;
 const slots = new Set<Slot>();
-let raf = 0, last = 0;
+let raf = 0, last = 0, count = 0;
 const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// ── ступени качества ───────────────────────────────────────────────────────────
-const SCALE = [1, 0.8, 0.64, 0.5];
-const gov = { level: 0, floor: 0, raised: false, tick: 0, nominal: 16.7, deltas: [] as number[], calm: 0, sinceChange: 0, warm: 0 };
 /** сводка для отладки и замеров: window.__asysStage */
-export const stats = { level: 0, buffer: "", views: 0, pixels: 0, msaa: false };
-
-const govern = (delta: number) => {
-  if (delta > 250) { gov.warm = 0; return; }          // вкладка засыпала — не замер
-  if (gov.warm++ < 45) return;                        // первые кадры после паузы всегда рваные
-  const d = gov.deltas;
-  d.push(delta);
-  if (d.length > 90) d.shift();
-  if (d.length < 60) return;
-  gov.sinceChange++;
-  // частота экрана — по быстрым кадрам; запаздывающим считаем кадр в полтора интервала и длиннее
-  const sorted = [...d].sort((a, b) => a - b);
-  gov.nominal = sorted[Math.floor(sorted.length * 0.15)];
-  const late = d.filter((x) => x > gov.nominal * 1.5).length / d.length;
-  if (late > 0.12 && gov.level < SCALE.length - 1 && gov.sinceChange > 45) {
-    gov.level++;
-    // только что поднимали качество и снова не тянем — выше этой ступени больше не пробуем
-    if (gov.raised && gov.sinceChange < 400) gov.floor = gov.level;
-    gov.raised = false; gov.sinceChange = 0; gov.calm = 0; d.length = 0;
-    return;
-  }
-  gov.calm = late < 0.02 ? gov.calm + 1 : 0;
-  if (gov.calm > 600 && gov.level > gov.floor) {
-    gov.level--; gov.raised = true; gov.sinceChange = 0; gov.calm = 0; d.length = 0;
-  }
-};
+export const stats = { buffer: "", views: 0, pixels: 0, msaa: false };
 
 const ensureRenderer = () => {
   if (renderer) return renderer;
@@ -102,15 +66,15 @@ const loop = (now: number) => {
   const still = reduced();
   let waiting = false;
   // на 120 Гц рисуем через кадр; на нижней ступени качества — ещё вдвое реже
-  const every = (gov.nominal < 11 ? 2 : 1) * (gov.level === SCALE.length - 1 ? 2 : 1);
-  const draw = still || gov.tick++ % every === 0;
+  const every = paceEvery();
+  const draw = still || count++ % every === 0;
   const jobs: Job[] = [];
   for (const s of slots) {
     if (!s.onScreen || s.cssW < 2 || s.cssH < 2) continue;
     if (still && !s.dirty) continue;
     waiting = true;
     if (!draw) continue;
-    const dpr = Math.max(0.75, Math.min(window.devicePixelRatio || 1, s.maxDpr) * (still ? 1 : SCALE[gov.level]));
+    const dpr = Math.max(0.75, Math.min(window.devicePixelRatio || 1, s.maxDpr) * (still ? 1 : scale()));
     const w = Math.min(limit, Math.max(1, Math.round(s.cssW * dpr))), h = Math.min(limit, Math.max(1, Math.round(s.cssH * dpr)));
     const size = { w, h, cssW: s.cssW, cssH: s.cssH, dpr };
     const resized = s.canvas.width !== w || s.canvas.height !== h;
@@ -145,9 +109,9 @@ const loop = (now: number) => {
       i = j;
     }
     for (const { s } of jobs) s.post?.();
-    stats.level = gov.level; stats.buffer = `${bufW}x${bufH}`; stats.views = jobs.length; stats.pixels = pixels;
+    stats.buffer = `${bufW}x${bufH}`; stats.views = jobs.length; stats.pixels = pixels;
   }
-  if (waiting && !still) govern(delta);
+  if (waiting && !still) tick(now, delta);
   if (waiting && !still && !document.hidden) raf = requestAnimationFrame(loop);
   else last = 0;
 };

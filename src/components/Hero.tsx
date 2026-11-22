@@ -1,5 +1,4 @@
 import { motion, useReducedMotion } from "motion/react";
-import Schema from "@/components/Schema";
 import ReliefMap from "@/components/ReliefMap";
 import { useLeadDialog } from "@/components/LeadDialog";
 import { useContent, useLang } from "@/i18n";
@@ -26,9 +25,8 @@ const KineticLines = ({ lines, reduced }: { lines: string[]; reduced: boolean })
 );
 
 /**
- * Герой: короткий текст по центру и под ним схема пути заявки через закон — клиент, сайт,
- * оплата, оператор, Финнадзор; по схеме бежит импульс заявки. Это главная картинка сайта,
- * и дальше каждая секция показывает её участок крупнее.
+ * Герой: текст слева, справа макет страны с маяком сервера в Бишкеке. Путь заявки, который
+ * раньше стоял под героем схемой, теперь отдельный блок сразу за ним (Path).
  */
 const Hero = () => {
   const { HERO } = useContent();
@@ -44,7 +42,7 @@ const Hero = () => {
   });
 
   return (
-    <section id="top" className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36">
+    <section id="top" className="relative overflow-hidden pb-6 pt-28 sm:pt-32 lg:pt-36">
       <div className="wrap">
         <div className="grid grid-cols-1 items-center gap-y-8 lg:grid-cols-12 lg:gap-x-6">
           <div className="relative z-[1] text-center lg:col-span-7 lg:text-left">
@@ -68,15 +66,6 @@ const Hero = () => {
             />
           </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: reduced ? 0 : 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: EASE, delay: 0.55 }}
-          className="mt-10 sm:mt-12"
-        >
-          <Schema graph={HERO.schema} label={HERO.shotLabel} large />
-        </motion.div>
       </div>
     </section>
   );
