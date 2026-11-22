@@ -1,18 +1,13 @@
 import {
-  BufferGeometry, CanvasTexture, CapsuleGeometry, CatmullRomCurve3, DirectionalLight, HemisphereLight, LinearFilter, Mesh, MeshBasicMaterial,
-  MeshPhysicalMaterial, PlaneGeometry, PointLight, ShadowMaterial, SphereGeometry, SRGBColorSpace, TubeGeometry, Vector3,
-  type Group, type Material, type Object3D, type Scene,
+  CanvasTexture, DirectionalLight, HemisphereLight, LinearFilter, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, PlaneGeometry,
+  PointLight, ShadowMaterial, SRGBColorSpace, Vector3, type Group, type Object3D, type Scene,
 } from "three";
-import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
-import { SVGLoader } from "three/examples/jsm/loaders/SVGLoader.js";
-import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { studioEnv } from "@/three/live";
-import type { IconNode } from "@/three/icons";
 
 /**
- * Студия для объёмных макетов (щит, запуск, механизм): настоящие материалы со светом и
- * отражениями вместо гравировки линиями. Общие краски, свет с мягкой тенью, «пол», который
- * показывает только тень, скруглённые тела, значки объёмными штрихами и экраны-текстуры.
+ * Студия для объёмных макетов (щит, запуск, механизм): материалы со светом и отражениями,
+ * свет с мягкой тенью, «пол», который показывает только тень, и светящиеся экраны.
+ * Сами модели сделаны в Blender (scripts/blender) и подключаются через models.ts.
  */
 export const HUE = { lime: 0xb6ff1a, amber: 0xffb21f, ice: 0xe9efea, graphite: 0x1d2226, dark: 0x0d1012, ink: 0x0a0d0b, skin: 0xe6d3bf } as const;
 
@@ -79,64 +74,11 @@ export const solid = <T extends Object3D>(root: T): T => {
   return root;
 };
 
-export const box = (w: number, h: number, d: number, r = 0.04, seg = 4) => new RoundedBoxGeometry(w, h, d, seg, Math.min(r, w / 2 - 1e-3, h / 2 - 1e-3, d / 2 - 1e-3));
-
-/** много одинаковых неподвижных деталей одним телом: одна отрисовка вместо десятков */
-export const many = (geo: BufferGeometry, at: [number, number, number][]) => {
-  const parts = at.map(([x, y, z]) => geo.clone().translate(x, y, z)), g = mergeGeometries(parts);
-  for (const p of parts) p.dispose();
-  geo.dispose();
-  return g;
-};
-
-/** «кость» между двумя точками: капсула со скруглёнными концами */
-const UP = new Vector3(0, 1, 0);
-export const limb = (a: Vector3, b: Vector3, r: number, m: Material) => {
-  const mesh = new Mesh(new CapsuleGeometry(r, a.distanceTo(b), 8, 20), m);
-  mesh.position.copy(a).add(b).multiplyScalar(0.5);
-  mesh.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize());
-  return mesh;
-};
-
 /**
- * Значок из набора lucide объёмными штрихами: каждый контур — трубка со скруглёнными концами
- * и стыками. Лежит в плоскости XY лицом к +Z, центр в нуле; size — сторона квадрата значка,
- * r — радиус штриха. Геометрия, а не текстура: не рассыпается на пиксели при любом увеличении.
+ * Экран или табло: рисунок с холста светится сам; w, h — размер холста в точках.
+ * flipY=false — для плоскостей из Blender: у развёртки glTF начало в левом верхнем углу.
  */
-export const iconSolid = (nodes: IconNode[], size: number, r: number): BufferGeometry => {
-  const body = nodes.map((n) =>
-    n[0] === "path" ? `<path d="${n[1]}"/>`
-      : n[0] === "circle" ? `<circle cx="${n[1]}" cy="${n[2]}" r="${n[3]}"/>`
-        : n[0] === "ellipse" ? `<ellipse cx="${n[1]}" cy="${n[2]}" rx="${n[3]}" ry="${n[4]}"/>`
-          : `<rect x="${n[1]}" y="${n[2]}" width="${n[3]}" height="${n[4]}" rx="${n[5]}"/>`).join("");
-  const data = new SVGLoader().parse(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000">${body}</svg>`);
-  const k = size / 24, parts: BufferGeometry[] = [];
-  const ball = (p: Vector3) => parts.push(new SphereGeometry(r, 12, 8).translate(p.x, p.y, p.z));
-  for (const path of data.paths) for (const sub of path.subPaths) {
-    const pts: Vector3[] = [];
-    for (const v of sub.getPoints(14)) {
-      const p = new Vector3((v.x - 12) * k, (12 - v.y) * k, 0);
-      if (!pts.length || pts[pts.length - 1].distanceTo(p) > 1e-4) pts.push(p);
-    }
-    if (pts.length < 2) { if (pts.length) ball(pts[0]); continue; }
-    if (pts[0].distanceTo(pts[pts.length - 1]) < r * 0.6 && pts.length < 3) { ball(pts[0]); continue; }     // «точка»: отрезок короче штриха
-    const closed = pts[0].distanceTo(pts[pts.length - 1]) < 1e-3;
-    if (closed) pts.pop();
-    parts.push(new TubeGeometry(new CatmullRomCurve3(pts, closed, "catmullrom", 0), Math.max(12, pts.length * 3), r, 10, closed));
-    // скруглённые концы и стыки на изломах
-    if (!closed) { ball(pts[0]); ball(pts[pts.length - 1]); }
-    for (let i = 1; i < pts.length - 1; i++) {
-      const a = pts[i].clone().sub(pts[i - 1]).normalize(), b = pts[i + 1].clone().sub(pts[i]).normalize();
-      if (a.dot(b) < 0.86) ball(pts[i]);
-    }
-  }
-  const merged = mergeGeometries(parts);
-  for (const g of parts) g.dispose();
-  return merged;
-};
-
-/** экран или табло: рисунок с холста светится сам; w, h — размер холста в точках */
-export const screen = (w: number, h: number, draw: (c: CanvasRenderingContext2D, w: number, h: number) => void) => {
+export const screen = (w: number, h: number, draw: (c: CanvasRenderingContext2D, w: number, h: number) => void, flipY = true) => {
   const cv = document.createElement("canvas");
   cv.width = w; cv.height = h;
   const c = cv.getContext("2d");
@@ -144,6 +86,7 @@ export const screen = (w: number, h: number, draw: (c: CanvasRenderingContext2D,
   c.lineCap = "round"; c.lineJoin = "round";
   draw(c, w, h);
   const map = new CanvasTexture(cv);
+  map.flipY = flipY;
   map.colorSpace = SRGBColorSpace; map.minFilter = LinearFilter; map.magFilter = LinearFilter; map.generateMipmaps = false; map.anisotropy = 4;
   const material = new MeshBasicMaterial({ map, transparent: true, toneMapped: false });
   return { material, dispose: () => { map.dispose(); material.dispose(); } };

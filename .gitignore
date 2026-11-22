@@ -6,3 +6,6 @@ dist
 .taste-skill/*
 !.taste-skill/notes.md
 !.taste-skill/direction.json
+
+# кэш Python от скриптов Blender
+__pycache__/

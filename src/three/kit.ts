@@ -182,7 +182,4 @@ export const fonts = () => Promise.race([
 ]).then(() => undefined, () => undefined);
 export const FONT = (px: number, weight = 600) => `${weight} ${px}px Unbounded, Onest, system-ui, sans-serif`;
 
-/** отдать кадр браузеру между шагами сборки сцены: без этого сборка одним куском дёргает прокрутку */
-export const nap = () => new Promise<void>((r) => setTimeout(r, 0));
-
 export const ease = (x: number) => 1 - Math.pow(1 - Math.max(0, Math.min(1, x)), 3);
