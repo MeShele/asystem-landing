@@ -2,9 +2,10 @@ import { useEffect, useRef } from "react";
 
 /**
  * Переливающийся градиент на весь фон: четыре мягких пятна цвета медленно плывут по
- * экрану. Сырой WebGL без three.js (несколько килобайт вместо полумегабайта), один
- * fullscreen-треугольник, dpr не выше 1, пауза вне вкладки, под reduced-motion один
- * статичный кадр. Глубокие тона с лаймовым свечением складываются к чёрному.
+ * экрану. Сырой WebGL, один fullscreen-треугольник, пауза вне вкладки, под reduced-motion
+ * один статичный кадр. Глубокие тона с лаймовым свечением складываются к чёрному.
+ * Пятна крупные и плывут медленно, поэтому фон считается в половинном разрешении и
+ * обновляется 20 раз в секунду: глазу разницы нет, а видеокарте работы в двенадцать раз меньше.
  */
 const VERT = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
 const FRAG = `
@@ -24,9 +25,12 @@ void main(){
   vec3 col = base + d1 * w1 * 0.55 + d2 * w2 * 0.6 + d3 * w3 * 0.5 + d4 * w4 * 0.25;
   /* лёгкое зерно против полос */
   float g = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
-  col += (g - 0.5) * 0.012;
+  col += (g - 0.5) * 0.008;
   gl_FragColor = vec4(col, 1.0);
 }`;
+
+const SCALE = 0.5;      // доля разрешения окна
+const STEP_MS = 48;     // не чаще одного кадра в 48 мс
 
 const GradientBackground = () => {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -56,8 +60,7 @@ const GradientBackground = () => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let raf = 0; let running = true; let start = performance.now();
     const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1);
-      const w = Math.floor(window.innerWidth * dpr), h = Math.floor(window.innerHeight * dpr);
+      const w = Math.max(2, Math.floor(window.innerWidth * SCALE)), h = Math.max(2, Math.floor(window.innerHeight * SCALE));
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h); }
       gl.uniform2f(uRes, w, h);
     };
@@ -66,7 +69,12 @@ const GradientBackground = () => {
       gl.uniform1f(uTime, (now - start) / 1000 + 40);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
-    const loop = (now: number) => { if (!running) return; draw(now); raf = requestAnimationFrame(loop); };
+    let shown = -1e9;
+    const loop = (now: number) => {
+      if (!running) return;
+      if (now - shown >= STEP_MS) { shown = now; draw(now); }
+      raf = requestAnimationFrame(loop);
+    };
     const onVis = () => {
       running = !document.hidden && !reduced;
       if (running) { start = performance.now() - 1000; raf = requestAnimationFrame(loop); } else cancelAnimationFrame(raf);

@@ -146,7 +146,7 @@ void main() {
   float near = smoothstep(-uDepth, max(vTop, 0.01), vY);
   vec3 col = BODY * 0.8 + LIME * 0.035 * near;
   col = mix(col, LIME, strata * mix(0.1, 0.5, near) * vShow);
-  float a = 0.94 * smoothstep(0.0, 0.2, vShow + 0.001);
+  float a = 0.94 * smoothstep(0.0, 0.2, vShow + 0.001) * smoothstep(-uDepth, -uDepth + fwidth(vY) * 1.5, vY);
   gl_FragColor = vec4(col * a, a);
 }`;
 
@@ -489,6 +489,7 @@ export const mountRelief = async ({ canvas, label, url }: ReliefOptions): Promis
   const hit = new Vector3(), ray = new Vector3(), origin = new Vector3(), inv = new Matrix4();
   const labelAt = new Vector3();
   let flipped = false, scrollTilt = 0, tagX = -9, tagY = -9, tagShown = -1;
+  const tagNext = { x: 0, y: 0, w: 0 };
 
   const frame = (t: number, dt: number, size: ViewSize) => {
     fit(size.cssW / size.cssH);
@@ -534,21 +535,29 @@ export const mountRelief = async ({ canvas, label, url }: ReliefOptions): Promis
 
     if (label) {
       labelAt.set(home.x, home.y + 0.2, home.z).applyMatrix4(group.matrixWorld).project(camera);
-      const x = (labelAt.x * 0.5 + 0.5) * size.cssW, y = (-labelAt.y * 0.5 + 0.5) * size.cssH;
-      // справа от маяка, а если не помещается в кадр — слева
-      if (!tagW) tagW = (label.firstElementChild as HTMLElement | null)?.offsetWidth ?? 0;
-      const flip = x + 16 + tagW > size.cssW;
-      if (flip !== flipped) { flipped = flip; label.toggleAttribute("data-flip", flip); }
-      // стиль трогаем, только когда подпись сдвинулась хотя бы на четверть пикселя
-      if (Math.abs(x - tagX) > 0.25 || Math.abs(y - tagY) > 0.25) {
-        tagX = x; tagY = y;
-        label.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
-      }
-      if (shared.uShow.value !== tagShown) { tagShown = shared.uShow.value; label.style.opacity = String(tagShown); }
+      tagNext.x = (labelAt.x * 0.5 + 0.5) * size.cssW;
+      tagNext.y = (-labelAt.y * 0.5 + 0.5) * size.cssH;
+      tagNext.w = size.cssW;
     }
   };
 
-  const unmount = mountView({ canvas, scene, camera, maxDpr: coarse ? 2 : 1.75, frame });
+  // запись в вёрстку — отдельно от чтения геометрии, чтобы кадр не пересчитывал стили дважды
+  const post = () => {
+    if (!label) return;
+    const { x, y } = tagNext;
+    // справа от маяка, а если не помещается в кадр — слева
+    if (!tagW) tagW = (label.firstElementChild as HTMLElement | null)?.offsetWidth ?? 0;
+    const flip = x + 16 + tagW > tagNext.w;
+    if (flip !== flipped) { flipped = flip; label.toggleAttribute("data-flip", flip); }
+    // стиль трогаем, только когда подпись сдвинулась хотя бы на четверть пикселя
+    if (Math.abs(x - tagX) > 0.25 || Math.abs(y - tagY) > 0.25) {
+      tagX = x; tagY = y;
+      label.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
+    }
+    if (shared.uShow.value !== tagShown) { tagShown = shared.uShow.value; label.style.opacity = String(tagShown); }
+  };
+
+  const unmount = mountView({ canvas, scene, camera, maxDpr: coarse ? 1.75 : 1.5, frame, post });
   return () => {
     unmount();
     window.removeEventListener("pointermove", onMove);

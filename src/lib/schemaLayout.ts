@@ -8,6 +8,12 @@ import type { Graph, SchemaNode } from "@/lib/schema";
 export type Box = { x: number; y: number; w: number; h: number };
 export type Pt = [number, number];
 export type Kind = NonNullable<SchemaNode["kind"]>;
+/**
+ * Подача схемы — у каждого блока сайта своя: chain — отдельные плиты с мостами (путь заявки в герое),
+ * glass — чертёж из стеклянных коробов («Что внутри»), stairs — лестница к запуску,
+ * strip — одна сплошная лента с делениями («Сделка без сотрудника»).
+ */
+export type Variant = "chain" | "glass" | "stairs" | "strip";
 
 export type LaidNode = {
   id: string; box: Box; kind: Kind; index: number;

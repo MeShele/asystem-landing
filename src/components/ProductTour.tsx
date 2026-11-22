@@ -90,7 +90,7 @@ const ProductTour = () => {
               exit={{ opacity: 0, transition: { duration: 0.14 } }}
               transition={{ duration: 0.34, ease: EASE }}
             >
-              <Schema graph={cur.schema} label={cur.title} />
+              <Schema graph={cur.schema} label={cur.title} variant="glass" />
             </motion.div>
           </AnimatePresence>
         </div>

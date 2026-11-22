@@ -18,7 +18,7 @@ const Automation = () => {
         {AUTOMATION.flows.map((f) => (
           <Reveal key={f.key} className="grid grid-cols-1 gap-5 lg:grid-cols-[200px_1fr] lg:gap-10">
             <h3 className="t-h3 lg:pt-4">{f.title}</h3>
-            <Schema graph={f.schema} label={f.title} />
+            <Schema graph={f.schema} label={f.title} variant="strip" />
           </Reveal>
         ))}
       </div>

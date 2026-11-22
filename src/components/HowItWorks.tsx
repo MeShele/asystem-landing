@@ -12,7 +12,7 @@ const HowItWorks = () => {
         <p className="t-lead muted mt-4">{STEPS.note}</p>
       </Reveal>
       <Reveal className="mt-10">
-        <Schema graph={STEPS.schema} label={STEPS.title} />
+        <Schema graph={STEPS.schema} label={STEPS.title} variant="stairs" />
       </Reveal>
     </section>
   );

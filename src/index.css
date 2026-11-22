@@ -147,6 +147,17 @@
   .relief-tag { position: absolute; left: 14px; bottom: 0; width: max-content; padding: 0 0 2px 12px; border-left: 1px solid hsl(var(--accent) / 0.7); }
   [data-flip] > .relief-tag { left: auto; right: 14px; padding: 0 12px 2px 0; border-left: 0; border-right: 1px solid hsl(var(--accent) / 0.7); text-align: right; }
 
+  /* подачи схем, меняющие вёрстку (только где возможна объёмная отрисовка — .is-deep):
+     лестница — узлы маршрута поднимаются ступенями над общим полом; лента — стоят вплотную одной плитой */
+  @media (min-width: 768px) {
+    .schema--stairs.is-deep .schema-grid { align-items: end; column-gap: 12px; }
+    .schema--stairs.is-deep .schema-node { margin-bottom: var(--lift, 0px); }
+    .schema--strip.is-deep .schema-grid { column-gap: 0; align-items: stretch; }
+    .schema--strip.is-deep .schema-node[data-cell="first"] { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .schema--strip.is-deep .schema-node[data-cell="mid"] { border-radius: 0; }
+    .schema--strip.is-deep .schema-node[data-cell="last"] { border-top-left-radius: 0; border-bottom-left-radius: 0; }
+  }
+
   /* объёмная схема: крыши узлов и рейку рисует сцена (src/three/towers.ts), вёрстке остаётся текст */
   .schema.is-solid .schema-node { background: transparent; border-color: transparent; }
   @media (max-width: 767px) {

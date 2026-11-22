@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import type { Graph } from "@/lib/schema";
-import { layoutGraph, type Box, type Kind, type Laid } from "@/lib/schemaLayout";
+import { layoutGraph, type Box, type Kind, type Laid, type Variant } from "@/lib/schemaLayout";
 import type { Towers } from "@/three/towers";
 
 /**
@@ -11,6 +11,11 @@ import type { Towers } from "@/three/towers";
  * заявки. Текст узлов при этом остаётся обычной вёрсткой. Под reduced-motion, без WebGL и пока
  * three.js не загрузился работает плоский вариант: карточки с линией, рёбра в SVG.
  * На телефоне узлы идут столбиком вдоль лаймовой рейки; импульс бежит по рейке вниз.
+ *
+ * variant — подача блока, чтобы схемы сайта не были на одно лицо: chain — плиты с мостами,
+ * glass — чертёж из стеклянных коробов, stairs — лестница (узлы маршрута поднимаются ступенями),
+ * strip — лента (узлы маршрута стоят вплотную одной плитой). Лестница и лента меняют и вёрстку,
+ * поэтому включаются только там, где объёмная отрисовка возможна.
  */
 const EASE = [0.23, 1, 0.32, 1] as const;
 
@@ -21,7 +26,7 @@ const KIND: Record<Kind, string> = {
   ghost: "bg-transparent border-dashed border-[hsl(var(--line)/0.25)]",
 };
 
-const Schema = ({ graph, className = "", label, large = false }: { graph: Graph; className?: string; label?: string; large?: boolean }) => {
+const Schema = ({ graph, className = "", label, large = false, variant = "chain" }: { graph: Graph; className?: string; label?: string; large?: boolean; variant?: Variant }) => {
   const reduced = !!useReducedMotion();
   const ref = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -36,7 +41,7 @@ const Schema = ({ graph, className = "", label, large = false }: { graph: Graph;
   const inView = useInView(ref, { once: true, margin: "0px 0px -8% 0px" });
   const solid = !reduced && !failed;        // объёмная отрисовка возможна
   const wide = laid?.wide ?? (typeof window === "undefined" || window.matchMedia("(min-width: 768px)").matches);
-  const bleed = wide ? 56 : 20;
+  const bleed = !wide ? 20 : variant === "glass" ? 88 : 56;
 
   useLayoutEffect(() => {
     const el = ref.current, grid = gridRef.current;
@@ -73,7 +78,7 @@ const Schema = ({ graph, className = "", label, large = false }: { graph: Graph;
       import("@/three/towers")
         .then((m) => {
           if (dead) return;
-          const t = m.mountTowers(canvas, bleed);
+          const t = m.mountTowers(canvas, bleed, variant);
           if (laidRef.current) t.update(laidRef.current);
           towers.current = t;
           // схема могла выйти на экран, пока грузилась сцена: крыши подхватывают то же время, что и текст
@@ -88,7 +93,7 @@ const Schema = ({ graph, className = "", label, large = false }: { graph: Graph;
       towers.current?.dispose(); towers.current = null;
       setReady(false);
     };
-  }, [solid, bleed]);
+  }, [solid, bleed, variant]);
 
   useEffect(() => {
     if (!inView) return;
@@ -97,10 +102,11 @@ const Schema = ({ graph, className = "", label, large = false }: { graph: Graph;
   }, [inView]);
 
   const rows = Math.max(...graph.nodes.map((n) => n.row));
+  const route = graph.route ?? [];
   const live = solid && ready;              // крыши и рёбра рисует сцена
 
   return (
-    <div ref={ref} className={`schema relative ${live ? "is-solid" : ""} ${className}`} role="img" aria-label={label}>
+    <div ref={ref} className={`schema schema--${variant} relative ${solid ? "is-deep" : ""} ${live ? "is-solid" : ""} ${className}`} role="img" aria-label={label}>
       {solid && <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none absolute" style={{ left: -bleed, top: -bleed, width: `calc(100% + ${bleed * 2}px)`, height: `calc(100% + ${bleed * 2}px)` }} />}
 
       {!solid && laid?.wide && (
@@ -138,12 +144,16 @@ const Schema = ({ graph, className = "", label, large = false }: { graph: Graph;
       >
         {graph.nodes.map((n, i) => {
           const kind = n.kind ?? "main";
+          // место узла на маршруте: ступень лестницы или деление ленты
+          const step = route.indexOf(n.id);
+          const cell = step < 0 ? undefined : step === 0 ? "first" : step === route.length - 1 ? "last" : "mid";
           return (
             <motion.div
               key={n.id}
               ref={(el) => { nodeRefs.current[n.id] = el; }}
               className={`schema-node relative z-[1] rounded-2xl border ${large ? "px-6 py-5" : "px-5 py-4"} ${KIND[kind]} ${kind === "ghost" ? "muted" : ""}`}
-              style={{ "--c": n.col, "--r": n.row, "--s": n.span ?? 1 } as React.CSSProperties}
+              style={{ "--c": n.col, "--r": n.row, "--s": n.span ?? 1, "--lift": step < 0 ? "0px" : `${24 + step * 26}px` } as React.CSSProperties}
+              data-cell={cell}
               // в объёмном режиме текст только проявляется: крыша стоит на месте, сдвиг разошёлся бы с ней
               initial={{ opacity: 0, y: reduced || solid ? 0 : 14 }}
               animate={inView ? { opacity: 1, y: 0 } : undefined}
