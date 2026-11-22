@@ -1,9 +1,11 @@
 /**
- * Регулятор качества для 3D-вставок: смотрит, успевают ли кадры, и подсказывает сценам, во сколько
- * раз урезать разрешение и как часто рисовать. Если кадры запаздывают, качество падает ступенями;
- * при устойчивом запасе возвращается. На 120-герцовом экране сцены рисуются через кадр.
+ * Регулятор нагрузки для 3D-вставок: смотрит, успевают ли кадры, и подсказывает сценам, как часто
+ * рисовать и во сколько раз урезать разрешение. Сначала жертвуем частотой кадров, а чёткостью —
+ * в последнюю очередь и немного: при прежних ступенях (до половины разрешения) картинка на
+ * загруженном ноутбуке рассыпалась на пиксели, и это заметнее, чем 30 кадров вместо 60.
+ * При устойчивом запасе качество возвращается. На 120-герцовом экране сцены рисуются через кадр.
  */
-const SCALE = [1, 0.8, 0.64, 0.5];
+const STEPS = [{ scale: 1, every: 1 }, { scale: 1, every: 2 }, { scale: 0.88, every: 2 }, { scale: 0.8, every: 3 }];
 const g = { level: 0, floor: 0, raised: false, nominal: 16.7, deltas: [] as number[], calm: 0, since: 0, warm: 0, stamp: -1 };
 
 /** сводка для отладки: window.__asysPace */
@@ -24,7 +26,7 @@ export const tick = (now: number, delta: number) => {
   const sorted = [...d].sort((a, b) => a - b);
   g.nominal = sorted[Math.floor(sorted.length * 0.15)];
   const late = d.filter((x) => x > g.nominal * 1.5).length / d.length;
-  if (late > 0.12 && g.level < SCALE.length - 1 && g.since > 45) {
+  if (late > 0.12 && g.level < STEPS.length - 1 && g.since > 45) {
     g.level++;
     // только что поднимали качество и снова не тянем — выше этой ступени больше не пробуем
     if (g.raised && g.since < 400) g.floor = g.level;
@@ -37,8 +39,8 @@ export const tick = (now: number, delta: number) => {
 };
 
 /** множитель разрешения сцен */
-export const scale = () => SCALE[g.level];
-/** рисовать каждый N-й кадр: через кадр на 120 Гц и ещё вдвое реже на нижней ступени */
-export const every = () => (g.nominal < 11 ? 2 : 1) * (g.level === SCALE.length - 1 ? 2 : 1);
+export const scale = () => STEPS[g.level].scale;
+/** рисовать каждый N-й кадр: через кадр на 120 Гц и реже на нижних ступенях */
+export const every = () => (g.nominal < 11 ? 2 : 1) * STEPS[g.level].every;
 
 if (typeof window !== "undefined") (window as unknown as { __asysPace?: typeof pace }).__asysPace = pace;

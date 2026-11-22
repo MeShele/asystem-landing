@@ -74,7 +74,7 @@ const loop = (now: number) => {
     if (still && !s.dirty) continue;
     waiting = true;
     if (!draw) continue;
-    const dpr = Math.max(0.75, Math.min(window.devicePixelRatio || 1, s.maxDpr) * (still ? 1 : scale()));
+    const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, s.maxDpr) * (still ? 1 : scale()));
     const w = Math.min(limit, Math.max(1, Math.round(s.cssW * dpr))), h = Math.min(limit, Math.max(1, Math.round(s.cssH * dpr)));
     const size = { w, h, cssW: s.cssW, cssH: s.cssH, dpr };
     const resized = s.canvas.width !== w || s.canvas.height !== h;

@@ -1,4 +1,5 @@
-import { Mesh, WebGLRenderer, type Camera, type Material, type Object3D, type Scene, type Texture } from "three";
+import { Mesh, NeutralToneMapping, PCFShadowMap, PMREMGenerator, WebGLRenderer, type Camera, type Material, type Object3D, type Scene, type Texture } from "three";
+import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { every, scale, tick } from "@/three/pace";
 
 /**
@@ -35,14 +36,31 @@ let raf = 0, last = 0, count = 0;
 
 const ensure = () => {
   if (renderer) return renderer;
-  // на плотных экранах без аппаратного сглаживания: кромки сглаживают шейдеры
-  const r = new WebGLRenderer({ antialias: (window.devicePixelRatio || 1) < 1.5, alpha: true, premultipliedAlpha: true });
+  // аппаратное сглаживание включено всегда: без него тонкие кромки на плотном экране лесенкой
+  const r = new WebGLRenderer({ antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: "high-performance" });
   r.setPixelRatio(1);
   r.setClearColor(0x000000, 0);
+  // студийный рендер макетов: тени и тональная кривая, которая не выбеливает насыщенный лайм
+  // (киношная ACES делала его бледно-жёлтым); свои шейдеры (карта, пыль) этим не пользуются
+  r.shadowMap.enabled = true;
+  r.shadowMap.type = PCFShadowMap;
+  r.toneMapping = NeutralToneMapping;
+  r.toneMappingExposure = 1;
   r.debug.checkShaderErrors = import.meta.env.DEV;
   r.domElement.setAttribute("aria-hidden", "true");
   renderer = r;
   return r;
+};
+
+let env: Texture | null = null;
+/** общее студийное окружение для отражений и мягкого света: строится один раз на рендерер */
+export const studioEnv = (): Texture => {
+  if (!env) {
+    const p = new PMREMGenerator(ensure());
+    env = p.fromScene(new RoomEnvironment(), 0.035).texture;
+    p.dispose();
+  }
+  return env;
 };
 
 /** площадь сцены, видимая в окне */
@@ -123,7 +141,7 @@ const loop = (now: number) => {
       } else r.domElement.remove();
     }
     if (live) {
-      const dpr = Math.max(0.75, Math.min(window.devicePixelRatio || 1, live.maxDpr) * scale());
+      const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, live.maxDpr) * scale());
       const w = Math.max(1, Math.round(live.cssW * dpr)), h = Math.max(1, Math.round(live.cssH * dpr));
       if (w !== liveW || h !== liveH) { liveW = w; liveH = h; r.setSize(w, h, false); }
       const dt = Math.min(0.05, (delta / 1000) * step);
@@ -160,13 +178,20 @@ export const mountLive = (view: LiveView): (() => void) => {
   slots.add(s);
   // шейдеры сцены компилируются заранее и в фоне, пока она ещё не на экране
   void ensure().compileAsync(view.scene, view.camera).catch(() => {});
-  if (!listening) { listening = true; document.addEventListener("visibilitychange", kick); }
+  if (!listening) {
+    listening = true;
+    document.addEventListener("visibilitychange", kick);
+    // окружение для отражений — тяжёлая разовая работа: делаем её в простое, пока посетитель читает первый экран
+    const idle = (window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+    if (idle) idle(() => { if (renderer) studioEnv(); }, { timeout: 5000 }); else setTimeout(() => { if (renderer) studioEnv(); }, 2500);
+  }
   kick();
   return () => {
     s.io.disconnect(); s.ro.disconnect(); slots.delete(s);
     if (live === s) { live = null; renderer?.domElement.remove(); }
     if (slots.size === 0 && renderer) {
       cancelAnimationFrame(raf); raf = 0; last = 0;
+      env?.dispose(); env = null;
       renderer.dispose(); renderer.forceContextLoss();
       renderer = null;
     }

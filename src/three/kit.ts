@@ -1,146 +1,19 @@
 import {
-  AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture, DoubleSide, EdgesGeometry, LinearFilter, LineBasicMaterial,
-  LineSegments, Mesh, PlaneGeometry, ShaderMaterial, Vector2, Vector3, Vector4, type Group, type PerspectiveCamera, type Texture,
+  AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, Mesh, PlaneGeometry, ShaderMaterial, Vector2, Vector3,
+  type Group, type PerspectiveCamera,
 } from "three";
 import type { LiveSize } from "@/three/live";
 
 /**
- * Общий набор для сцен-макетов (плата, слои, вершина, механизм). Один язык с картой героя:
- * тёмное тело, лаймовая гравировка линиями, срез с горизонталями, бегущий импульс, подпись
- * на тонком луче. Тексты подписей остаются вёрсткой: сцена только сообщает, где им стоять.
+ * Общие мелочи сцен-макетов: бегущий импульс, луч, камера, курсор, подписи, шрифты для экранов.
+ * Сами тела, материалы и свет — в studio.ts. Тексты подписей остаются вёрсткой: сцена только
+ * сообщает, где им стоять.
  */
 export const LIME = "vec3(0.714, 1.0, 0.102)";
-/** краски сцен: лайм — действие и крипта, янтарь — сомы и «внимание», лёд — нейтральные детали; RGB для шейдера, HEX для холста */
-export const INK = { lime: [0.714, 1, 0.102], amber: [1, 0.74, 0.2], ice: [0.86, 0.95, 0.9] } as const satisfies Record<string, readonly [number, number, number]>;
+/** краски для рисунков на холсте (экраны, табло): лайм — действие и крипта, янтарь — сомы, лёд — нейтральные детали */
 export const HEX = { lime: "#B6FF1A", amber: "#FFBD33", ice: "#DBF2E6" } as const;
 export type Shared = { uTime: { value: number }; uShow: { value: number } };
 export const shared = (): Shared => ({ uTime: { value: 0 }, uShow: { value: 0 } });
-
-// ── гравированное тело ───────────────────────────────────────────────────────────
-const ENGRAVE_VERT = /* glsl */ `
-varying vec3 vObj;
-varying vec3 vNo;
-varying vec3 vNw;
-void main() {
-  vObj = position; vNo = normal;
-  vNw = normalize(mat3(modelMatrix) * normal);
-  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-}`;
-
-const ENGRAVE_FRAG = /* glsl */ `
-uniform float uShow;
-uniform float uKind;
-uniform float uHot;
-uniform float uAlpha;
-uniform float uStrata;
-uniform float uTop;
-uniform float uArtOn;
-uniform float uGain;
-uniform float uInk;
-uniform float uFace;
-uniform float uRings;
-uniform float uHatch;
-uniform float uReveal;
-uniform vec4 uRect;
-uniform vec3 uTint;
-uniform float uArtRgb;
-uniform float uFill;
-uniform sampler2D tArt;
-varying vec3 vObj;
-varying vec3 vNo;
-varying vec3 vNw;
-void main() {
-  vec3 LIME = uTint;
-  vec3 no = normalize(vNo);
-  float lit = 0.32 + 0.68 * clamp(dot(normalize(vNw), normalize(vec3(-0.5, 0.75, 0.45))), 0.0, 1.0);
-  float up = smoothstep(0.6, 0.9, no.y);
-  // грань с рисунком: верхняя или передняя (фасад)
-  float face = uFace > 0.5 ? smoothstep(0.6, 0.9, no.z) : up;
-  float side = 1.0 - smoothstep(0.3, 0.6, abs(no.y));
-  // срез — горизонтали; верх — тонкие линии или круги по форме детали; слишком частые гаснут
-  float f = mix(uRings > 0.5 ? length(vObj.xz) * uTop : vObj.z * uTop, vObj.y * uStrata, side);
-  float w = fwidth(f);
-  float dl = abs(fract(f) - 0.5) / max(w, 1e-5);
-  float line = (1.0 - smoothstep(0.4, 1.2, dl)) * (1.0 - smoothstep(0.3, 0.55, w));
-  bool accent = uKind > 0.5;
-  vec3 col = (accent ? LIME * 0.28 : vec3(0.034, 0.042, 0.03)) * (0.45 + 0.65 * lit);
-  float ink = line * (0.16 + 0.5 * lit) * uInk;
-  float art = 0.0;
-  vec3 paint = LIME;
-  if (uArtOn > 0.5 && face > 0.5) {
-    // рисунок на грани: координаты из положения точки, проявляется слева направо; под ним — слабая штриховка
-    vec2 uv = uFace > 0.5 ? vec2((vObj.x - uRect.x) / uRect.z, 1.0 - (vObj.y - uRect.y) / uRect.w) : vec2((vObj.x - uRect.x) / uRect.z, (vObj.z - uRect.y) / uRect.w);
-    vec4 tex = texture2D(tArt, vec2(uv.x, 1.0 - uv.y));
-    art = tex.a * smoothstep(uv.x - 0.08, uv.x, uReveal * 1.08) * uGain;
-    float under = ink * uHatch;
-    // цветной рисунок: краска берётся из самой текстуры, штриховка под ним остаётся цвета детали
-    if (uArtRgb > 0.5) paint = mix(LIME, tex.rgb, clamp(art / max(art + under, 1e-4), 0.0, 1.0));
-    ink = max(art, under);
-  }
-  if (accent && (up > 0.5 || face > 0.5 || uFill > 0.5)) {
-    // залитая деталь: грань цвета краски, рисунок и штриховка на ней тёмные; у залитой целиком бока темнее по свету
-    float shade = up > 0.5 || face > 0.5 ? 0.9 + 0.1 * lit : 0.42 + 0.58 * lit;
-    col = mix(LIME * shade, vec3(0.05, 0.07, 0.02), clamp(max(art, line * 0.35 * uHatch), 0.0, 1.0) * 0.9);
-    col = mix(col, vec3(1.0), uHot * 0.3);
-  } else {
-    col = mix(col, paint, clamp(ink * (1.0 + uHot * 1.3), 0.0, 1.0));
-    col += LIME * uHot * 0.07;
-  }
-  float a = uAlpha * uShow;
-  gl_FragColor = vec4(col * a, a);
-}`;
-
-/**
- * face: "front" — рисунок на передней грани (rect: x0, y0, ширина, высота); rings — верх штрихуется кругами;
- * hatch — доля штриховки под рисунком; tint — краска линий и залитой грани (по умолчанию лайм);
- * rgb — рисунок цветной: краски берутся из текстуры, а не из tint; fill — деталь залита краской целиком, а не только лицевой гранью
- */
-export type EngraveOptions = { kind?: 0 | 1; art?: Texture | null; rect?: [number, number, number, number]; strata?: number; top?: number; alpha?: number; gain?: number; ink?: number; face?: "top" | "front"; rings?: boolean; hatch?: number; tint?: readonly [number, number, number]; rgb?: boolean; fill?: boolean };
-
-/** rect — прямоугольник верхней грани в координатах детали (x0, z0, ширина, глубина) под рисунок */
-export const engrave = (sh: Shared, o: EngraveOptions = {}) => new ShaderMaterial({
-  vertexShader: ENGRAVE_VERT, fragmentShader: ENGRAVE_FRAG, transparent: true, premultipliedAlpha: true,
-  uniforms: {
-    uShow: sh.uShow, uKind: { value: o.kind ?? 0 }, uHot: { value: 0 }, uAlpha: { value: o.alpha ?? 1 },
-    uStrata: { value: o.strata ?? 14 }, uTop: { value: o.top ?? 9 }, uArtOn: { value: o.art ? 1 : 0 }, uGain: { value: o.gain ?? 1 }, uInk: { value: o.ink ?? 1 },
-    uFace: { value: o.face === "front" ? 1 : 0 }, uRings: { value: o.rings ? 1 : 0 }, uHatch: { value: o.hatch ?? 0 },
-    uReveal: { value: 1 }, uRect: { value: new Vector4(...(o.rect ?? [0, 0, 1, 1])) }, tArt: { value: o.art ?? null },
-    uTint: { value: new Vector3(...(o.tint ?? INK.lime)) }, uArtRgb: { value: o.rgb ? 1 : 0 }, uFill: { value: o.fill ? 1 : 0 },
-  },
-});
-
-/** тонкий контур детали по её рёбрам; по умолчанию лаймовый */
-export const outline = (geo: BufferGeometry, opacity = 0.5, angle = 30, color: string = HEX.lime) => {
-  const m = new LineBasicMaterial({ color, transparent: true, opacity });
-  const l = new LineSegments(new EdgesGeometry(geo, angle), m);
-  l.frustumCulled = false;
-  return l;
-};
-
-// ── тень под макетом: мягкое тёмное пятно на «полу» ──────────────────────────────
-export const shadow = (sh: Shared, w: number, d: number, y = 0, strength = 0.5) => {
-  const m = new Mesh(new PlaneGeometry(w, d).rotateX(-Math.PI / 2), new ShaderMaterial({
-    vertexShader: "varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }",
-    fragmentShader: `uniform float uShow; uniform float uK; varying vec2 vUv;
-      void main() { float d = length((vUv - 0.5) * 2.0); float a = (1.0 - smoothstep(0.25, 1.0, d)) * uK * uShow; gl_FragColor = vec4(vec3(0.0), a); }`,
-    transparent: true, premultipliedAlpha: true, depthWrite: false, uniforms: { uShow: sh.uShow, uK: { value: strength } },
-  }));
-  m.position.y = y; m.renderOrder = -1;
-  return m;
-};
-
-// ── рисунок линиями: холст 2D → текстура ─────────────────────────────────────────
-export const art = (w: number, h: number, draw: (c: CanvasRenderingContext2D, w: number, h: number) => void): CanvasTexture => {
-  const cv = document.createElement("canvas");
-  cv.width = w; cv.height = h;
-  const c = cv.getContext("2d");
-  if (!c) throw new Error("2d context unavailable");
-  c.strokeStyle = "#fff"; c.fillStyle = "#fff"; c.lineCap = "round"; c.lineJoin = "round";
-  draw(c, w, h);
-  const t = new CanvasTexture(cv);
-  t.minFilter = LinearFilter; t.magFilter = LinearFilter; t.generateMipmaps = false;
-  return t;
-};
 
 // ── путь с бегущим импульсом ─────────────────────────────────────────────────────
 const RIBBON_VERT = /* glsl */ `

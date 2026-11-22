@@ -557,7 +557,7 @@ export const mountRelief = async ({ canvas, label, url }: ReliefOptions): Promis
     if (shared.uShow.value !== tagShown) { tagShown = shared.uShow.value; label.style.opacity = String(tagShown); }
   };
 
-  const unmount = mountLive({ canvas, scene, camera, maxDpr: coarse ? 1.75 : 1.5, frame, post });
+  const unmount = mountLive({ canvas, scene, camera, maxDpr: 2, frame, post });
   return () => {
     unmount();
     window.removeEventListener("pointermove", onMove);
