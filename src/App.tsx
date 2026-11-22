@@ -11,6 +11,7 @@ import Who from "@/components/Who";
 import GradientBackground from "@/components/GradientBackground";
 import Law from "@/components/Law";
 import HowItWorks from "@/components/HowItWorks";
+import Roadmap from "@/components/Roadmap";
 import Tariffs from "@/components/Tariffs";
 import Faq from "@/components/Faq";
 import Cta from "@/components/Cta";
@@ -60,6 +61,7 @@ function App() {
           <Law />
           <HowItWorks />
           <Automation />
+          <Roadmap />
           <Tariffs />
           <Faq />
           <Cta />

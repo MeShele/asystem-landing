@@ -37,7 +37,7 @@ const Header = () => {
         ) : (
           <Link to="/" aria-label="asystem.ai" className="shrink-0"><Logo size="sm" /></Link>
         )}
-        <nav className="hidden items-center gap-7 lg:flex" aria-label={t("Разделы", "Sections")}>
+        <nav className="hidden items-center gap-5 lg:flex xl:gap-7" aria-label={t("Разделы", "Sections")}>
           {NAV.map((n) =>
             n.href.startsWith("/") || !home ? (
               <Link key={n.href} to={n.href.startsWith("/") ? n.href : `/${n.href}`} className="link text-[15px] font-medium">{n.label}</Link>

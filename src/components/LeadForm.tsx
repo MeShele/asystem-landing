@@ -6,7 +6,7 @@ import { useContent } from "@/i18n";
  * Форма заявки. Одна на весь лендинг: открывается модальным окном с любой
  * кнопки «Запросить демо». Уходит в edge submit-lead на core.
  */
-export type LeadTopic = "turnkey" | "api" | "license";
+export type LeadTopic = "turnkey" | "license";
 
 export interface LeadPrefill {
   topic?: LeadTopic;

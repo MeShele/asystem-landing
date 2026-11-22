@@ -5,6 +5,7 @@ export const NAV: typeof RU.NAV = [
   { label: "What's inside", href: "#features" },
   { label: "Requirements", href: "#law" },
   { label: "Launch", href: "#how" },
+  { label: "Roadmap", href: "#roadmap" },
   { label: "Pricing", href: "#pricing" },
   { label: "Checklist", href: "/blueprint" },
 ];
@@ -110,6 +111,34 @@ export const STEPS: typeof RU.STEPS = {
   ],
 };
 
+export const ROADMAP: typeof RU.ROADMAP = {
+  title: "Roadmap",
+  lead: "What we are building on the platform and when. Dates are estimates.",
+  today: "today",
+  later: "later",
+  status: { done: "done", now: "in progress", next: "ahead" },
+  range: ["2026-11-01", "2027-03-31"],
+  months: [
+    { at: "2026-11-01", label: "November" },
+    { at: "2026-12-01", label: "December" },
+    { at: "2027-01-01", label: "January 2027" },
+    { at: "2027-02-01", label: "February" },
+    { at: "2027-03-01", label: "March" },
+  ],
+  items: [
+    { id: "backup", from: "2026-11-23", to: "2026-11-29", when: "23–29 November", title: "Data protection", text: "Nightly copies at a second site, failure alerts", done: false },
+    { id: "auto", from: "2026-11-30", to: "2026-12-06", when: "30 November – 6 December", title: "Auto-exchange: live test", text: "A deal with no staff on real money, a small amount", done: false },
+    { id: "version", from: "2026-11-30", to: "2026-12-20", when: "by 20 December", title: "One version for every exchange", text: "Updates ship as one numbered release", done: false },
+    { id: "tests", from: "2026-12-07", to: "2027-01-10", when: "by 10 January", title: "Automated payment and payout checks", text: "An update ships only after the money-path tests pass", done: false },
+    { id: "access", from: "2027-01-11", to: "2027-01-31", when: "January", title: "Stronger sign-in", text: "A second sign-in step is mandatory for all staff", done: false },
+    { id: "fast", from: "2027-02-01", to: "2027-03-31", when: "February – March", title: "Payout in 30 seconds", text: "From payment to the crypto being sent", done: false },
+  ],
+  beyond: [
+    { id: "next", when: "after March", title: "Later", text: "Anti-fraud, a partner programme, listing on rate monitors" },
+    { id: "wallet", when: "2027", title: "Wallet", text: "A USDT balance and QR payments in Kyrgyzstan" },
+  ],
+};
+
 export const PRICING: typeof RU.PRICING = {
   title: "Pricing",
   lead: (prepay: number) => `Server and compliance in every plan. Paid ${prepay} months in advance.`,
@@ -163,6 +192,7 @@ export const FOOTER: typeof RU.FOOTER = {
     { label: "What's inside", href: "#features" },
     { label: "Requirements", href: "#law" },
     { label: "Launch", href: "#how" },
+    { label: "Roadmap", href: "#roadmap" },
     { label: "Pricing", href: "#pricing" },
     { label: "Questions", href: "#faq" },
     { label: "Launch checklist", href: "/blueprint" },
@@ -178,7 +208,6 @@ export const LEAD: typeof RU.LEAD = {
   sub: "We reply within one business day.",
   topics: [
     { key: "turnkey", label: "Turnkey exchange" },
-    { key: "api", label: "API cores only" },
     { key: "license", label: "Licence question" },
   ],
   name: "Name",
