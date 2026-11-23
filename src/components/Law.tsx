@@ -7,13 +7,13 @@ import { useContent } from "@/i18n";
 import type { ShieldHandle } from "@/three/shield";
 
 const STEP_MS = 3200;
-/** значки групп — те же, что выгравированы на пластинах щита, в том же порядке */
+/** значки групп — те же, что выгравированы в окнах щита, в том же порядке */
 const ICONS = [UserRoundCheck, SearchCheck, Server, FileChartColumn];
 
 /**
- * Требования ГСФР, закрытые платформой: четыре группы по два-три слова. Слева щит из четырёх
- * пластин с замком (сцена — src/three/shield.ts), справа группы списком. Строка и пластина
- * выбираются вместе — сами по очереди, по наведению или касанию.
+ * Требования ГСФР, закрытые платформой: четыре группы по два-три слова. Слева точёный щит
+ * с кодовым диском сейфа (сцена — src/three/shield.ts), справа группы списком. Строка и вставка щита
+ * выбираются вместе — сами по очереди, по наведению или касанию; метка диска поворачивается к выбранной.
  */
 const Law = () => {
   const { LAW } = useContent();
@@ -45,7 +45,7 @@ const Law = () => {
       <div className="mt-6 grid grid-cols-1 gap-y-2 lg:grid-cols-12 lg:items-center lg:gap-x-10" onMouseEnter={() => setHold(true)} onMouseLeave={() => setHold(false)}>
         {on && (
           <div className="lg:col-span-5">
-            <div className="scene relative mx-auto aspect-[10/11] w-full max-w-[300px] sm:max-w-[360px] lg:max-w-[430px]" role="img" aria-label={LAW.label}>
+            <div className="scene relative mx-auto aspect-[10/11] w-full max-w-[310px] sm:max-w-[380px] lg:max-w-[460px]" role="img" aria-label={LAW.label}>
               <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
             </div>
           </div>

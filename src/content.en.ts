@@ -71,7 +71,7 @@ export const LAW: typeof RU.LAW = {
     { key: "data", title: "Data", points: ["server in Bishkek", "five-year retention", "daily backup"] },
     { key: "reports", title: "Reports", points: ["FinSupervision registries", "cashless payments only"] },
   ],
-  label: "A shield of four plates: KYC, screening, data, reports",
+  label: "A shield with a safe dial and four inlays: KYC, screening, data, reports",
   source: "Source: SFIS requirements for virtual asset exchange platforms, June 2026.",
 };
 

@@ -65,6 +65,21 @@ def hard(o, bevel=0.0, seg=4, angle=35):
     return o
 
 
+def crisp(o, angle=28, flat=False):
+    """точёная деталь: грани остаются гладкими, а рёбра круче angle — жёсткими (фаска ловит блик, а не смазывается)"""
+    bm = bmesh.new()
+    bm.from_mesh(o.data)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    lim = math.radians(angle)
+    for e in bm.edges:
+        if len(e.link_faces) == 2 and e.calc_face_angle(0.0) > lim:
+            e.smooth = False
+    bm.to_mesh(o.data); bm.free()
+    for p in o.data.polygons:
+        p.use_smooth = not flat
+    return o
+
+
 def mesh_obj(name, verts, faces, material, at=(0, 0, 0), parent=None, edges=()):
     me = bpy.data.meshes.new(name)
     me.from_pydata([tuple(v) for v in verts], list(edges), list(faces))
@@ -142,8 +157,10 @@ def screen(name, w, h, material, at=(0, 0, 0), parent=None):
     return o
 
 
-def lathe(name, profile, material, at=(0, 0, 0), parent=None, seg=48, flutes=0, flute_range=(0, 0), flute_depth=0.0):
-    """тело вращения вокруг вертикали: profile — пары (радиус, высота) снизу вверх; flutes — каннелюры на отрезке высот"""
+def lathe(name, profile, material, at=(0, 0, 0), parent=None, seg=48, flutes=0, flute_range=(0, 0), flute_depth=0.0, axis="y", ring=False):
+    """тело вращения: profile — пары (радиус, высота) снизу вверх; flutes — каннелюры на отрезке высот.
+    axis=y — ось вертикальна, axis=z — ось смотрит на зрителя (диск, кольцо, шкала);
+    ring — профиль замкнут сам на себя (кольцо с отверстием), торцы не закрываются"""
     verts, faces, n = [], [], len(profile)
     for r, y in profile:
         for i in range(seg):
@@ -156,9 +173,17 @@ def lathe(name, profile, material, at=(0, 0, 0), parent=None, seg=48, flutes=0, 
         for i in range(seg):
             a, b = j * seg + i, j * seg + (i + 1) % seg
             faces.append((a, b, b + seg, a + seg))
-    faces.append(tuple(reversed(range(seg))))
-    faces.append(tuple(range((n - 1) * seg, n * seg)))
-    return mesh_obj(name, verts, faces, material, at, parent)
+    if ring:
+        for i in range(seg):
+            a, b = (n - 1) * seg + i, (n - 1) * seg + (i + 1) % seg
+            faces.append((a, b, (i + 1) % seg, i))
+    else:
+        faces.append(tuple(reversed(range(seg))))
+        faces.append(tuple(range((n - 1) * seg, n * seg)))
+    o = mesh_obj(name, verts, faces, material, at, parent)
+    if axis == "z":
+        o.rotation_euler = (math.radians(90), 0.0, 0.0)
+    return o
 
 
 def plate(name, outline, depth, bevel, material, at=(0, 0, 0), parent=None, holes=(), face="front"):
