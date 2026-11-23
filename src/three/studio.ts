@@ -35,6 +35,46 @@ export const materials = () => {
 export type Mats = ReturnType<typeof materials>;
 
 /**
+ * Металл точёных предметов (щит, запуск): цвет здесь приходит от света, а не от краски.
+ * Воронёный корпус, сатиновые вставки, полированная сталь кромок, рифление, чёрный лак, золото —
+ * и светящиеся детали двух акцентов. Имена совпадают с именами материалов в моделях Blender.
+ */
+export const metals = () => {
+  const m = {
+    shell: new MeshPhysicalMaterial({ color: 0x1c2125, roughness: 0.36, metalness: 0.94, clearcoat: 0.3, clearcoatRoughness: 0.3 }),
+    plate: new MeshPhysicalMaterial({ color: 0x3b4347, roughness: 0.4, metalness: 0.9 }),
+    trim: new MeshPhysicalMaterial({ color: 0x9da8ad, roughness: 0.28, metalness: 1 }),
+    knurl: new MeshPhysicalMaterial({ color: 0x8b969b, roughness: 0.38, metalness: 1 }),
+    satin: new MeshPhysicalMaterial({ color: 0x929da2, roughness: 0.42, metalness: 1 }),
+    gloss: new MeshPhysicalMaterial({ color: 0x050707, roughness: 0.16, metalness: 0.3, clearcoat: 1, clearcoatRoughness: 0.06 }),
+    gold: new MeshPhysicalMaterial({ color: 0xe2a336, roughness: 0.27, metalness: 1 }),
+    /** дно пазов и окон */
+    pit: new MeshPhysicalMaterial({ color: 0x06080a, roughness: 0.78, metalness: 0.2 }),
+    /** риски шкал и строки: светлая краска */
+    mark: new MeshPhysicalMaterial({ color: HUE.ice, roughness: 0.6 }),
+    hole: new MeshBasicMaterial({ color: 0x020303 }),
+    glowLime: new MeshBasicMaterial({ color: HUE.lime, toneMapped: false }),
+    glowAmber: new MeshBasicMaterial({ color: 0xffc233, toneMapped: false }),
+  };
+  return { ...m, dispose: () => { for (const x of Object.values(m)) x.dispose(); } };
+};
+
+/**
+ * Плоская металлическая грань отражает одну точку окружения и выглядит ровной заливкой.
+ * dome разводит нормали лицевых (смотрящих на зрителя) граней от центра предмета — как у едва
+ * выпуклой «подушки»: по металлу идёт плавный перелив. sheen делает то же для граней любого
+ * направления: нормаль отклоняется вдоль самой грани пропорционально расстоянию от центра.
+ */
+const bend = (m: MeshPhysicalMaterial, key: string, glsl: string) => {
+  m.onBeforeCompile = (s) => { s.vertexShader = s.vertexShader.replace("#include <beginnormal_vertex>", `#include <beginnormal_vertex>\n${glsl}`); };
+  m.customProgramCacheKey = () => key;
+};
+export const dome = (m: MeshPhysicalMaterial, k: number) =>
+  bend(m, `dome${k.toFixed(3)}`, `if (objectNormal.z > 0.9) objectNormal = normalize(objectNormal + vec3(position.x, position.y, 0.0) * ${k.toFixed(3)});`);
+export const sheen = (m: MeshPhysicalMaterial, k: number) =>
+  bend(m, `sheen${k.toFixed(3)}`, `objectNormal = normalize(objectNormal + (position - objectNormal * dot(position, objectNormal)) * ${k.toFixed(3)});`);
+
+/**
  * Свет студии: ключевой с мягкой тенью, заполняющий и лаймовый контровой сзади. Крепится к самому
  * макету (group), а не к сцене: макет покачивается за курсором вместе со светом, тень на нём
  * не меняется — и её можно не пересчитывать каждый кадр. Пересчёт заказывает сцена: refresh().

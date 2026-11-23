@@ -1,11 +1,11 @@
 import {
-  AdditiveBlending, CanvasTexture, Color, Group, Mesh, MeshBasicMaterial, MeshPhysicalMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Vector3,
+  AdditiveBlending, CanvasTexture, Color, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Vector3,
   type Material,
 } from "three";
 import { mountLive, type LiveSize } from "@/three/live";
 import { ease, frameCamera, pointer } from "@/three/kit";
 import { adopt, loadModel } from "@/three/models";
-import { HUE, rig, solid } from "@/three/studio";
+import { dome, HUE, metals, rig, solid } from "@/three/studio";
 
 /**
  * Требования ГСФР как точёный щит: тёмный корпус со ступенчатой рамой, четыре вставки с окнами,
@@ -33,20 +33,6 @@ const glow = (map: CanvasTexture, size: number, opacity: number) => new Mesh(
   new MeshBasicMaterial({ map, color: HUE.lime, transparent: true, opacity, blending: AdditiveBlending, premultipliedAlpha: true, depthWrite: false, toneMapped: false }),
 );
 
-/**
- * Плоская грань отражает одну точку окружения и выглядит ровной заливкой. Здесь нормали лицевых граней
- * чуть разведены от центра — как у едва выпуклой «подушки»: по металлу идёт плавный перелив света.
- */
-const dome = (m: MeshPhysicalMaterial, k: number) => {
-  m.onBeforeCompile = (s) => {
-    s.vertexShader = s.vertexShader.replace(
-      "#include <beginnormal_vertex>",
-      `#include <beginnormal_vertex>\n if (objectNormal.z > 0.9) objectNormal = normalize(objectNormal + vec3(position.x, position.y, 0.0) * ${k.toFixed(3)});`,
-    );
-  };
-  m.customProgramCacheKey = () => `dome${k.toFixed(3)}`;
-};
-
 export type ShieldOptions = { canvas: HTMLCanvasElement };
 export type ShieldHandle = { setActive: (i: number) => void; dispose: () => void };
 
@@ -54,20 +40,9 @@ export const mountShield = async ({ canvas }: ShieldOptions): Promise<ShieldHand
   const scene = new Scene(), group = new Group();
   scene.add(group);
   const camera = new PerspectiveCamera(24, 1.25, 0.1, 80);
-  // металл изделия: воронёный корпус, сатиновые вставки, полированная сталь кромок и кольца, чёрный лак шляпки
-  const metal = {
-    shell: new MeshPhysicalMaterial({ color: 0x1c2125, roughness: 0.36, metalness: 0.94, clearcoat: 0.3, clearcoatRoughness: 0.3 }),
-    plate: new MeshPhysicalMaterial({ color: 0x3b4347, roughness: 0.4, metalness: 0.9 }),
-    trim: new MeshPhysicalMaterial({ color: 0x9da8ad, roughness: 0.28, metalness: 1 }),
-    knurl: new MeshPhysicalMaterial({ color: 0x8b969b, roughness: 0.38, metalness: 1 }),
-    gloss: new MeshPhysicalMaterial({ color: 0x050707, roughness: 0.16, metalness: 0.3, clearcoat: 1, clearcoatRoughness: 0.06 }),
-    gold: new MeshPhysicalMaterial({ color: 0xe2a336, roughness: 0.27, metalness: 1 }),
-    pit: new MeshPhysicalMaterial({ color: 0x06080a, roughness: 0.78, metalness: 0.2 }),
-    mark: new MeshPhysicalMaterial({ color: HUE.ice, roughness: 0.6 }),
-    hole: new MeshBasicMaterial({ color: 0x020303 }),
-    glyph: new MeshBasicMaterial({ color: DIM, toneMapped: false }),
-    pointer: new MeshBasicMaterial({ color: HUE.lime, toneMapped: false }),
-  };
+  // металл общий с другими точёными сценами; гравировка — своя краска, она меняется от серой к лаймовой
+  const metal = metals();
+  const glyph = new MeshBasicMaterial({ color: DIM, toneMapped: false });
   dome(metal.plate, 0.2);
   dome(metal.shell, 0.12);
   dome(metal.knurl, 0.55);          // торец кольца — пологий конус: блик идёт «бабочкой», как на безеле часов
@@ -80,15 +55,15 @@ export const mountShield = async ({ canvas }: ShieldOptions): Promise<ShieldHand
   group.add(kicker);
 
   const model = await loadModel("/models/shield.glb");
-  const { nodes, dispose: free } = adopt(model, metal as unknown as Record<string, Material>);
+  const { nodes, dispose: free } = adopt(model, { ...metal, glyph, pointer: metal.glowLime } as unknown as Record<string, Material>);
   group.add(model);
 
   const spot = glowMap();
   // у каждой вставки своя краска гравировки и своё свечение над окном
   const dial = nodes.n_dial;
   const plates = [0, 1, 2, 3].map((i) => {
-    const holder = nodes[`n_plate_${i}`], well = nodes[`n_well_${i}`], ink = metal.glyph.clone();
-    holder.traverse((o) => { if (o instanceof Mesh && o.material === metal.glyph) o.material = ink; });
+    const holder = nodes[`n_plate_${i}`], well = nodes[`n_well_${i}`], ink = glyph.clone();
+    holder.traverse((o) => { if (o instanceof Mesh && o.material === glyph) o.material = ink; });
     const halo = glow(spot, 1.25, 0);
     halo.position.copy(well.position).setZ(well.position.z + 0.05);
     holder.add(halo);
@@ -156,7 +131,7 @@ export const mountShield = async ({ canvas }: ShieldOptions): Promise<ShieldHand
       free();
       for (const p of plates) { p.ink.dispose(); p.halo.geometry.dispose(); (p.halo.material as Material).dispose(); }
       spot.dispose();
-      for (const m of Object.values(metal)) m.dispose();
+      glyph.dispose(); metal.dispose();
       lamp.dispose(); kicker.dispose(); light.dispose();
     },
   };

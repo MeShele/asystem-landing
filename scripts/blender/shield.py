@@ -126,23 +126,6 @@ DOTS = {2: [(6, 6), (6, 18)]}
 G = 0.41 / 24                            # размер значка: поле 24 → 0.41
 
 
-def ticks(name, n, r_long, r_short, r1, z0, z1, material, at, parent=None, every=5):
-    """шкала вокруг диска: n рисок, каждая every-я длиннее и толще"""
-    verts, faces = [], []
-    for i in range(n):
-        a = i / n * math.tau
-        long = i % every == 0
-        r0, hw = (r_long, 0.011) if long else (r_short, 0.006)
-        ca, sa = math.cos(a), math.sin(a)
-        base = len(verts)
-        for z in (z0, z1):
-            for r, s in ((r0, -hw), (r0, hw), (r1, hw), (r1, -hw)):
-                verts.append(P(ca * r - sa * s, sa * r + ca * s, z))
-        b = base
-        faces += [(b, b + 1, b + 2, b + 3), (b + 4, b + 7, b + 6, b + 5), (b, b + 4, b + 5, b + 1), (b + 1, b + 5, b + 6, b + 2), (b + 2, b + 6, b + 7, b + 3), (b + 3, b + 7, b + 4, b)]
-    return crisp(mesh_obj(name, verts, faces, material, at, parent), flat=True)
-
-
 reset()
 rim = contour()
 

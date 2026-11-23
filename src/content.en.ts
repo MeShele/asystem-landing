@@ -102,7 +102,7 @@ export const AUTOMATION: typeof RU.AUTOMATION = {
 export const STEPS: typeof RU.STEPS = {
   title: "Launch in four steps",
   note: "Within 14 days of payment.",
-  label: "Four launch steps: a handshake over the contract, a server rack, a setup console, the exchange building",
+  label: "Four launch steps: a handshake under the contract tablet, a server rack, a setup console, the exchange building",
   steps: [
     { id: "contract", title: "Contract", text: "A plan and a three-month contract" },
     { id: "server", title: "Server", text: "Server in Bishkek, domain, TLS" },

@@ -132,6 +132,57 @@ def ball(name, r, material, at=(0, 0, 0), parent=None, scale=(1, 1, 1), u=32, v=
     return from_bm(name, bm, material, at, parent)
 
 
+def slab(name, w, h, d, material, at=(0, 0, 0), parent=None):
+    """мелкая деталь без фаски (прорезь, риска, огонёк): 12 треугольников, грани плоские"""
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    for v in bm.verts:
+        v.co.x *= w; v.co.y *= d; v.co.z *= h
+    o = from_bm(name, bm, material, at, parent)
+    for p in o.data.polygons:
+        p.use_smooth = False
+    return o
+
+
+def loft(name, rings, material, at=(0, 0, 0), parent=None, seg=28, steps=5):
+    """гладкое тело по эллиптическим сечениям снизу вверх: (высота, полуось x, полуось z[, сдвиг x, сдвиг z]);
+    между сечениями — плавная кривая, торцы закрыты"""
+    rs = [tuple(r) + (0.0,) * (5 - len(r)) for r in rings]
+    fine = []
+    for j in range(len(rs) - 1):
+        p0, p1, p2, p3 = rs[max(j - 1, 0)], rs[j], rs[j + 1], rs[min(j + 2, len(rs) - 1)]
+        for k in range(steps):
+            t = k / steps
+            fine.append(tuple(0.5 * (2 * b + (c - a) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (3 * b - a - 3 * c + d) * t ** 3) for a, b, c, d in zip(p0, p1, p2, p3)))
+    fine.append(rs[-1])
+    bm = bmesh.new()
+    loops = []
+    for y, rx, rz, cx, cz in fine:
+        loops.append([bm.verts.new(P(cx + math.cos(i / seg * math.tau) * rx, y, cz + math.sin(i / seg * math.tau) * rz)) for i in range(seg)])
+    for a, b in zip(loops, loops[1:]):
+        for i in range(seg):
+            bm.faces.new((a[i], a[(i + 1) % seg], b[(i + 1) % seg], b[i]))
+    bm.faces.new(loops[0]); bm.faces.new(loops[-1])
+    return from_bm(name, bm, material, at, parent)
+
+
+def ticks(name, n, r_long, r_short, r1, lo, hi, material, at=(0, 0, 0), parent=None, every=5, face="front", w_long=0.011, w_short=0.006):
+    """шкала по кругу: n рисок от r_long (каждая every-я) или r_short до r1; lo…hi — толщина вдоль оси круга.
+    face=front — круг смотрит на зрителя, top — лежит лицом вверх"""
+    verts, faces = [], []
+    for i in range(n):
+        a = i / n * math.tau
+        r0, hw = (r_long, w_long) if i % every == 0 else (r_short, w_short)
+        ca, sa = math.cos(a), math.sin(a)
+        b = len(verts)
+        for level in (lo, hi):
+            for r, s in ((r0, -hw), (r0, hw), (r1, hw), (r1, -hw)):
+                u, v = ca * r - sa * s, sa * r + ca * s
+                verts.append(P(u, v, level) if face == "front" else P(u, level, v))
+        faces += [(b, b + 1, b + 2, b + 3), (b + 4, b + 7, b + 6, b + 5), (b, b + 4, b + 5, b + 1), (b + 1, b + 5, b + 6, b + 2), (b + 2, b + 6, b + 7, b + 3), (b + 3, b + 7, b + 4, b)]
+    return crisp(mesh_obj(name, verts, faces, material, at, parent), flat=True)
+
+
 def screen(name, w, h, material, at=(0, 0, 0), parent=None):
     """плоскость с развёрткой под светящийся экран: лицом к зрителю"""
     bm = bmesh.new()
@@ -199,14 +250,16 @@ def plate(name, outline, depth, bevel, material, at=(0, 0, 0), parent=None, hole
     return hard(from_bm(name, bm, material, at, parent), bevel, 4, 40)
 
 
-def tube(name, pts, r, material, at=(0, 0, 0), parent=None, smooth=True, res=10, closed=False):
-    """трубка вдоль точек сайта: smooth — плавная кривая через узлы, иначе ломаная"""
+def tube(name, pts, r, material, at=(0, 0, 0), parent=None, smooth=True, res=10, closed=False, taper=None):
+    """трубка вдоль точек сайта: smooth — плавная кривая через узлы, иначе ломаная; taper — доля толщины в каждой точке"""
     cu = bpy.data.curves.new(name, "CURVE")
     cu.dimensions = "3D"; cu.bevel_depth = r; cu.bevel_resolution = 5; cu.use_fill_caps = True; cu.resolution_u = res
     sp = cu.splines.new("NURBS" if smooth else "POLY")
     sp.points.add(len(pts) - 1)
-    for p, co in zip(sp.points, pts):
+    for i, (p, co) in enumerate(zip(sp.points, pts)):
         v = P(*co); p.co = (v.x, v.y, v.z, 1.0)
+        if taper:
+            p.radius = taper[i]
     sp.use_cyclic_u = closed
     if smooth:
         sp.order_u = min(4, len(pts)); sp.use_endpoint_u = not closed
