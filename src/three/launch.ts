@@ -86,34 +86,25 @@ export const mountLaunch = async ({ canvas, labels }: LaunchOptions): Promise<()
 
   const ptr = pointer(canvas);
   const back = (x: number) => { const c = Math.max(0, Math.min(1, x)); return 1 + 2.4 * Math.pow(c - 1, 3) + 1.4 * Math.pow(c - 1, 2); };   // лёгкий перелёт в конце
-  // На узком экране вся плита в кадре получается мелкой: камера стоит ближе и переезжает
-  // от шага к шагу — туда и обратно, с остановкой у каждого.
-  const ROUTE = [0, 1, 2, 3, 2, 1], DWELL = 2.3, MOVE = 0.9;
-  const focus = (age: number) => {
-    const u = Math.max(0, age - 1.6) % (ROUTE.length * (DWELL + MOVE)), i = Math.floor(u / (DWELL + MOVE)), v = u - i * (DWELL + MOVE);
-    const a = XS[ROUTE[i]], b = XS[ROUTE[(i + 1) % ROUTE.length]];
-    return v < DWELL ? a : a + (b - a) * ease((v - DWELL) / MOVE);
-  };
-  const home = new Vector3(), shift = new Vector3();
-  let fitted = 0, narrow = false, yaw0 = 0, t0 = -1, yaw = 0, pitch = 0, ticks = 0;
+  // На узком экране плита стоит по диагонали и целиком: ближний план с переездами от шага к шагу
+  // резал её краем телефона, и это читалось как ошибка вёрстки.
+  let fitted = 0, yaw0 = 0, t0 = -1, yaw = 0, pitch = 0, ticks = 0;
   const frame = (t: number, dt: number, size: LiveSize) => {
     const aspect = size.cssW / size.cssH;
     if (Math.abs(aspect - fitted) > 0.001) {
       fitted = aspect;
-      narrow = aspect < 1.5;
-      const el = narrow ? 0.36 : 0.33, tagged = !!labels[0] && labels[0].offsetParent !== null;
-      yaw0 = narrow ? -0.4 : -0.1;
-      target.y = narrow ? 0.86 : tagged ? 1.22 : 1.0;
-      // широкий кадр — вся плита (с запасом сверху под подписи шагов, если они показаны); узкий — окно вокруг одного шага
-      const xs = narrow ? [-2.2, 2.2] : [-W / 2 - 0.15, W / 2 + 0.15], top = narrow ? 2.5 : tagged ? 3.05 : 2.55;
+      const narrow = aspect < 1.5, tagged = !!labels[0] && labels[0].offsetParent !== null;
+      const el = narrow ? 0.5 : 0.33;
+      yaw0 = narrow ? -0.95 : -0.1;
+      target.y = narrow ? 0.9 : tagged ? 1.22 : 1.0;
+      // широкий кадр — с запасом сверху под подписи шагов, если они показаны; узкий — с полями от краёв экрана
+      const top = narrow ? 2.6 : tagged ? 3.05 : 2.55;
       const pts: Vector3[] = [];
-      for (const x of xs) for (const z of [-D / 2, D / 2]) for (const y of [-0.37, top]) pts.push(new Vector3(x, y, z).applyAxisAngle(axis, yaw0));
-      frameCamera(camera, aspect, target, new Vector3(0, Math.sin(el), Math.cos(el)), pts, [0.97, 0.96, 0.95]);
-      home.copy(camera.position);
+      for (const x of [-W / 2 - 0.15, W / 2 + 0.15]) for (const z of [-D / 2, D / 2]) for (const y of [-0.37, top]) pts.push(new Vector3(x, y, z).applyAxisAngle(axis, yaw0));
+      frameCamera(camera, aspect, target, new Vector3(0, Math.sin(el), Math.cos(el)), pts, narrow ? [0.9, 0.92, 0.92] : [0.97, 0.96, 0.95]);
     }
     if (t0 < 0) t0 = t;
     const age = t - t0;
-    if (narrow) camera.position.copy(home).add(shift.set(focus(age), 0, 0).applyAxisAngle(axis, yaw0));
     sh.uTime.value = age;
     sh.uShow.value = ease(age / 0.6);
     path.material.uniforms.uRes.value.set(size.w, size.h);

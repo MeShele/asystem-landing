@@ -8,7 +8,7 @@ import { useContent } from "@/i18n";
  * Запуск за четыре шага: четыре подиума на одной плите — рукопожатие под табличкой договора,
  * серверная стойка, пульт настройки, здание обменника (сцена — src/three/launch.ts).
  * На широком экране название и пояснение шага стоят над его подиумом; на узком подписи
- * не помещаются, шаги идут списком под сценой, а камера сама переезжает от шага к шагу.
+ * не помещаются, шаги идут списком под сценой, а плита стоит по диагонали целиком.
  * Без сцены — только список.
  */
 const HowItWorks = () => {
@@ -29,7 +29,8 @@ const HowItWorks = () => {
       </Reveal>
       {on ? (
         <>
-          <div className="scene relative mt-6 aspect-[4/3] md:aspect-[2/1] lg:mt-0 lg:aspect-[5/2]" role="img" aria-label={STEPS.label}>
+          {/* на телефоне сцена идёт от края до края экрана: плита по диагонали получается крупнее, поля даёт сама сцена */}
+          <div className="scene relative mt-6 aspect-[4/3] max-md:mx-[calc(clamp(20px,4vw,32px)*-1)] md:aspect-[2/1] lg:mt-0 lg:aspect-[5/2]" role="img" aria-label={STEPS.label}>
             <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
             {steps.map((s, i) => (
               <div key={s.id} ref={(el) => { tags.current[i] = el; }} className="scene-tag hidden lg:block">

@@ -1,5 +1,6 @@
 import { Mesh, NeutralToneMapping, PCFShadowMap, PMREMGenerator, WebGLRenderer, type Camera, type Material, type Object3D, type Scene, type Texture } from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
+import { isStill, onStill } from "@/three/gpu";
 import { every, scale, tick } from "@/three/pace";
 
 /**
@@ -8,8 +9,11 @@ import { every, scale, tick } from "@/three/pace";
  * и рисует её напрямую, без копирования кадра. Остальные сцены показывают свой последний кадр
  * обычной картинкой и ничего не стоят; у ушедших с экрана освобождается память видеокарты.
  * Так нагрузка не растёт с числом сцен на странице: в любой момент считается ровно одна.
+ *
+ * На слабых видеочипах (gpu.ts) живых сцен нет вовсе: каждая рисуется один раз в готовом виде
+ * и остаётся картинкой на своём холсте; перерисовка — по запросу сцены (redraw) и при смене размера.
  */
-export type LiveSize = { w: number; h: number; cssW: number; cssH: number; dpr: number };
+export type LiveSize = { w: number; h: number; cssW: number; cssH: number; dpr: number; /** неподвижный режим: кадр один, движения нет */ still: boolean };
 
 export type LiveView = {
   /** холст сцены в вёрстке: на нём остаётся последний кадр, когда сцена не живая */
@@ -25,7 +29,11 @@ export type LiveView = {
 };
 
 /** shown — сколько секунд сцена уже была живой: у непоказанной на её месте пусто, ей нужен первый показ */
-type Slot = LiveView & { ctx: CanvasRenderingContext2D; onScreen: boolean; cssW: number; cssH: number; away: number; shown: number; io: IntersectionObserver; ro: ResizeObserver };
+type Slot = LiveView & {
+  ctx: CanvasRenderingContext2D; onScreen: boolean; cssW: number; cssH: number; away: number; shown: number; io: IntersectionObserver; ro: ResizeObserver;
+  /** неподвижный режим: кадр надо нарисовать заново; clock — время сцены, оно идёт только на перерисовках */
+  dirty: boolean; clock: number;
+};
 /** столько секунд сцена держит холст, чтобы доиграть вход, прежде чем уступить его непоказанной соседке */
 const MIN_SHOW = 2.6;
 
@@ -36,13 +44,15 @@ let raf = 0, last = 0, count = 0;
 
 const ensure = () => {
   if (renderer) return renderer;
-  // аппаратное сглаживание включено всегда: без него тонкие кромки на плотном экране лесенкой
-  const r = new WebGLRenderer({ antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: "high-performance" });
+  // аппаратное сглаживание включено всегда: без него тонкие кромки на плотном экране лесенкой;
+  // слабому видеочипу оно не по силам, как и тени, — там их нет
+  const lite = isStill();
+  const r = new WebGLRenderer({ antialias: !lite, alpha: true, premultipliedAlpha: true, powerPreference: lite ? "default" : "high-performance" });
   r.setPixelRatio(1);
   r.setClearColor(0x000000, 0);
   // студийный рендер макетов: тени и тональная кривая, которая не выбеливает насыщенный лайм
   // (киношная ACES делала его бледно-жёлтым); свои шейдеры (карта, пыль) этим не пользуются
-  r.shadowMap.enabled = true;
+  r.shadowMap.enabled = !lite;
   r.shadowMap.type = PCFShadowMap;
   r.toneMapping = NeutralToneMapping;
   r.toneMappingExposure = 1;
@@ -102,6 +112,48 @@ const freeze = (r: WebGLRenderer, s: Slot) => {
   s.canvas.width = liveW; s.canvas.height = liveH;
   s.ctx.drawImage(r.domElement, 0, 0);
   s.canvas.style.visibility = "";
+  s.dirty = false;
+};
+
+/** столько шагов сцена «проживает» перед неподвижным кадром: вход доигран, плавные величины дошли до места */
+const SETTLE = 48, SETTLE_DT = 0.05;
+
+/** неподвижный режим: сцена доводится до готового вида без отрисовки, рисуется один раз и копируется на свой холст */
+const paint = (r: WebGLRenderer, s: Slot) => {
+  if (!s.canvas.isConnected) return;
+  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, s.maxDpr));
+  const w = Math.max(1, Math.round(s.cssW * dpr)), h = Math.max(1, Math.round(s.cssH * dpr));
+  r.setSize(w, h, false);
+  const size: LiveSize = { w, h, cssW: s.cssW, cssH: s.cssH, dpr, still: true };
+  // первый вызов задаёт сцене начало отсчёта, дальше её время сразу далеко за концом входа
+  if (s.clock === 0) { s.clock = performance.now() / 1000; s.frame(s.clock, SETTLE_DT, size); s.clock += 40; }
+  for (let k = 0; k < SETTLE; k++) s.frame((s.clock += SETTLE_DT), SETTLE_DT, size);
+  r.setViewport(0, 0, w, h);
+  r.clear();
+  r.render(s.scene, s.camera);
+  s.canvas.width = w; s.canvas.height = h;
+  s.ctx.drawImage(r.domElement, 0, 0);
+  s.canvas.style.visibility = "";
+  s.shown += 1;
+  s.post?.();
+};
+
+/** неподвижный режим: за кадр рисуется не больше одной сцены из тех, что на экране и ждут перерисовки */
+const stillLoop = () => {
+  const r = ensure();
+  if (live) {
+    if (slots.has(live)) freeze(r, live);
+    live = null; liveW = 0; liveH = 0;
+    r.domElement.remove();
+  }
+  let done = false, pending = false;
+  for (const s of slots) {
+    if (!s.dirty || !s.onScreen || s.cssW < 2 || s.cssH < 2) continue;
+    if (done) { pending = true; continue; }
+    paint(r, s);
+    s.dirty = false; done = true;
+  }
+  if (pending && !document.hidden) raf = requestAnimationFrame(loop);
 };
 
 /** память видеокарты сцены, давно ушедшей с экрана; при возвращении всё загрузится заново само */
@@ -118,6 +170,7 @@ const release = (root: Object3D) => root.traverse((o) => {
 
 const loop = (now: number) => {
   raf = 0;
+  if (isStill()) { last = 0; stillLoop(); return; }
   const t = now / 1000, delta = last ? (t - last) * 1000 : 16.7;
   last = t;
   let waiting = false;
@@ -146,7 +199,7 @@ const loop = (now: number) => {
       if (w !== liveW || h !== liveH) { liveW = w; liveH = h; r.setSize(w, h, false); }
       const dt = Math.min(0.05, (delta / 1000) * step);
       live.shown += dt;
-      live.frame(t, dt, { w, h, cssW: live.cssW, cssH: live.cssH, dpr });
+      live.frame(t, dt, { w, h, cssW: live.cssW, cssH: live.cssH, dpr, still: false });
       r.setViewport(0, 0, w, h);
       r.clear();
       r.render(live.scene, live.camera);
@@ -162,6 +215,11 @@ const loop = (now: number) => {
 const kick = () => { if (!raf && !document.hidden) raf = requestAnimationFrame(loop); };
 let listening = false;
 
+/** Сцена изменилась по делу (выбрана другая строка): в неподвижном режиме её кадр рисуется заново. */
+export const redraw = (canvas: HTMLCanvasElement) => {
+  for (const s of slots) if (s.canvas === canvas) { s.dirty = true; if (isStill()) kick(); }
+};
+
 /** Подключает сцену; возвращает функцию отключения. */
 export const mountLive = (view: LiveView): (() => void) => {
   const ctx = view.canvas.getContext("2d");
@@ -169,9 +227,13 @@ export const mountLive = (view: LiveView): (() => void) => {
   ensure();
   const rect = view.canvas.getBoundingClientRect();
   const s: Slot = {
-    ...view, ctx, onScreen: false, cssW: rect.width, cssH: rect.height, away: 0, shown: 0,
+    ...view, ctx, onScreen: false, cssW: rect.width, cssH: rect.height, away: 0, shown: 0, dirty: true, clock: 0,
     io: new IntersectionObserver(([e]) => { s.onScreen = e.isIntersecting; if (s.onScreen) kick(); }, { rootMargin: "60px 0px" }),
-    ro: new ResizeObserver(([e]) => { s.cssW = e.contentRect.width; s.cssH = e.contentRect.height; kick(); }),
+    ro: new ResizeObserver(([e]) => {
+      const w = e.contentRect.width, h = e.contentRect.height;
+      if (Math.abs(w - s.cssW) > 0.5 || Math.abs(h - s.cssH) > 0.5) s.dirty = true;
+      s.cssW = w; s.cssH = h; kick();
+    }),
   };
   s.io.observe(view.canvas);
   s.ro.observe(view.canvas);
@@ -181,6 +243,8 @@ export const mountLive = (view: LiveView): (() => void) => {
   if (!listening) {
     listening = true;
     document.addEventListener("visibilitychange", kick);
+    // режим могли включить на ходу: живая сцена замирает на своём кадре, непоказанные дорисуются по одной
+    onStill(kick);
     // окружение для отражений — тяжёлая разовая работа: делаем её в простое, пока посетитель читает первый экран
     const idle = (window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
     if (idle) idle(() => { if (renderer) studioEnv(); }, { timeout: 5000 }); else setTimeout(() => { if (renderer) studioEnv(); }, 2500);

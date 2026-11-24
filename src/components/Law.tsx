@@ -3,6 +3,7 @@ import { FileChartColumn, SearchCheck, Server, UserRoundCheck } from "lucide-rea
 import { useReducedMotion } from "motion/react";
 import Reveal from "@/components/Reveal";
 import { useScene } from "@/components/useScene";
+import { useStill } from "@/components/useStill";
 import { useContent } from "@/i18n";
 import type { ShieldHandle } from "@/three/shield";
 
@@ -18,6 +19,7 @@ const ICONS = [UserRoundCheck, SearchCheck, Server, FileChartColumn];
 const Law = () => {
   const { LAW } = useContent();
   const reduced = !!useReducedMotion();
+  const still = useStill();
   const [i, setI] = useState(0);
   const [hold, setHold] = useState(false);
   const api = useRef<ShieldHandle | null>(null);
@@ -33,10 +35,11 @@ const Law = () => {
   const { canvas, on } = useScene(mount);
   useEffect(() => { index.current = i; api.current?.setActive(i); }, [i]);
   useEffect(() => {
-    if (reduced || hold || !on) return;
+    // на слабом видеочипе строки сами не листаются: каждая смена — отдельная отрисовка щита
+    if (reduced || hold || !on || still) return;
     const id = setTimeout(() => setI((n) => (n + 1) % LAW.groups.length), STEP_MS);
     return () => clearTimeout(id);
-  }, [i, hold, reduced, on, LAW.groups.length]);
+  }, [i, hold, reduced, on, still, LAW.groups.length]);
 
   return (
     <section id="law" className="wrap relative py-14 sm:py-20">

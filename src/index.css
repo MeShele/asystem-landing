@@ -75,6 +75,13 @@
 @layer components {
   .wrap { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: clamp(20px, 4vw, 32px); }
 
+  /* шапка после прокрутки: на широком экране — полупрозрачная с размытием, на телефоне и на слабом видеочипе — плотная без него */
+  .site-header { background: transparent; border-bottom: 1px solid transparent; }
+  .site-header[data-solid="true"] { background: hsl(var(--bg)); border-bottom-color: hsl(var(--line) / 0.08); }
+  @media (min-width: 1024px) {
+    html:not([data-gpu="lite"]) .site-header[data-solid="true"] { background: hsl(var(--bg) / 0.78); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  }
+
   .t-display { font-size: clamp(1.75rem, 0.9rem + 3.1vw, 3.4rem); line-height: 1.06; letter-spacing: -0.025em; font-weight: 600; }
   .t-h2 { font-size: clamp(1.5rem, 1.05rem + 1.7vw, 2.4rem); line-height: 1.1; letter-spacing: -0.02em; }
   .t-h3 { font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem); line-height: 1.25; letter-spacing: -0.01em; }

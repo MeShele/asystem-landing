@@ -5,7 +5,11 @@ import Logo from "@/components/Logo";
 import LangToggle from "@/components/LangToggle";
 import { useContent, useLang } from "@/i18n";
 
-/** Фиксированная строка: прозрачная над героем, с тоном и линией после прокрутки. */
+/**
+ * Фиксированная строка: прозрачная над героем, с тоном и линией после прокрутки.
+ * Размытие фона под ней — только на широком экране (правила .site-header в index.css): на телефоне
+ * оно пересчитывается на каждом кадре прокрутки и на слабых видеочипах тормозит всю страницу.
+ */
 const Header = () => {
   const { NAV } = useContent();
   const { t } = useLang();
@@ -23,13 +27,8 @@ const Header = () => {
 
   return (
     <header
-      className="fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300"
-      style={{
-        background: solid ? "hsl(var(--bg) / 0.78)" : "transparent",
-        backdropFilter: solid ? "blur(14px)" : "none",
-        WebkitBackdropFilter: solid ? "blur(14px)" : "none",
-        borderBottom: `1px solid ${solid ? "hsl(var(--line) / 0.08)" : "transparent"}`,
-      }}
+      data-solid={solid}
+      className="site-header fixed inset-x-0 top-0 z-50 transition-[background-color,border-color] duration-300"
     >
       <div className="wrap flex h-16 items-center justify-between gap-6">
         {home ? (

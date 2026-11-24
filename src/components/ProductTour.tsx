@@ -5,8 +5,12 @@ import Reveal from "@/components/Reveal";
 import { useContent } from "@/i18n";
 
 const STEP_MS = 7000;
-/** закрепление блока: нужен широкий и не слишком низкий экран, иначе колонка не помещается в его высоту */
-const PIN = "(min-width: 1024px) and (min-height: 620px)";
+/**
+ * закрепление блока: нужен широкий и не слишком низкий экран с мышью. На сенсорном экране (и на
+ * планшете в альбомной ориентации) экраны меняются только нажатием: смена картинки от прокрутки
+ * пальцем выглядела как сбой
+ */
+const PIN = "(min-width: 1024px) and (min-height: 620px) and (hover: hover) and (pointer: fine)";
 /** размеры снимков из public/shots: браузер резервирует место до загрузки */
 const SIZE: Record<string, [number, number]> = { store: [1800, 1125], cabinet: [1205, 753], admin: [1800, 1125], reports: [1606, 1004] };
 /** на телефоне целый экран нечитаем: снимок увеличен в z раз вокруг точки at (доли ширины и высоты снимка) */
@@ -14,11 +18,17 @@ const FOCUS: Record<string, { at: string; z: number }> = {
   store: { at: "100% 30%", z: 2.08 }, cabinet: { at: "50% 55%", z: 1.25 }, admin: { at: "40% 46%", z: 1.75 }, reports: { at: "36% 44%", z: 1.75 },
 };
 
+/** сенсорный экран: наведения нет, экраны меняет только сам посетитель */
+const TOUCH = "(hover: none), (pointer: coarse)";
+
 /**
  * Что внутри: четыре настоящих экрана платформы стопкой. На широком экране блок закрепляется,
  * и стопку листает прокрутка: верхний экран уходит на зрителя, следующий встаёт на его место,
- * пункт слева подсвечивается сам; клик по пункту прокручивает к его экрану. На телефоне и на
- * низком экране закрепления нет — экраны сменяются сами и по касанию пункта.
+ * пункт слева подсвечивается сам; клик по пункту прокручивает к его экрану.
+ * На телефоне и планшете закрепления нет, части платформы — вкладки над экраном: экран меняется
+ * только по нажатию вкладки, по нажатию на сам экран (следующий) и смахиванием в сторону.
+ * Сам по таймеру он там не меняется: посетитель в это время листает страницу, и смена картинки
+ * с пояснением под ней выглядела как сбой. Автосмена осталась только на незакреплённом экране с мышью.
  * Экраны стоят ровно, без наклона: наклон читается как «криво».
  */
 const ProductTour = () => {
@@ -28,14 +38,16 @@ const ProductTour = () => {
   const [hold, setHold] = useState(false);
   const [run, setRun] = useState(0);
   const [pinned, setPinned] = useState(() => typeof window !== "undefined" && window.matchMedia(PIN).matches);
+  const [touch, setTouch] = useState(() => typeof window !== "undefined" && window.matchMedia(TOUCH).matches);
   const track = useRef<HTMLElement>(null);
+  const swipe = useRef<{ x: number; y: number } | null>(null);
   const items = TOUR.items, count = items.length;
 
   useEffect(() => {
-    const mq = window.matchMedia(PIN);
-    const on = () => setPinned(mq.matches);
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
+    const mq = window.matchMedia(PIN), mt = window.matchMedia(TOUCH);
+    const on = () => { setPinned(mq.matches); setTouch(mt.matches); };
+    mq.addEventListener("change", on); mt.addEventListener("change", on);
+    return () => { mq.removeEventListener("change", on); mt.removeEventListener("change", on); };
   }, []);
 
   // в закреплённом блоке экран выбирает доля прокрутки секции
@@ -56,12 +68,13 @@ const ProductTour = () => {
     return () => { cancelAnimationFrame(raf); window.removeEventListener("scroll", on); window.removeEventListener("resize", on); };
   }, [pinned, count]);
 
-  // без закрепления экраны сменяются сами
+  // без закрепления и с мышью экраны сменяются сами; на сенсорном экране — только по действию посетителя
+  const auto = !reduced && !pinned && !touch;
   useEffect(() => {
-    if (reduced || hold || pinned) return;
+    if (!auto || hold) return;
     const id = setTimeout(() => { setI((n) => (n + 1) % count); setRun((k) => k + 1); }, STEP_MS);
     return () => clearTimeout(id);
-  }, [i, hold, reduced, pinned, run, count]);
+  }, [i, hold, auto, run, count]);
 
   const pick = (n: number) => {
     const el = track.current;
@@ -69,6 +82,14 @@ const ProductTour = () => {
       const top = el.getBoundingClientRect().top + window.scrollY, total = el.offsetHeight - window.innerHeight;
       window.scrollTo({ top: top + (total * (n + 0.5)) / count, behavior: reduced ? "auto" : "smooth" });
     } else { setI(n); setRun((k) => k + 1); }
+  };
+  // смахивание по стопке: влево — следующий экран, вправо — предыдущий; вертикальная прокрутка остаётся странице
+  const onSwipeEnd = (x: number, y: number) => {
+    const from = swipe.current;
+    swipe.current = null;
+    if (!from || pinned) return;
+    const dx = x - from.x, dy = y - from.y;
+    if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.5) pick((i + (dx < 0 ? 1 : count - 1)) % count);
   };
 
   return (
@@ -87,8 +108,22 @@ const ProductTour = () => {
                 <p className={`t-lead muted mt-4 ${pinned ? "[@media(max-height:719px)]:hidden" : ""}`}>{TOUR.lead}</p>
               </Reveal>
               <ol className="mt-8 hidden flex-col lg:flex">
-                {items.map((it, n) => <Item key={it.key} title={it.title} text={it.text} active={n === i} onPick={() => pick(n)} bar={!pinned && !reduced && n === i ? { run, hold } : null} />)}
+                {items.map((it, n) => <Item key={it.key} title={it.title} text={it.text} active={n === i} onPick={() => pick(n)} bar={auto && n === i ? { run, hold } : null} />)}
               </ol>
+              <div role="tablist" aria-label={TOUR.title} className="mt-6 flex flex-wrap gap-2 lg:hidden">
+                {items.map((it, n) => (
+                  <button
+                    key={it.key}
+                    type="button"
+                    role="tab"
+                    aria-selected={n === i}
+                    onClick={() => pick(n)}
+                    className={`min-h-[44px] rounded-full border px-4 text-[15px] font-medium transition-colors duration-200 ${n === i ? "border-[hsl(var(--accent))] bg-[hsl(var(--accent)/0.12)] text-[hsl(var(--accent-ink))]" : "muted border-[hsl(var(--line)/0.16)]"}`}
+                  >
+                    {it.title}
+                  </button>
+                ))}
+              </div>
               {pinned && (
                 <p className="muted mt-6 flex items-center gap-2 text-[13px]">
                   <ArrowDown className="h-3.5 w-3.5 text-[hsl(var(--accent-ink))]" aria-hidden="true" />
@@ -98,8 +133,13 @@ const ProductTour = () => {
             </div>
 
             {/* стопка: сверху запас под экраны, которые выглядывают из-за переднего */}
-            <div className="order-2 pt-[7%] lg:col-span-8">
-              <div className="relative aspect-[16/10]">
+            <div className="order-2 pt-[7%] max-lg:-mt-2 lg:col-span-8">
+              <div
+                className="relative aspect-[16/10] touch-pan-y"
+                onTouchStart={(e) => { swipe.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }}
+                onTouchEnd={(e) => onSwipeEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY)}
+                onClick={touch && !pinned ? () => pick((i + 1) % count) : undefined}
+              >
                 {items.map((it, n) => {
                   const d = n - i, back = Math.min(d, 3);
                   const [w, h] = SIZE[it.key] ?? [1600, 1000];
@@ -122,9 +162,8 @@ const ProductTour = () => {
               </div>
             </div>
 
-            <ol className="order-3 flex flex-col lg:hidden">
-              {items.map((it, n) => <Item key={it.key} title={it.title} text={it.text} active={n === i} onPick={() => pick(n)} bar={!reduced && n === i ? { run, hold } : null} />)}
-            </ol>
+            {/* пояснение к выбранной вкладке; высота с запасом на две строки, чтобы страница под ним не прыгала */}
+            <p className="muted order-3 -mt-3 min-h-[2.9em] text-[15px] leading-snug lg:hidden" aria-live="polite">{items[i].text}</p>
           </div>
         </div>
       </div>

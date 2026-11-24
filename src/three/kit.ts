@@ -144,6 +144,14 @@ export const frameCamera = (camera: PerspectiveCamera, aspect: number, target: V
   }
   camera.position.copy(target).addScaledVector(dir, hi);
   camera.lookAt(target);
+  // Ближняя и дальняя границы — вплотную к сцене. Точность глубины зависит от ближней границы:
+  // при 0,1 на телефонах с грубым буфером глубины детали, лежащие вплотную друг к другу
+  // (риски, огоньки, строки), мерцали бы, «просвечивая» одна сквозь другую.
+  let reach = 0;
+  for (const p of pts) reach = Math.max(reach, p.distanceTo(target));
+  camera.near = Math.max(0.1, hi - reach * 2.4);
+  camera.far = hi + reach * 3;
+  camera.updateProjectionMatrix();
   camera.updateMatrixWorld();
 };
 

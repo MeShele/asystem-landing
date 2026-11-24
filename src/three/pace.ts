@@ -5,8 +5,15 @@
  * загруженном ноутбуке рассыпалась на пиксели, и это заметнее, чем 30 кадров вместо 60.
  * При устойчивом запасе качество возвращается. На 120-герцовом экране сцены рисуются через кадр.
  */
+import { goStill } from "@/three/gpu";
+
 const STEPS = [{ scale: 1, every: 1 }, { scale: 1, every: 2 }, { scale: 0.88, every: 2 }, { scale: 0.8, every: 3 }];
-const g = { level: 0, floor: 0, raised: false, nominal: 16.7, deltas: [] as number[], calm: 0, since: 0, warm: 0, stamp: -1 };
+const g = { level: 0, floor: 0, raised: false, nominal: 16.7, deltas: [] as number[], calm: 0, since: 0, warm: 0, stamp: -1, slow: 0 };
+/**
+ * Даже лучшие кадры длиннее этого (мс) — значит, дело не в частоте экрана и не в экономии батареи
+ * (она даёт ровные 33 мс), а видеочип не тянет сцену совсем: ступени не помогут, сцены замирают.
+ */
+const HOPELESS = 45;
 
 /** сводка для отладки: window.__asysPace */
 export const pace = { level: 0 };
@@ -25,6 +32,8 @@ export const tick = (now: number, delta: number) => {
   // частота экрана — по быстрым кадрам; запаздывающим считаем кадр в полтора интервала и длиннее
   const sorted = [...d].sort((a, b) => a - b);
   g.nominal = sorted[Math.floor(sorted.length * 0.15)];
+  g.slow = g.nominal > HOPELESS ? g.slow + 1 : 0;
+  if (g.slow > 30) { goStill(); return; }
   const late = d.filter((x) => x > g.nominal * 1.5).length / d.length;
   if (late > 0.12 && g.level < STEPS.length - 1 && g.since > 45) {
     g.level++;

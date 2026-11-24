@@ -2,7 +2,7 @@ import {
   AdditiveBlending, CanvasTexture, Color, Group, Mesh, MeshBasicMaterial, PerspectiveCamera, PlaneGeometry, PointLight, Scene, Vector3,
   type Material,
 } from "three";
-import { mountLive, type LiveSize } from "@/three/live";
+import { mountLive, redraw, type LiveSize } from "@/three/live";
 import { ease, frameCamera, pointer } from "@/three/kit";
 import { adopt, loadModel } from "@/three/models";
 import { dome, HUE, metals, rig, solid } from "@/three/studio";
@@ -125,7 +125,7 @@ export const mountShield = async ({ canvas }: ShieldOptions): Promise<ShieldHand
 
   const unmount = mountLive({ canvas, scene, camera, maxDpr: 2, frame });
   return {
-    setActive: (i) => { active = i; },
+    setActive: (i) => { active = i; redraw(canvas); },
     dispose: () => {
       unmount(); ptr.off();
       free();
