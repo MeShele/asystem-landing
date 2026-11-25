@@ -238,8 +238,26 @@ export const mountLive = (view: LiveView): (() => void) => {
   s.io.observe(view.canvas);
   s.ro.observe(view.canvas);
   slots.add(s);
-  // шейдеры сцены компилируются заранее и в фоне, пока она ещё не на экране
+  // шейдеры сцены компилируются заранее и в фоне, пока она ещё не на экране; текстуры моделей
+  // уходят в видеопамять тоже заранее, по одной в простое — иначе первая отрисовка новой сцены
+  // посреди прокрутки грузила бы их все разом и давала заметный рывок
   void ensure().compileAsync(view.scene, view.camera).catch(() => {});
+  const pending = new Set<Texture>();
+  view.scene.traverse((o) => {
+    const ms = (o as Mesh).material;
+    for (const m of (Array.isArray(ms) ? ms : ms ? [ms] : []) as unknown as Record<string, unknown>[]) {
+      for (const v of Object.values(m)) if (v && (v as Texture).isTexture) pending.add(v as Texture);
+    }
+  });
+  const queue = [...pending];
+  const ric = (window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+  const warm = () => {
+    const t = queue.shift();
+    if (!t || !renderer || !slots.has(s)) return;
+    renderer.initTexture(t);
+    if (ric) ric(warm, { timeout: 2000 }); else setTimeout(warm, 50);
+  };
+  if (ric) ric(warm, { timeout: 2000 }); else setTimeout(warm, 50);
   if (!listening) {
     listening = true;
     document.addEventListener("visibilitychange", kick);

@@ -5,37 +5,14 @@ import {
 import { studioEnv } from "@/three/live";
 
 /**
- * Студия для объёмных макетов (щит, запуск, механизм): материалы со светом и отражениями,
+ * Студия для объёмных сцен (щит, запуск, механизм): металл для деталей, сделанных в Blender,
  * свет с мягкой тенью, «пол», который показывает только тень, и светящиеся экраны.
- * Сами модели сделаны в Blender (scripts/blender) и подключаются через models.ts.
+ * Модели — из Blender (scripts/blender) и Higgsfield (ужаты scripts/blender/optimize.py), подключаются через models.ts.
  */
 export const HUE = { lime: 0xb6ff1a, amber: 0xffb21f, ice: 0xe9efea, graphite: 0x1d2226, dark: 0x0d1012, ink: 0x0a0d0b, skin: 0xe6d3bf } as const;
 
-/** набор материалов одной сцены; dispose снимает их все */
-export const materials = () => {
-  const m = {
-    /** корпус: тёмный металл с лаком */
-    graphite: new MeshPhysicalMaterial({ color: HUE.graphite, roughness: 0.46, metalness: 0.45, clearcoat: 0.55, clearcoatRoughness: 0.3 }),
-    /** глубокие детали: пазы, стекло, резина */
-    dark: new MeshPhysicalMaterial({ color: HUE.dark, roughness: 0.6, metalness: 0.25 }),
-    /** фирменная эмаль: лайм светится сам, чтобы не гаснуть на тёмном фоне */
-    lime: new MeshPhysicalMaterial({ color: HUE.lime, roughness: 0.42, clearcoat: 0.5, clearcoatRoughness: 0.3, emissive: HUE.lime, emissiveIntensity: 0.13 }),
-    gold: new MeshPhysicalMaterial({ color: HUE.amber, roughness: 0.3, metalness: 0.72, emissive: HUE.amber, emissiveIntensity: 0.14 }),
-    ice: new MeshPhysicalMaterial({ color: HUE.ice, roughness: 0.42, clearcoat: 0.45, clearcoatRoughness: 0.3 }),
-    skin: new MeshPhysicalMaterial({ color: HUE.skin, roughness: 0.55, clearcoat: 0.2 }),
-    steel: new MeshPhysicalMaterial({ color: 0x9aa4ab, roughness: 0.28, metalness: 0.92 }),
-    /** рельефный рисунок на светлой эмали */
-    ink: new MeshPhysicalMaterial({ color: HUE.ink, roughness: 0.38, metalness: 0.4, clearcoat: 0.4 }),
-    /** огоньки и светящиеся детали: не зависят от света сцены */
-    glowLime: new MeshBasicMaterial({ color: HUE.lime, toneMapped: false }),
-    glowAmber: new MeshBasicMaterial({ color: 0xffc233, toneMapped: false }),
-  };
-  return { ...m, dispose: () => { for (const x of Object.values(m)) x.dispose(); } };
-};
-export type Mats = ReturnType<typeof materials>;
-
 /**
- * Металл точёных предметов (щит, запуск): цвет здесь приходит от света, а не от краски.
+ * Металл деталей, сделанных в Blender (плита и подиумы «Запуска», монеты механизма): цвет приходит от света.
  * Воронёный корпус, сатиновые вставки, полированная сталь кромок, рифление, чёрный лак, золото —
  * и светящиеся детали двух акцентов. Имена совпадают с именами материалов в моделях Blender.
  */
@@ -61,16 +38,13 @@ export const metals = () => {
 
 /**
  * Плоская металлическая грань отражает одну точку окружения и выглядит ровной заливкой.
- * dome разводит нормали лицевых (смотрящих на зрителя) граней от центра предмета — как у едва
- * выпуклой «подушки»: по металлу идёт плавный перелив. sheen делает то же для граней любого
- * направления: нормаль отклоняется вдоль самой грани пропорционально расстоянию от центра.
+ * sheen отклоняет нормаль вдоль самой грани пропорционально расстоянию от центра предмета —
+ * как у едва выпуклой «подушки»: по металлу идёт плавный перелив.
  */
 const bend = (m: MeshPhysicalMaterial, key: string, glsl: string) => {
   m.onBeforeCompile = (s) => { s.vertexShader = s.vertexShader.replace("#include <beginnormal_vertex>", `#include <beginnormal_vertex>\n${glsl}`); };
   m.customProgramCacheKey = () => key;
 };
-export const dome = (m: MeshPhysicalMaterial, k: number) =>
-  bend(m, `dome${k.toFixed(3)}`, `if (objectNormal.z > 0.9) objectNormal = normalize(objectNormal + vec3(position.x, position.y, 0.0) * ${k.toFixed(3)});`);
 export const sheen = (m: MeshPhysicalMaterial, k: number) =>
   bend(m, `sheen${k.toFixed(3)}`, `objectNormal = normalize(objectNormal + (position - objectNormal * dot(position, objectNormal)) * ${k.toFixed(3)});`);
 

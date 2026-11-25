@@ -1,77 +1,69 @@
-import { CylinderGeometry, Group, Mesh, MeshPhysicalMaterial, PerspectiveCamera, PointLight, Scene, Vector3, type Material } from "three";
+import { CylinderGeometry, Group, Mesh, MeshStandardMaterial, PerspectiveCamera, PointLight, Scene, Vector3, type Material, type Object3D } from "three";
+import { isStill } from "@/three/gpu";
 import { mountLive, type LiveSize } from "@/three/live";
-import { ease, fonts, FONT, frameCamera, headAt, HEX, pointer, ribbon, shared, tags } from "@/three/kit";
+import { ease, frameCamera, headAt, pointer, ribbon, shared, tags } from "@/three/kit";
 import { adopt, loadModel } from "@/three/models";
-import { catcher, HUE, metals, rig, screen, sheen, solid } from "@/three/studio";
+import { catcher, HUE, metals, rig, sheen, solid } from "@/three/studio";
 
 /**
- * «Запуск за четыре шага» — в том же языке, что щит: тёмные точёные предметы, цвет приходит от света.
- * На общей плите четыре подиума со шкалой, слева направо: договор (две статуэтки жмут руки, над
- * ними парит табличка с подписью и печатью), сервер (стойка с огоньками и световой полосой), настройка
- * (пульт с ползунками, ручкой и экраном) и открытие (здание обменника со светящимися окнами
- * и золотой монетой биткоина). Модель сделана в Blender (scripts/blender/launch.py); здесь — металл,
- * свет и движение: предметы встают на подиумы по очереди, по пазу вдоль края ходит импульс,
- * руки качаются, огоньки мигают, ручка пульта подкручивается.
+ * «Запуск за четыре шага»: на общей плите четыре подиума со шкалой, слева направо — договор
+ * (статуэтки ASystem и клиента жмут руки, над ними парит табличка с подписью и печатью), сервер
+ * (стойка с огоньками и световой полосой), настройка (пульт с ползунками, ручкой и экраном)
+ * и открытие (здание обменника со светом в окнах и золотой монетой биткоина).
+ * Плита, подиумы и табличка сделаны в Blender (scripts/blender/launch.py). Предметы на подиумах
+ * сгенерированы в Higgsfield — эскиз GPT Image 2.6, объём Tripo H3.1 (статуэтки, здание)
+ * и Hunyuan3D v3 (стойка, пульт) — и ужаты scripts/blender/optimize.py: металл, рельеф и мелкие
+ * детали лежат в их текстурах. Здесь — свет и движение: предметы встают на подиумы по очереди,
+ * по пазу вдоль края ходит импульс, табличка парит, из двери и от стойки падает свет.
  */
 const W = 12.2, D = 3.6, XS = [-4.28, -1.56, 1.06, 4.03], PZ = -0.15, PATH_Z = 1.5, PAD = 0.181, SPEED = 0.17;
+const ITEMS = ["contract", "server", "console", "bank"];
 /** высота предметов над подиумом — над ней стоят подписи шагов */
-const TOPS = [2.26, 1.88, 1.7, 1.92];
-
-/** экран пульта: ползунки, переключатели, цвета бренда, валюта */
-const consoleScreen = () => screen(1430, 880, (c, w, h) => {
-  c.fillStyle = "#050a07"; c.beginPath(); c.roundRect(0, 0, w, h, 34); c.fill();
-  for (let i = 0; i < 3; i++) {
-    const y = 190 + i * 170, at = [0.62, 0.34, 0.78][i];
-    c.strokeStyle = "rgba(219,242,230,0.24)"; c.lineWidth = 14; c.beginPath(); c.moveTo(110, y); c.lineTo(690, y); c.stroke();
-    c.strokeStyle = HEX.lime; c.beginPath(); c.moveTo(110, y); c.lineTo(110 + 580 * at, y); c.stroke();
-    c.fillStyle = HEX.lime; c.beginPath(); c.arc(110 + 580 * at, y, 32, 0, Math.PI * 2); c.fill();
-    c.fillStyle = "#050a07"; c.beginPath(); c.arc(110 + 580 * at, y, 12, 0, Math.PI * 2); c.fill();
-  }
-  for (let i = 0; i < 3; i++) {
-    const y = 150 + i * 170, on = i !== 1;
-    c.fillStyle = on ? HEX.amber : "rgba(219,242,230,0.2)"; c.beginPath(); c.roundRect(850, y, 170, 82, 41); c.fill();
-    c.fillStyle = on ? "#1a1203" : HEX.ice; c.beginPath(); c.arc(on ? 979 : 891, y + 41, 29, 0, Math.PI * 2); c.fill();
-    c.strokeStyle = "rgba(219,242,230,0.45)"; c.lineWidth = 14; c.beginPath(); c.moveTo(1070, y + 41); c.lineTo(i === 2 ? 1230 : 1310, y + 41); c.stroke();
-  }
-  [HEX.lime, HEX.amber, HEX.ice].forEach((col, i) => { c.fillStyle = col; c.beginPath(); c.roundRect(850 + i * 112, 680, 84, 84, 18); c.fill(); });
-  c.fillStyle = HEX.ice; c.font = FONT(74, 500); c.textBaseline = "middle"; c.fillText("KGS", 110, 724);
-}, false);
+const TOPS = [2.46, 1.62, 1.68, 1.78];
 
 export type LaunchOptions = { canvas: HTMLCanvasElement; labels: (HTMLElement | null)[] };
 
 export const mountLaunch = async ({ canvas, labels }: LaunchOptions): Promise<() => void> => {
-  const [model] = await Promise.all([loadModel("/models/launch.glb"), fonts()]);
+  // на телефоне и слабом видеочипе — текстуры вдвое меньше: каждый предмет там шириной в палец
+  const sd = isStill() || window.matchMedia("(max-width: 820px)").matches ? "-sd" : "";
+  const [model, ...items] = await Promise.all([loadModel("/models/launch.glb"), ...ITEMS.map((k) => loadModel(`/models/launch-${k}${sd}.glb`))]);
   const sh = shared(), scene = new Scene(), group = new Group();
   scene.add(group);
   const camera = new PerspectiveCamera(24, 2.4, 0.1, 90);
   const metal = metals();
-  // статуэтки: ASystem — тёмная под лаком, клиент — светлая сталь
-  const statueA = new MeshPhysicalMaterial({ color: 0x2c343a, roughness: 0.26, metalness: 1, clearcoat: 0.5, clearcoatRoughness: 0.2 });
-  const statueB = new MeshPhysicalMaterial({ color: 0xbcc5c9, roughness: 0.3, metalness: 1 });
   sheen(metal.shell, 0.03);
   sheen(metal.plate, 0.035);
-  const ui = consoleScreen();
   const target = new Vector3(0, 1.22, 0), axis = new Vector3(0, 1, 0);
   const light = rig(scene, group, { target: new Vector3(0, 0.6, 0), span: 7.4, rim: new Vector3(7.5, 5, -7.5) });
-  scene.environmentIntensity = 1.25;
+  scene.environmentIntensity = 1.2;
   light.rim.intensity *= 0.42;
+  light.key.shadow.normalBias = 0.03;
   // холодный контровой слева отделяет тёмные предметы от фона; тёплый свет из двери и лаймовый от стойки ложатся на металл рядом
   const kicker = new PointLight(0xcfe4ff, 46, 40, 1.6);
   kicker.position.set(-9.5, 4.2, 5);
   const door = new PointLight(0xffb040, 0, 3.4, 1.7);
-  door.position.set(XS[3], PAD + 0.5, PZ + 1.0);
+  door.position.set(XS[3], PAD + 0.55, PZ + 1.15);
   const strip = new PointLight(HUE.lime, 0, 2.6, 1.7);
-  strip.position.set(XS[1] - 0.72, PAD + 1.0, PZ + 0.85);
+  strip.position.set(XS[1] - 0.8, PAD + 0.95, PZ + 0.95);
   group.add(kicker, door, strip);
   const floor = catcher(W * 1.7, D * 3.2, -0.37, 0.5);
   group.add(floor);
 
-  const { nodes, dispose: free } = adopt(model, { ...metal, statue_a: statueA, statue_b: statueB, screen: ui.material } as unknown as Record<string, Material>, ["screen"]);
+  const { nodes, dispose: free } = adopt(model, metal as unknown as Record<string, Material>);
   group.add(model);
   const st = [0, 1, 2, 3].map((i) => nodes[`n_station_${i}`]);
-  const arms = [nodes.n_arm_a, nodes.n_arm_b], leds = [0, 1, 2].map((i) => nodes[`n_leds_${i}`]), knob = nodes.n_knob;
   const board = nodes.n_board, boardY = board.position.y;
   solid(group);
+  // предметы Higgsfield: со своими материалами, отбрасывают и принимают тень
+  const owned = new Set<MeshStandardMaterial>();
+  items.forEach((it, i) => {
+    it.traverse((o: Object3D) => {
+      if (!(o instanceof Mesh)) return;
+      o.castShadow = true; o.receiveShadow = true;
+      if (o.material instanceof MeshStandardMaterial) owned.add(o.material);
+    });
+    st[i].add(it);
+  });
   // парящая табличка тени не отбрасывает: иначе её покачивание заставляло бы пересчитывать тень всей сцены
   board.traverse((o) => { if (o instanceof Mesh) o.castShadow = false; });
 
@@ -117,18 +109,12 @@ export const mountLaunch = async ({ canvas, labels }: LaunchOptions): Promise<()
       g.scale.setScalar(Math.max(0.001, k) * (1 + hot * 0.025));
       dots[i].scale.setScalar(1 + hot * 0.9);
     });
-    // рукопожатие: руки качаются короткими сериями; огоньки стойки мигают вразнобой; ручку пульта подкручивают
-    const shake = Math.sin(age * 9) * 0.07 * Math.max(0, Math.sin(age * 0.9));
-    for (const a of arms) a.rotation.x = shake;
-    leds.forEach((m, i) => { m.visible = Math.sin(age * (1.7 + i * 1.3) + i * 2.1) > -0.6; });
-    knob.rotation.y = Math.sin(age * 0.7) * 1.1 + Math.sin(age * 0.23) * 0.5;
-    // табличка договора парит над рукопожатием и едва покачивается
+    // табличка договора парит над рукопожатием и едва покачивается; световая полоса стойки дышит
     board.position.y = boardY + Math.sin(age * 1.1) * 0.035;
     board.rotation.y = Math.sin(age * 0.6) * 0.1;
-    // свет из двери и от стойки включается вместе со своим предметом
     door.intensity = 3.2 * ease((age - 2.0) / 0.8);
-    strip.intensity = 1.5 * ease((age - 1.1) / 0.8);
-    // тень: пока предметы встают — каждый кадр, дальше изредка (руки качаются едва заметно)
+    strip.intensity = (1.3 + Math.sin(age * 2.2) * 0.35) * ease((age - 1.1) / 0.8);
+    // тень: пока предметы встают — каждый кадр, дальше изредка
     if (age < 4.4 || ++ticks % 40 === 0) light.refresh();
     const kk = 1 - Math.exp(-dt * 3);
     yaw += (Math.sin(age * 0.2) * 0.035 + ptr.p.nx * 0.07 - yaw) * kk;
@@ -141,7 +127,9 @@ export const mountLaunch = async ({ canvas, labels }: LaunchOptions): Promise<()
   const unmount = mountLive({ canvas, scene, camera, maxDpr: 2, frame, post: tag.write });
   return () => {
     unmount(); ptr.off();
-    free(); ui.dispose(); statueA.dispose(); statueB.dispose(); dotGeo.dispose();
+    free(); dotGeo.dispose();
+    for (const it of items) it.traverse((o) => { if (o instanceof Mesh) o.geometry.dispose(); });
+    for (const m of owned) { for (const t of [m.map, m.normalMap, m.roughnessMap, m.metalnessMap, m.aoMap, m.emissiveMap]) t?.dispose(); m.dispose(); }
     floor.geometry.dispose(); (floor.material as Material).dispose();
     path.geometry.dispose(); path.material.dispose();
     kicker.dispose(); door.dispose(); strip.dispose();
