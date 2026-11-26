@@ -1,10 +1,17 @@
-"""«Сделка без сотрудника»: корпус с тремя шестернями и две ленты с монетами. Монеты — образцы, сайт их размножает."""
+"""
+«Сделка без сотрудника»: корпус с тремя шестернями, две ленты, телефоны клиента на концах и касса обменника.
+Поток всегда слева направо: слева клиент отдаёт (телефон с QR), справа получает (телефон с галочкой);
+перед машиной — лоток кассы, в который после каждой сделки падает монета дохода.
+Монета — один образец без знака: сайт размножает её, красит (фиат — золото, крипта — лайм) и кладёт
+сверху знак валюты рисунком. Экраны телефонов и табло — плоскости с развёрткой (материалы screen_*).
+"""
 import sys, os, math
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lib import *
 
 HW, HH, HD = 4.9, 0.6, 2.8
-BX0, BX1, BY, BD = 2.45, 5.35, 0.22, 1.5
+BX0, BX1, BY, BD = 2.45, 4.75, 0.22, 0.86
+CASH = (2.02, HD / 2 + 0.62)                     # лоток кассы: перед правой частью машины
 R1, N1, N2 = 1.08, 24, 14
 R2 = R1 * N2 / N1
 GAP, THICK, LIFT = (R1 + R2) * 1.004, 0.24, 0.1
@@ -52,13 +59,40 @@ for sx in (-1, 1):
         cyl(f"bolt_{sx}{sz}", 0.062, 0.04, "steel", at=(sx * (HW / 2 - 0.36), HH + 0.04, sz * (HD / 2 - 0.36)), seg=6, bevel=0.008)
     for k in range(6):
         box(f"vent_{sx}{k}", 0.035, 0.014, 0.34, 0.005, "dark", at=(sx * (HW / 2 - 0.75 - k * 0.085), HH + 0.028, HD / 2 - 0.55))
-    for k in range(11):
+    for k in range(6):
         box(f"louver_{sx}{k}", 0.03, 0.3, 0.014, 0.005, "dark", at=(sx * (1.2 + k * 0.085), HH / 2, HD / 2 + 0.004))
     # окно, в которое уходит лента
     box(f"mouth_{sx}", 0.06, 0.34, BD + 0.16, 0.02, "steel", at=(sx * (HW / 2 + 0.005), BY + 0.1, 0))
     box(f"mouth_in_{sx}", 0.04, 0.24, BD, 0.01, "dark", at=(sx * (HW / 2 + 0.03), BY + 0.11, 0))
 box("display_frame", 1.94, 0.4, 0.04, 0.03, "dark", at=(0, HH / 2, HD / 2 + 0.004))
 screen("display", 1.78, 0.32, "screen", at=(0, HH / 2, HD / 2 + 0.026))
+
+# щель, из которой в кассу падают монеты дохода
+box("slot", 0.4, 0.09, 0.04, 0.02, "steel", at=(CASH[0], HH * 0.6, HD / 2 + 0.01))
+box("slot_in", 0.32, 0.035, 0.03, 0.008, "dark", at=(CASH[0], HH * 0.6, HD / 2 + 0.022))
+
+# ── касса обменника: лоток с лаймовым ободом ─────────────────────────────────────────────────
+cash = node("n_cash", at=(CASH[0], 0, CASH[1]))
+cyl("tray", 0.4, 0.07, "graphite", at=(0, 0.035, 0), parent=cash, bevel=0.02, seg=48)
+cyl("tray_in", 0.33, 0.02, "dark", at=(0, 0.071, 0), parent=cash, seg=48)
+tube("tray_rim", [(p[0], 0, p[1]) for p in ring(0.37, 48)], 0.022, "lime", at=(0, 0.075, 0), parent=cash, smooth=False, closed=True)
+
+
+def phone(tag, x):
+    """телефон клиента на подставке у конца ленты; экран — плоскость с развёрткой, сайт рисует на нём"""
+    n = node(f"n_phone_{tag}", at=(x, 0, 0.05))
+    box(f"stand_{tag}", 0.62, 0.08, 0.5, 0.03, "graphite", at=(0, 0.04, -0.06), parent=n)
+    body = node(f"phone_{tag}", at=(0, 0.66, 0), parent=n, tilt=-0.16)
+    box(f"phone_body_{tag}", 0.66, 1.22, 0.08, 0.09, "graphite", parent=body)
+    box(f"phone_glass_{tag}", 0.6, 1.16, 0.012, 0.07, "dark", at=(0, 0, 0.041), parent=body)
+    screen(f"phone_screen_{tag}", 0.54, 1.04, f"screen_{tag}", at=(0, -0.01, 0.049), parent=body)
+    box(f"phone_cam_{tag}", 0.14, 0.03, 0.01, 0.012, "ink", at=(0, 0.545, 0.05), parent=body)
+    for k, y in enumerate((0.25, 0.08)):
+        box(f"phone_btn_{tag}{k}", 0.014, 0.12, 0.03, 0.006, "steel", at=(0.335, y, 0), parent=body)
+
+
+phone("in", -(BX1 + 0.5))
+phone("out", BX1 + 0.5)
 
 # ── колёса ───────────────────────────────────────────────────────────────────────────────
 for i, (x, r, teeth, spokes, material) in enumerate([(0, R1, N1, 6, "lime"), (GAP, R2, N2, 4, "steel"), (-GAP, R2, N2, 4, "steel")]):
@@ -84,18 +118,9 @@ for sx in (-1, 1):
     for sz in (-1, 1):
         cyl(f"roller_cap_{sx}{sz}", 0.05, 0.03, "gold", at=(cx + sx * LEN / 2, BY, sz * (BD / 2 + 0.085)), axis="z", seg=20)
 
-# ── монеты-образцы: стоят в нуле, сайт расставляет копии по дорожкам ──────────────────────────
-for tag, body in (("som", "gold"), ("btc", "lime")):
-    n = node(f"n_coin_{tag}")
-    cyl(f"coin_{tag}", 0.3, 0.075, body, parent=n, bevel=0.016, seg=56)
-    tube(f"coin_rim_{tag}", [(p[0], 0, p[1]) for p in ring(0.262, 48)], 0.016, body, at=(0, 0.036, 0), parent=n, smooth=False, closed=True)
-    if tag == "som":
-        text("coin_c", "c", 0.36, 0.03, "ink", at=(0.0, 0.045, -0.055), parent=n, bevel=0.003, face="top")
-        box("coin_c_line", 0.2, 0.03, 0.032, 0.008, "ink", at=(0, 0.045, 0.158), parent=n)
-    else:
-        text("coin_b", "B", 0.33, 0.03, "ink", at=(0.006, 0.045, 0.0), parent=n, bevel=0.003, face="top")
-        for sz in (-1, 1):
-            for sx in (-1, 1):
-                box(f"coin_bar_{sz}{sx}", 0.028, 0.03, 0.06, 0.006, "ink", at=(sx * 0.038 - 0.016, 0.045, sz * 0.138), parent=n)
+# ── монета-образец: стоит в нуле, без знака; сайт расставляет копии и кладёт знак валюты сверху ─────
+n = node("n_coin")
+cyl("coin", 0.27, 0.07, "gold", parent=n, bevel=0.015, seg=56)
+tube("coin_rim", [(p[0], 0, p[1]) for p in ring(0.238, 48)], 0.014, "gold", at=(0, 0.034, 0), parent=n, smooth=False, closed=True)
 
 export(os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../public/models/gears.glb"))

@@ -78,22 +78,30 @@ export const LAW: typeof RU.LAW = {
 export const AUTOMATION: typeof RU.AUTOMATION = {
   title: "A deal with no staff involved",
   lead: "The Auto-exchange module: Finik confirms the payment, the platform sends the crypto.",
-  note: "Orders above the compliance threshold go to the officer.",
-  flows: [
+  scene: {
+    label: "An exchange conveyor: the client gives one currency, the machine converts it, the client receives another, the margin drops into the exchange's cash box",
+    give: "The client gives",
+    get: "The client receives",
+    getNote: "no waiting for an operator",
+    cash: "Exchange income",
+    currency: "KGS",
+    caption: "Example: a 1% spread on every order.",
+  },
+  sides: [
     {
-      key: "buy", title: "Buy",
+      key: "exchange", title: "For the exchange",
       steps: [
-        { id: "pay", title: "The client pays by Finik QR", text: "Finik confirms the payment" },
-        { id: "send", title: "The platform sends the crypto", text: "From the exchange's hot wallet" },
-        { id: "done", title: "Order closed", text: "Transaction hash in the order" },
+        { id: "confirm", title: "Payments confirm themselves", text: "Finik, no manual checks" },
+        { id: "margin", title: "The spread goes to income", text: "On every order, with no one on shift" },
+        { id: "officer", title: "Large orders go to the officer", text: "Above the compliance threshold" },
       ],
     },
     {
-      key: "sell", title: "Sell",
+      key: "client", title: "For the client",
       steps: [
-        { id: "transfer", title: "The client sends the order amount", text: "To the exchange's address" },
-        { id: "detect", title: "The platform recognises the deposit", text: "By the order's unique amount" },
-        { id: "payout", title: "Finik pays out the som", text: "Order closed" },
+        { id: "pay", title: "Pays the way they like", text: "Fiat by Finik QR or crypto to the order's address" },
+        { id: "get", title: "Receives without waiting", text: "The platform sends it, no operator needed" },
+        { id: "done", title: "Sees the result in the order", text: "Order closed; crypto comes with a hash" },
       ],
     },
   ],
